@@ -1,0 +1,4 @@
+<resources>
+
+    <style name="Theme.FirestoreApp" parent="Theme.MaterialComponents.Light" />
+</resources>
