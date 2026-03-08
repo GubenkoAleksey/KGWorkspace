@@ -5,9 +5,14 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [EmployeeStatusEntity::class], version = 1, exportSchema = false)
+@Database(
+    entities = [EmployeeStatusEntity::class, EmployeeEntity::class],
+    version = 4,
+    exportSchema = false
+)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun employeeStatusDao(): EmployeeStatusDao
+    abstract fun employeeDao(): EmployeeDao
 
     companion object {
         @Volatile
@@ -19,7 +24,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "employee_status_db"
-                ).build()
+                )
+                .fallbackToDestructiveMigration(dropAllTables = true)
+                .build()
                 INSTANCE = instance
                 instance
             }
