@@ -12,4 +12,7 @@
     <string name="nav_history">Історія</string>
     <string name="nav_profile">Профіль</string>
     <string name="action_add">Додати</string>
+    <string name="select_role_title">Оберіть користувача</string>
+    <string name="role_user">Користувач</string>
+    <string name="role_admin">Адміністратор</string>
 </resources>
