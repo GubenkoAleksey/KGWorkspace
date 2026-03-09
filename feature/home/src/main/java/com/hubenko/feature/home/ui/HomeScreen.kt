@@ -53,7 +53,7 @@ fun HomeMenuContent(
 ) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
-    val backgroundColor = Color(0xFFEEEEEE) // Трохи темніший світло-сірий фон
+    val backgroundColor = Color.White
 
     Scaffold(
         containerColor = backgroundColor,

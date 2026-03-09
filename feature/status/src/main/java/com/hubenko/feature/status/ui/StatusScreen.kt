@@ -4,12 +4,14 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Domain
 import androidx.compose.material.icons.rounded.HealthAndSafety
 import androidx.compose.material.icons.rounded.WifiTethering
@@ -19,8 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -61,7 +61,8 @@ fun StatusScreen(
 
     StatusContent(
         isLoading = state.isLoading,
-        onStatusSubmit = { status -> viewModel.onIntent(StatusIntent.SubmitStatus(status)) }
+        onStatusSubmit = { status -> viewModel.onIntent(StatusIntent.SubmitStatus(status)) },
+        onBackClick = onNavigateBack
     )
 }
 
@@ -69,68 +70,75 @@ fun StatusScreen(
 @Composable
 fun StatusContent(
     isLoading: Boolean,
-    onStatusSubmit: (String) -> Unit
+    onStatusSubmit: (String) -> Unit,
+    onBackClick: () -> Unit
 ) {
+    val backgroundColor = Color.White
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        containerColor = backgroundColor,
+        topBar = {
+            TopAppBar(
+                title = { Text("Оновити статус", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = backgroundColor,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                )
+            )
+        }
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            Color(0xFFE0F7FA),
-                            Color(0xFFFCE4EC)
-                        ),
-                        start = Offset(0f, 0f),
-                        end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
-                    )
-                )
                 .padding(paddingValues)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 24.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
-                Spacer(modifier = Modifier.height(48.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-                TopStatusCard()
-
-                Spacer(modifier = Modifier.height(48.dp))
-
-                Row(
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     StatusCard(
                         title = "Офіс",
+                        description = "Працюю безпосередньо в офісі",
                         icon = Icons.Rounded.Domain,
                         color = Color(0xFF64B5F6),
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.fillMaxWidth(),
                         onClick = { onStatusSubmit("Office") },
                         enabled = !isLoading
                     )
-                    Spacer(modifier = Modifier.width(16.dp))
                     StatusCard(
                         title = "Віддалено",
+                        description = "Працюю дистанційно (Home Office)",
                         icon = Icons.Rounded.WifiTethering,
                         color = Color(0xFF81C784),
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.fillMaxWidth(),
                         onClick = { onStatusSubmit("Remote") },
                         enabled = !isLoading
                     )
-                    Spacer(modifier = Modifier.width(16.dp))
                     StatusCard(
                         title = "Лікарняний",
+                        description = "Відсутній через стан здоров'я",
                         icon = Icons.Rounded.HealthAndSafety,
                         color = Color(0xFFE57373),
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.fillMaxWidth(),
                         onClick = { onStatusSubmit("Sick") },
                         enabled = !isLoading
                     )
                 }
+                
+                Spacer(modifier = Modifier.height(24.dp))
             }
 
             if (isLoading) {
@@ -143,56 +151,9 @@ fun StatusContent(
 }
 
 @Composable
-fun TopStatusCard(modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .shadow(16.dp, RoundedCornerShape(32.dp), spotColor = Color.Black.copy(alpha = 0.1f)),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        shape = RoundedCornerShape(32.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFFE0F7FA)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.CalendarMonth,
-                    contentDescription = null,
-                    modifier = Modifier.size(32.dp),
-                    tint = Color(0xFF64B5F6)
-                )
-            }
-            Spacer(modifier = Modifier.width(24.dp))
-            Column {
-                Text(
-                    text = "Ваш статус",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = Color.DarkGray
-                )
-                Text(
-                    text = "на сьогодні?",
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-            }
-        }
-    }
-}
-
-@Composable
 fun StatusCard(
     title: String,
+    description: String,
     icon: ImageVector,
     color: Color,
     modifier: Modifier = Modifier,
@@ -201,45 +162,57 @@ fun StatusCard(
 ) {
     Card(
         modifier = modifier
-            .height(220.dp)
+            .height(110.dp)
             .clickable(enabled = enabled) { onClick() }
-            .shadow(16.dp, RoundedCornerShape(40.dp), spotColor = color.copy(alpha = 0.5f)),
+            .shadow(8.dp, RoundedCornerShape(24.dp), spotColor = color.copy(alpha = 0.3f)),
         colors = CardDefaults.cardColors(containerColor = color),
-        shape = RoundedCornerShape(40.dp)
+        shape = RoundedCornerShape(24.dp)
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 24.dp, horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+                .padding(horizontal = 20.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = title,
-                modifier = Modifier.size(48.dp),
-                tint = Color.White
-            )
-            Text(
-                text = title,
-                color = Color.White,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium
-            )
             Box(
                 modifier = Modifier
-                    .size(36.dp)
+                    .size(56.dp)
                     .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.3f)),
+                    .background(Color.White.copy(alpha = 0.2f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Filled.KeyboardArrowDown,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(24.dp)
+                    imageVector = icon,
+                    contentDescription = title,
+                    modifier = Modifier.size(32.dp),
+                    tint = Color.White
                 )
             }
+            
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = title,
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = description,
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal
+                )
+            }
+
+            Icon(
+                imageVector = Icons.Filled.KeyboardArrowDown,
+                contentDescription = null,
+                tint = Color.White.copy(alpha = 0.7f),
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }
@@ -306,7 +279,20 @@ private fun StatusContentPreview() {
     CoreTheme {
         StatusContent(
             isLoading = false,
-            onStatusSubmit = {}
+            onStatusSubmit = {},
+            onBackClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Status Loading")
+@Composable
+private fun StatusLoadingPreview() {
+    CoreTheme {
+        StatusContent(
+            isLoading = true,
+            onStatusSubmit = {},
+            onBackClick = {}
         )
     }
 }
