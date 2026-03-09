@@ -25,11 +25,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.hubenko.core.ui.theme.CoreTheme
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -295,5 +297,16 @@ fun ConfirmationDialog(onDismiss: () -> Unit) {
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true, name = "Status Content")
+@Composable
+private fun StatusContentPreview() {
+    CoreTheme {
+        StatusContent(
+            isLoading = false,
+            onStatusSubmit = {}
+        )
     }
 }
