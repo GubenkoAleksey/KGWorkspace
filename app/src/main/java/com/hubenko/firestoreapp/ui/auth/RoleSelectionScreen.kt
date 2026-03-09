@@ -13,9 +13,16 @@ import androidx.compose.ui.unit.sp
 import com.hubenko.firestoreapp.R
 import com.hubenko.firestoreapp.ui.theme.StatusOfficeLight
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoleSelectionScreen(
+    onRoleSelected: (isAdmin: Boolean) -> Unit
+) {
+    RoleSelectionContent(onRoleSelected = onRoleSelected)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RoleSelectionContent(
     onRoleSelected: (isAdmin: Boolean) -> Unit
 ) {
     Scaffold(
@@ -37,29 +44,31 @@ fun RoleSelectionScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Button(
-                onClick = { onRoleSelected(false) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = StatusOfficeLight),
-                shape = MaterialTheme.shapes.medium
-            ) {
-                Text(stringResource(R.string.role_user), fontSize = 18.sp, color = Color.White)
-            }
+            RoleButton(
+                text = stringResource(R.string.role_user),
+                onClick = { onRoleSelected(false) }
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Button(
-                onClick = { onRoleSelected(true) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = StatusOfficeLight),
-                shape = MaterialTheme.shapes.medium
-            ) {
-                Text(stringResource(R.string.role_admin), fontSize = 18.sp, color = Color.White)
-            }
+            RoleButton(
+                text = stringResource(R.string.role_admin),
+                onClick = { onRoleSelected(true) }
+            )
         }
+    }
+}
+
+@Composable
+fun RoleButton(text: String, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(64.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = StatusOfficeLight),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Text(text, fontSize = 18.sp, color = Color.White)
     }
 }

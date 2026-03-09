@@ -14,13 +14,29 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hubenko.firestoreapp.ui.theme.StatusOfficeLight
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeMenuScreen(
     onNavigateToStatus: () -> Unit,
     isAdmin: Boolean = true
 ) {
     val context = LocalContext.current
+
+    HomeMenuContent(
+        isAdmin = isAdmin,
+        onNavigateToStatus = onNavigateToStatus,
+        onAdminPanelClick = {
+            Toast.makeText(context, "Панель адміністратора в розробці...", Toast.LENGTH_SHORT).show()
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeMenuContent(
+    isAdmin: Boolean,
+    onNavigateToStatus: () -> Unit,
+    onAdminPanelClick: () -> Unit
+) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
 
@@ -44,32 +60,32 @@ fun HomeMenuScreen(
         ) {
             Spacer(modifier = Modifier.height(screenHeight * 0.125f))
 
-            Button(
-                onClick = onNavigateToStatus,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = StatusOfficeLight),
-                shape = MaterialTheme.shapes.medium
-            ) {
-                Text("Відправити статус", fontSize = 18.sp, color = Color.White)
-            }
+            MenuButton(
+                text = "Відправити статус",
+                onClick = onNavigateToStatus
+            )
 
             if (isAdmin) {
                 Spacer(modifier = Modifier.height(24.dp))
-                Button(
-                    onClick = {
-                        Toast.makeText(context, "Панель адміністратора в розробці...", Toast.LENGTH_SHORT).show()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(64.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = StatusOfficeLight),
-                    shape = MaterialTheme.shapes.medium
-                ) {
-                    Text("Панель адміністратора", fontSize = 18.sp, color = Color.White)
-                }
+                MenuButton(
+                    text = "Панель адміністратора",
+                    onClick = onAdminPanelClick
+                )
             }
         }
+    }
+}
+
+@Composable
+fun MenuButton(text: String, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(64.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = StatusOfficeLight),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Text(text, fontSize = 18.sp, color = Color.White)
     }
 }

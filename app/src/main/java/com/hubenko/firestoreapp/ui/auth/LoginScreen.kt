@@ -18,7 +18,7 @@ fun LoginScreen(
     onLoginSuccess: (isAdmin: Boolean) -> Unit
 ) {
     var isSignUp by remember { mutableStateOf(false) }
-    
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
@@ -36,6 +36,58 @@ fun LoginScreen(
         }
     }
 
+    LoginContent(
+        isSignUp = isSignUp,
+        authState = authState,
+        email = email,
+        password = password,
+        lastName = lastName,
+        firstName = firstName,
+        middleName = middleName,
+        phoneNumber = phoneNumber,
+        isAdminRole = isAdminRole,
+        onIsSignUpChange = { isSignUp = it },
+        onEmailChange = { email = it },
+        onPasswordChange = { password = it },
+        onLastNameChange = { lastName = it },
+        onFirstNameChange = { firstName = it },
+        onMiddleNameChange = { middleName = it },
+        onPhoneNumberChange = { phoneNumber = it },
+        onIsAdminRoleChange = { isAdminRole = it },
+        onActionSubmit = {
+            if (isSignUp) {
+                viewModel.signUp(
+                    email, password, lastName, firstName, middleName, phoneNumber,
+                    if (isAdminRole) "ADMIN" else "USER"
+                )
+            } else {
+                viewModel.signIn(email, password)
+            }
+        }
+    )
+}
+
+@Composable
+private fun LoginContent(
+    isSignUp: Boolean,
+    authState: AuthState,
+    email: String,
+    password: String,
+    lastName: String,
+    firstName: String,
+    middleName: String,
+    phoneNumber: String,
+    isAdminRole: Boolean,
+    onIsSignUpChange: (Boolean) -> Unit,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onLastNameChange: (String) -> Unit,
+    onFirstNameChange: (String) -> Unit,
+    onMiddleNameChange: (String) -> Unit,
+    onPhoneNumberChange: (String) -> Unit,
+    onIsAdminRoleChange: (Boolean) -> Unit,
+    onActionSubmit: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -44,103 +96,156 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = if (isSignUp) "Реєстрація" else "Вхід", 
-            style = MaterialTheme.typography.headlineMedium
-        )
-        
+        AuthHeader(isSignUp)
+
         Spacer(modifier = Modifier.height(24.dp))
 
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Пароль") },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+        CommonAuthFields(
+            email = email,
+            password = password,
+            onEmailChange = onEmailChange,
+            onPasswordChange = onPasswordChange
         )
 
         if (isSignUp) {
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = lastName,
-                onValueChange = { lastName = it },
-                label = { Text("Прізвище") },
-                modifier = Modifier.fillMaxWidth()
+            SignUpExtraFields(
+                lastName = lastName,
+                firstName = firstName,
+                middleName = middleName,
+                phoneNumber = phoneNumber,
+                isAdminRole = isAdminRole,
+                onLastNameChange = onLastNameChange,
+                onFirstNameChange = onFirstNameChange,
+                onMiddleNameChange = onMiddleNameChange,
+                onPhoneNumberChange = onPhoneNumberChange,
+                onIsAdminRoleChange = onIsAdminRoleChange
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = firstName,
-                onValueChange = { firstName = it },
-                label = { Text("Ім'я") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = middleName,
-                onValueChange = { middleName = it },
-                label = { Text("По батькові") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = phoneNumber,
-                onValueChange = { phoneNumber = it },
-                label = { Text("Номер телефону") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(checked = isAdminRole, onCheckedChange = { isAdminRole = it })
-                Text("Роль Адміністратора")
-            }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        if (authState is AuthState.Loading) {
-            CircularProgressIndicator()
-        } else {
-            Button(
-                onClick = { 
-                    if (isSignUp) {
-                        viewModel.signUp(
-                            email, password, lastName, firstName, middleName, phoneNumber,
-                            if (isAdminRole) "ADMIN" else "USER"
-                        )
-                    } else {
-                        viewModel.signIn(email, password)
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(if (isSignUp) "Зареєструватися" else "Увійти")
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            TextButton(
-                onClick = { isSignUp = !isSignUp },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(if (isSignUp) "Вже є акаунт? Увійти" else "Немає акаунту? Реєстрація")
-            }
-        }
+        AuthActions(
+            isSignUp = isSignUp,
+            isLoading = authState is AuthState.Loading,
+            onActionSubmit = onActionSubmit,
+            onToggleSignUp = { onIsSignUpChange(!isSignUp) }
+        )
 
         if (authState is AuthState.Error) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = (authState as AuthState.Error).message,
+                text = authState.message,
                 color = MaterialTheme.colorScheme.error
             )
+        }
+    }
+}
+
+@Composable
+private fun AuthHeader(isSignUp: Boolean) {
+    Text(
+        text = if (isSignUp) "Реєстрація" else "Вхід",
+        style = MaterialTheme.typography.headlineMedium
+    )
+}
+
+@Composable
+private fun CommonAuthFields(
+    email: String,
+    password: String,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit
+) {
+    OutlinedTextField(
+        value = email,
+        onValueChange = onEmailChange,
+        label = { Text("Email") },
+        modifier = Modifier.fillMaxWidth()
+    )
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    OutlinedTextField(
+        value = password,
+        onValueChange = onPasswordChange,
+        label = { Text("Пароль") },
+        visualTransformation = PasswordVisualTransformation(),
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
+@Composable
+private fun SignUpExtraFields(
+    lastName: String,
+    firstName: String,
+    middleName: String,
+    phoneNumber: String,
+    isAdminRole: Boolean,
+    onLastNameChange: (String) -> Unit,
+    onFirstNameChange: (String) -> Unit,
+    onMiddleNameChange: (String) -> Unit,
+    onPhoneNumberChange: (String) -> Unit,
+    onIsAdminRoleChange: (Boolean) -> Unit
+) {
+    Spacer(modifier = Modifier.height(8.dp))
+    OutlinedTextField(
+        value = lastName,
+        onValueChange = onLastNameChange,
+        label = { Text("Прізвище") },
+        modifier = Modifier.fillMaxWidth()
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+    OutlinedTextField(
+        value = firstName,
+        onValueChange = onFirstNameChange,
+        label = { Text("Ім'я") },
+        modifier = Modifier.fillMaxWidth()
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+    OutlinedTextField(
+        value = middleName,
+        onValueChange = onMiddleNameChange,
+        label = { Text("По батькові") },
+        modifier = Modifier.fillMaxWidth()
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+    OutlinedTextField(
+        value = phoneNumber,
+        onValueChange = onPhoneNumberChange,
+        label = { Text("Номер телефону") },
+        modifier = Modifier.fillMaxWidth()
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Checkbox(checked = isAdminRole, onCheckedChange = onIsAdminRoleChange)
+        Text("Роль Адміністратора")
+    }
+}
+
+@Composable
+private fun AuthActions(
+    isSignUp: Boolean,
+    isLoading: Boolean,
+    onActionSubmit: () -> Unit,
+    onToggleSignUp: () -> Unit
+) {
+    if (isLoading) {
+        CircularProgressIndicator()
+    } else {
+        Button(
+            onClick = onActionSubmit,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(if (isSignUp) "Зареєструватися" else "Увійти")
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        TextButton(
+            onClick = onToggleSignUp,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(if (isSignUp) "Вже є акаунт? Увійти" else "Немає акаунту? Реєстрація")
         }
     }
 }

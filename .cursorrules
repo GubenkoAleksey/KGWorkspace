@@ -1,0 +1,9 @@
+# Compose Screen Architecture Rules
+
+1. **Decomposition (Stateful vs Stateless)**: Every Compose screen must be split into two main components:
+   - A `*Screen` (Stateful) component that takes ViewModels, collects state (`collectAsState()`), handles contexts (`LocalContext`), and passes lambdas.
+   - A `*Content` (Stateless) component that takes only primitive states, data objects, and callback lambdas (`() -> Unit`).
+
+2. **UI Extraction**: Large UI blocks inside the `*Content` component should be extracted into smaller, private or public standard `@Composable` functions (e.g., `Header`, `FormFields`, `ActionButtons`) for better readability and potential reuse.
+
+3. **Previewability**: The `*Content` components should be designed in a way that allows them to be easily previewed using `@Preview` without requiring a mock ViewModel.

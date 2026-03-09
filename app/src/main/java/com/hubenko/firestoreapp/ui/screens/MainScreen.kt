@@ -38,14 +38,27 @@ import com.hubenko.firestoreapp.ui.theme.*
 import com.hubenko.firestoreapp.ui.viewmodel.StatusUiState
 import com.hubenko.firestoreapp.ui.viewmodel.StatusViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(viewModel: StatusViewModel) {
     val uiState by viewModel.uiState.collectAsState()
 
+    MainContent(
+        uiState = uiState,
+        onStatusSubmit = { status -> viewModel.submitStatus(status) },
+        onDismissDialog = { viewModel.resetState() }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainContent(
+    uiState: StatusUiState,
+    onStatusSubmit: (String) -> Unit,
+    onDismissDialog: () -> Unit
+) {
     if (uiState is StatusUiState.Success) {
         ConfirmationDialog(
-            onDismiss = { viewModel.resetState() }
+            onDismiss = onDismissDialog
         )
     }
 
@@ -85,55 +98,10 @@ fun MainScreen(viewModel: StatusViewModel) {
             ) {
                 Spacer(modifier = Modifier.height(48.dp))
 
-                // Top Card
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(16.dp, RoundedCornerShape(32.dp), spotColor = Color.Black.copy(alpha = 0.1f)),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    shape = RoundedCornerShape(32.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(64.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFFE0F7FA)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.CalendarMonth,
-                                contentDescription = null,
-                                modifier = Modifier.size(32.dp),
-                                tint = StatusOfficeLight
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(24.dp))
-                        Column {
-                            Text(
-                                text = stringResource(id = R.string.todays_status_part1),
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Normal,
-                                color = Color.DarkGray
-                            )
-                            Text(
-                                text = stringResource(id = R.string.todays_status_part2),
-                                fontSize = 28.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Black
-                            )
-                        }
-                    }
-                }
+                TopStatusCard()
 
                 Spacer(modifier = Modifier.height(48.dp))
 
-                // Status Cards
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -143,7 +111,7 @@ fun MainScreen(viewModel: StatusViewModel) {
                         icon = Icons.Rounded.Domain,
                         color = StatusOfficeLight,
                         modifier = Modifier.weight(1f),
-                        onClick = { viewModel.submitStatus("Office") }
+                        onClick = { onStatusSubmit("Office") }
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     StatusCard(
@@ -151,7 +119,7 @@ fun MainScreen(viewModel: StatusViewModel) {
                         icon = Icons.Rounded.WifiTethering,
                         color = StatusRemoteLight,
                         modifier = Modifier.weight(1f),
-                        onClick = { viewModel.submitStatus("Remote") }
+                        onClick = { onStatusSubmit("Remote") }
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     StatusCard(
@@ -159,9 +127,57 @@ fun MainScreen(viewModel: StatusViewModel) {
                         icon = Icons.Rounded.HealthAndSafety,
                         color = StatusSickLight,
                         modifier = Modifier.weight(1f),
-                        onClick = { viewModel.submitStatus("Sick") }
+                        onClick = { onStatusSubmit("Sick") }
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun TopStatusCard() {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(16.dp, RoundedCornerShape(32.dp), spotColor = Color.Black.copy(alpha = 0.1f)),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(32.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFFE0F7FA)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.CalendarMonth,
+                    contentDescription = null,
+                    modifier = Modifier.size(32.dp),
+                    tint = StatusOfficeLight
+                )
+            }
+            Spacer(modifier = Modifier.width(24.dp))
+            Column {
+                Text(
+                    text = stringResource(id = R.string.todays_status_part1),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Color.DarkGray
+                )
+                Text(
+                    text = stringResource(id = R.string.todays_status_part2),
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
             }
         }
     }
