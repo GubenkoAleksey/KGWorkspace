@@ -8,12 +8,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.hubenko.core.ui.components.PrimaryActionButton
+import com.hubenko.core.ui.theme.CoreTheme
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -43,19 +47,21 @@ fun HomeScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HomeMenuContent(
+fun HomeMenuContent(
     state: HomeState,
     onIntent: (HomeIntent) -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
+    val backgroundColor = Color(0xFFEEEEEE) // Трохи темніший світло-сірий фон
 
     Scaffold(
+        containerColor = backgroundColor,
         topBar = {
             TopAppBar(
                 title = { Text("Головне меню", fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
+                    containerColor = backgroundColor,
                     titleContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
@@ -80,22 +86,40 @@ private fun HomeMenuContent(
         ) {
             Spacer(modifier = Modifier.height(screenHeight * 0.125f))
 
-            Button(
-                onClick = { onIntent(HomeIntent.OnSendStatusClick) },
-                modifier = Modifier.fillMaxWidth().height(56.dp)
-            ) {
-                Text("Відправити статус")
-            }
+            PrimaryActionButton(
+                text = "Відправити статус",
+                onClick = { onIntent(HomeIntent.OnSendStatusClick) }
+            )
 
             if (state.isAdmin) {
                 Spacer(modifier = Modifier.height(24.dp))
-                Button(
-                    onClick = { onIntent(HomeIntent.OnAdminPanelClick) },
-                    modifier = Modifier.fillMaxWidth().height(56.dp)
-                ) {
-                    Text("Панель адміністратора")
-                }
+                PrimaryActionButton(
+                    text = "Панель адміністратора",
+                    onClick = { onIntent(HomeIntent.OnAdminPanelClick) }
+                )
             }
         }
+    }
+}
+
+@Preview(name = "Admin View", showBackground = true)
+@Composable
+fun HomeMenuContentAdminPreview() {
+    CoreTheme {
+        HomeMenuContent(
+            state = HomeState(isAdmin = true, isLoading = false),
+            onIntent = {}
+        )
+    }
+}
+
+@Preview(name = "User View", showBackground = true)
+@Composable
+fun HomeMenuContentUserPreview() {
+    CoreTheme {
+        HomeMenuContent(
+            state = HomeState(isAdmin = false, isLoading = false),
+            onIntent = {}
+        )
     }
 }
