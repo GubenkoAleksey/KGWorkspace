@@ -1,16 +1,19 @@
 package com.hubenko.firestoreapp.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseUser
-import com.hubenko.firestoreapp.data.repository.AuthRepository
+import com.hubenko.domain.repository.AuthRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
+@HiltViewModel
+class AuthViewModel @Inject constructor(
+    private val repository: AuthRepository
+) : ViewModel() {
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
@@ -18,19 +21,19 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
     private val _userRole = MutableStateFlow<String?>(null)
     val userRole: StateFlow<String?> = _userRole.asStateFlow()
 
-    val currentUser: FirebaseUser?
-        get() = repository.currentUser
+    val currentUserId: String?
+        get() = repository.getCurrentUserId()
 
     fun signIn(email: String, password: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             val result = repository.signIn(email, password)
             if (result.isSuccess) {
-                val user = result.getOrNull()
-                if (user != null) {
-                    val role = repository.getUserRole(user.uid)
+                val uid = result.getOrNull()
+                if (uid != null) {
+                    val role = repository.getUserRole(uid)
                     _userRole.value = role
-                    _authState.value = AuthState.Authenticated(user, role)
+                    _authState.value = AuthState.Authenticated(uid, role)
                 }
             } else {
                 _authState.value = AuthState.Error(result.exceptionOrNull()?.message ?: "Login failed")
@@ -51,10 +54,10 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
             _authState.value = AuthState.Loading
             val result = repository.signUp(email, password, lastName, firstName, middleName, phoneNumber, role)
             if (result.isSuccess) {
-                val user = result.getOrNull()
-                if (user != null) {
+                val uid = result.getOrNull()
+                if (uid != null) {
                     _userRole.value = role
-                    _authState.value = AuthState.Authenticated(user, role)
+                    _authState.value = AuthState.Authenticated(uid, role)
                 }
             } else {
                 _authState.value = AuthState.Error(result.exceptionOrNull()?.message ?: "Registration failed")
@@ -83,16 +86,6 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
 sealed class AuthState {
     object Idle : AuthState()
     object Loading : AuthState()
-    data class Authenticated(val user: FirebaseUser?, val role: String) : AuthState()
+    data class Authenticated(val uid: String, val role: String) : AuthState()
     data class Error(val message: String) : AuthState()
-}
-
-class AuthViewModelFactory(private val repository: AuthRepository) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(AuthViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return AuthViewModel(repository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
 }

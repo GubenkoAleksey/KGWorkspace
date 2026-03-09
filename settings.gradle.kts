@@ -24,4 +24,8 @@ dependencyResolutionManagement {
 
 rootProject.name = "FirestoreApp"
 include(":app")
- 
+include(":core")
+include(":domain")
+include(":data")
+include(":feature:home")
+include(":feature:status")

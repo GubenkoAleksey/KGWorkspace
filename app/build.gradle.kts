@@ -2,7 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.devtools.ksp)
-    alias(libs.plugins.google.services) // This applies the Google services plugin
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -38,6 +39,12 @@ android {
 }
 
 dependencies {
+    implementation(project(":core"))
+    implementation(project(":domain"))
+    implementation(project(":data"))
+    implementation(project(":feature:home"))
+    implementation(project(":feature:status"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
@@ -70,11 +77,19 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.material)
     
+    // Hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
+    
+    // Hilt Worker
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
+    
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
-    // Analytics is usually recommended by Firebase
     implementation("com.google.firebase:firebase-analytics")
 
     // WorkManager

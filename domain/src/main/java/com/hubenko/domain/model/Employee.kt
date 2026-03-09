@@ -1,0 +1,10 @@
+package com.hubenko.domain.model
+
+data class Employee(
+    val id: String,
+    val lastName: String,
+    val firstName: String,
+    val middleName: String,
+    val phoneNumber: String,
+    val role: String
+)
