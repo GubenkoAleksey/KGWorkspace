@@ -28,13 +28,7 @@ fun PrimaryActionButton(
             .fillMaxWidth()
             .height(64.dp),
         colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-        shape = MaterialTheme.shapes.medium,
-        elevation = ButtonDefaults.buttonElevation(
-            defaultElevation = 0.dp,
-            pressedElevation = 0.dp,
-            hoveredElevation = 0.dp,
-            focusedElevation = 0.dp
-        )
+        shape = MaterialTheme.shapes.medium
     ) {
         Text(
             text = text, 
@@ -50,7 +44,7 @@ fun PrimaryActionButton(
 fun PrimaryActionButtonPreview() {
     Box(
         modifier = Modifier
-            .background(Color(0xFFF0F5F9))
+            .background(Color(0xFFEEEEEE)) // Використовуємо той самий колір, що і на фоні HomeScreen
             .padding(48.dp)
     ) {
         PrimaryActionButton(text = "Натисніть мене", onClick = {})
