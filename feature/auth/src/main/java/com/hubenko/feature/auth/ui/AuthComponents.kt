@@ -1,4 +1,4 @@
-package com.hubenko.firestoreapp.ui.auth
+package com.hubenko.feature.auth.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

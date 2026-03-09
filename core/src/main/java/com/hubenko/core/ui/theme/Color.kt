@@ -1,4 +1,4 @@
-package com.hubenko.firestoreapp.ui.theme
+package com.hubenko.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
