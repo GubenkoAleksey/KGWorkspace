@@ -8,6 +8,9 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -20,7 +23,6 @@ import com.hubenko.firestoreapp.data.local.AppDatabase
 import com.hubenko.firestoreapp.data.repository.AuthRepository
 import com.hubenko.firestoreapp.data.repository.StatusRepository
 import com.hubenko.firestoreapp.ui.auth.LoginScreen
-import com.hubenko.firestoreapp.ui.auth.RoleSelectionScreen
 import com.hubenko.firestoreapp.ui.home.HomeMenuScreen
 import com.hubenko.firestoreapp.ui.screens.MainScreen
 import com.hubenko.firestoreapp.ui.theme.FirestoreAppTheme
@@ -40,7 +42,8 @@ class MainActivity : ComponentActivity() {
         val firebaseAuth = FirebaseAuth.getInstance()
         
         val statusRepository = StatusRepository(this, database.employeeStatusDao(), firestore)
-        val authRepository = AuthRepository(firebaseAuth)
+        // Corrected: Added database.employeeDao() as required by AuthRepository
+        val authRepository = AuthRepository(firebaseAuth, firestore, database.employeeDao())
         
         val statusViewModel: StatusViewModel by viewModels {
             StatusViewModelFactory(statusRepository)
@@ -57,28 +60,42 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
-                    
-                    // Start from login if not authenticated
-                    val startDestination = if (authRepository.isUserLoggedIn()) "role_selection" else "login"
+                    val userRole by authViewModel.userRole.collectAsState()
+                    val currentUser = authViewModel.currentUser
+
+                    // If user is already logged in, fetch their role
+                    LaunchedEffect(currentUser) {
+                        if (currentUser != null && userRole == null) {
+                            authViewModel.fetchUserRole(currentUser.uid)
+                        }
+                    }
+
+                    val startDestination = if (currentUser != null) "home_redirect" else "login"
                     
                     NavHost(navController = navController, startDestination = startDestination) {
                         composable("login") {
                             LoginScreen(
                                 viewModel = authViewModel,
-                                onLoginSuccess = {
-                                    navController.navigate("role_selection") {
+                                onLoginSuccess = { isAdmin ->
+                                    navController.navigate("home/$isAdmin") {
                                         popUpTo("login") { inclusive = true }
                                     }
                                 }
                             )
                         }
-                        composable("role_selection") {
-                            RoleSelectionScreen(
-                                onRoleSelected = { isAdmin ->
-                                    navController.navigate("home/$isAdmin")
+                        
+                        // Auxiliary route to handle auto-login redirection
+                        composable("home_redirect") {
+                            LaunchedEffect(userRole) {
+                                if (userRole != null) {
+                                    val isAdmin = userRole == "admin" || userRole == "ADMIN"
+                                    navController.navigate("home/$isAdmin") {
+                                        popUpTo("home_redirect") { inclusive = true }
+                                    }
                                 }
-                            )
+                            }
                         }
+
                         composable(
                             route = "home/{isAdmin}",
                             arguments = listOf(navArgument("isAdmin") { type = NavType.BoolType })
@@ -89,6 +106,7 @@ class MainActivity : ComponentActivity() {
                                 isAdmin = isAdmin
                             )
                         }
+
                         composable("status") {
                             MainScreen(viewModel = statusViewModel)
                         }

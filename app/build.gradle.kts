@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.devtools.ksp)
-    alias(libs.plugins.google.services)
+    alias(libs.plugins.google.services) // This applies the Google services plugin
 }
 
 android {
@@ -74,6 +74,8 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
+    // Analytics is usually recommended by Firebase
+    implementation("com.google.firebase:firebase-analytics")
 
     // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
