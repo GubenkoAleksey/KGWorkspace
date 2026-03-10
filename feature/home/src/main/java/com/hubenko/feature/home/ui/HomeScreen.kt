@@ -8,14 +8,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.hubenko.core.ui.components.AppTopBar
 import com.hubenko.core.ui.components.PrimaryActionButton
 import com.hubenko.core.ui.theme.CoreTheme
 import kotlinx.coroutines.flow.collectLatest
@@ -39,7 +38,7 @@ fun HomeScreen(
         }
     }
 
-    HomeMenuContent(
+    HomeContent(
         state = state,
         onIntent = viewModel::onIntent
     )
@@ -47,21 +46,20 @@ fun HomeScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeMenuContent(
+fun HomeContent(
     state: HomeState,
     onIntent: (HomeIntent) -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
-    val backgroundColor = Color.White
 
     Scaffold(
-        containerColor = backgroundColor,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
-                title = { Text("Головне меню", fontWeight = FontWeight.Bold) },
+            AppTopBar(
+                title = "Головне меню",
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = backgroundColor,
+                    containerColor = MaterialTheme.colorScheme.background,
                     titleContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
@@ -74,29 +72,28 @@ fun HomeMenuContent(
             ) {
                 CircularProgressIndicator()
             }
-            return@Scaffold
-        }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(screenHeight * 0.125f))
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.height(screenHeight * 0.125f))
-
-            PrimaryActionButton(
-                text = "Відправити статус",
-                onClick = { onIntent(HomeIntent.OnSendStatusClick) }
-            )
-
-            if (state.isAdmin) {
-                Spacer(modifier = Modifier.height(24.dp))
                 PrimaryActionButton(
-                    text = "Панель адміністратора",
-                    onClick = { onIntent(HomeIntent.OnAdminPanelClick) }
+                    text = "Відправити статус",
+                    onClick = { onIntent(HomeIntent.OnSendStatusClick) }
                 )
+
+                if (state.isAdmin) {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    PrimaryActionButton(
+                        text = "Панель адміністратора",
+                        onClick = { onIntent(HomeIntent.OnAdminPanelClick) }
+                    )
+                }
             }
         }
     }
@@ -104,9 +101,9 @@ fun HomeMenuContent(
 
 @Preview(name = "Admin View", showBackground = true)
 @Composable
-fun HomeMenuContentAdminPreview() {
+fun HomeContentAdminPreview() {
     CoreTheme {
-        HomeMenuContent(
+        HomeContent(
             state = HomeState(isAdmin = true, isLoading = false),
             onIntent = {}
         )
@@ -115,10 +112,21 @@ fun HomeMenuContentAdminPreview() {
 
 @Preview(name = "User View", showBackground = true)
 @Composable
-fun HomeMenuContentUserPreview() {
+fun HomeContentUserPreview() {
     CoreTheme {
-        HomeMenuContent(
+        HomeContent(
             state = HomeState(isAdmin = false, isLoading = false),
+            onIntent = {}
+        )
+    }
+}
+
+@Preview(name = "Loading View", showBackground = true)
+@Composable
+fun HomeContentLoadingPreview() {
+    CoreTheme {
+        HomeContent(
+            state = HomeState(isLoading = true),
             onIntent = {}
         )
     }

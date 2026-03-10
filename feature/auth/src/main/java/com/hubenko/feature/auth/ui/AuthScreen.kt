@@ -10,9 +10,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.hubenko.core.ui.theme.CoreTheme
+import com.hubenko.feature.auth.ui.components.AuthActions
+import com.hubenko.feature.auth.ui.components.AuthHeader
+import com.hubenko.feature.auth.ui.components.CommonAuthFields
+import com.hubenko.feature.auth.ui.components.SignUpExtraFields
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -22,15 +28,6 @@ fun AuthScreen(
 ) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    
-    var isSignUp by remember { mutableStateOf(false) }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
-    var firstName by remember { mutableStateOf("") }
-    var middleName by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
-    var isAdminRole by remember { mutableStateOf(false) }
 
     LaunchedEffect(viewModel.effect) {
         viewModel.effect.collectLatest { effect ->
@@ -43,6 +40,17 @@ fun AuthScreen(
         }
     }
 
+    AuthContent(
+        state = state,
+        onIntent = viewModel::onIntent
+    )
+}
+
+@Composable
+fun AuthContent(
+    state: AuthState,
+    onIntent: (AuthIntent) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -51,59 +59,80 @@ fun AuthScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        AuthHeader(isSignUp)
+        AuthHeader(state.isSignUp)
 
         Spacer(modifier = Modifier.height(24.dp))
 
         CommonAuthFields(
-            email = email,
-            password = password,
-            onEmailChange = { email = it },
-            onPasswordChange = { password = it }
+            email = state.email,
+            password = state.pass,
+            onEmailChange = { onIntent(AuthIntent.EmailChanged(it)) },
+            onPasswordChange = { onIntent(AuthIntent.PasswordChanged(it)) }
         )
 
-        if (isSignUp) {
+        if (state.isSignUp) {
             SignUpExtraFields(
-                lastName = lastName,
-                firstName = firstName,
-                middleName = middleName,
-                phoneNumber = phoneNumber,
-                isAdminRole = isAdminRole,
-                onLastNameChange = { lastName = it },
-                onFirstNameChange = { firstName = it },
-                onMiddleNameChange = { middleName = it },
-                onPhoneNumberChange = { phoneNumber = it },
-                onIsAdminRoleChange = { isAdminRole = it }
+                lastName = state.lastName,
+                firstName = state.firstName,
+                middleName = state.middleName,
+                phoneNumber = state.phone,
+                isAdminRole = state.isAdmin,
+                onLastNameChange = { onIntent(AuthIntent.LastNameChanged(it)) },
+                onFirstNameChange = { onIntent(AuthIntent.FirstNameChanged(it)) },
+                onMiddleNameChange = { onIntent(AuthIntent.MiddleNameChanged(it)) },
+                onPhoneNumberChange = { onIntent(AuthIntent.PhoneChanged(it)) },
+                onIsAdminRoleChange = { onIntent(AuthIntent.AdminRoleChanged(it)) }
             )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
         AuthActions(
-            isSignUp = isSignUp,
+            isSignUp = state.isSignUp,
             isLoading = state.isLoading,
-            onActionSubmit = {
-                if (isSignUp) {
-                    viewModel.onIntent(
-                        AuthIntent.SignUp(
-                            email, password, lastName, firstName,
-                            middleName, phoneNumber, isAdminRole
-                        )
-                    )
-                } else {
-                    viewModel.onIntent(AuthIntent.SignIn(email, password))
-                }
-            },
-            onToggleSignUp = { isSignUp = !isSignUp }
+            onActionSubmit = { onIntent(AuthIntent.Submit) },
+            onToggleSignUp = { onIntent(AuthIntent.ToggleAuthMode) }
         )
 
-        val errorMessage = state.error
-        if (errorMessage != null) {
+        state.error?.let { errorMessage ->
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = errorMessage,
                 color = MaterialTheme.colorScheme.error
             )
         }
+    }
+}
+
+@Preview(showBackground = true, name = "Login State")
+@Composable
+fun AuthContentPreview() {
+    CoreTheme {
+        AuthContent(
+            state = AuthState(isSignUp = false),
+            onIntent = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Loading State")
+@Composable
+fun AuthContentLoadingPreview() {
+    CoreTheme {
+        AuthContent(
+            state = AuthState(isLoading = true),
+            onIntent = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "SignUp State")
+@Composable
+fun AuthContentSignUpPreview() {
+    CoreTheme {
+        AuthContent(
+            state = AuthState(isSignUp = true),
+            onIntent = {}
+        )
     }
 }

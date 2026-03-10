@@ -14,18 +14,25 @@ class AuthViewModel @Inject constructor(
 
     override fun onIntent(intent: AuthIntent) {
         when (intent) {
-            is AuthIntent.SignIn -> signIn(intent.email, intent.pass)
-            is AuthIntent.SignUp -> signUp(
-                intent.email, intent.pass, intent.lastName,
-                intent.firstName, intent.middleName, intent.phone, intent.isAdmin
-            )
+            is AuthIntent.EmailChanged -> updateState { copy(email = intent.value) }
+            is AuthIntent.PasswordChanged -> updateState { copy(pass = intent.value) }
+            is AuthIntent.FirstNameChanged -> updateState { copy(firstName = intent.value) }
+            is AuthIntent.LastNameChanged -> updateState { copy(lastName = intent.value) }
+            is AuthIntent.MiddleNameChanged -> updateState { copy(middleName = intent.value) }
+            is AuthIntent.PhoneChanged -> updateState { copy(phone = intent.value) }
+            is AuthIntent.AdminRoleChanged -> updateState { copy(isAdmin = intent.value) }
+            is AuthIntent.ToggleAuthMode -> updateState { copy(isSignUp = !isSignUp) }
+            is AuthIntent.Submit -> {
+                if (viewState.value.isSignUp) signUp() else signIn()
+            }
         }
     }
 
-    private fun signIn(email: String, pass: String) {
+    private fun signIn() {
+        val state = viewState.value
         viewModelScope.launch {
             updateState { copy(isLoading = true, error = null) }
-            val result = authRepository.signIn(email, pass)
+            val result = authRepository.signIn(state.email, state.pass)
             
             if (result.isSuccess) {
                 updateState { copy(isLoading = false) }
@@ -38,15 +45,14 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    private fun signUp(
-        email: String, pass: String, lastName: String,
-        firstName: String, middleName: String, phone: String, isAdmin: Boolean
-    ) {
+    private fun signUp() {
+        val state = viewState.value
         viewModelScope.launch {
             updateState { copy(isLoading = true, error = null) }
-            val role = if (isAdmin) "ADMIN" else "USER"
+            val role = if (state.isAdmin) "ADMIN" else "USER"
             val result = authRepository.signUp(
-                email, pass, lastName, firstName, middleName, phone, role
+                state.email, state.pass, state.lastName,
+                state.firstName, state.middleName, state.phone, role
             )
             
             if (result.isSuccess) {

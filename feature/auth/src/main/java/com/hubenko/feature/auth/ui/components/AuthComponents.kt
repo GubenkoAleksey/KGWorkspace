@@ -1,4 +1,4 @@
-package com.hubenko.feature.auth.ui
+package com.hubenko.feature.auth.ui.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.hubenko.core.ui.components.AppTextField
 
 @Composable
 fun AuthHeader(isSignUp: Boolean, modifier: Modifier = Modifier) {
@@ -27,21 +28,19 @@ fun CommonAuthFields(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
-        OutlinedTextField(
+        AppTextField(
             value = email,
             onValueChange = onEmailChange,
-            label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
+            label = "Email"
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(
+        AppTextField(
             value = password,
             onValueChange = onPasswordChange,
-            label = { Text("Пароль") },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            label = "Пароль",
+            visualTransformation = PasswordVisualTransformation()
         )
     }
 }
@@ -62,32 +61,28 @@ fun SignUpExtraFields(
 ) {
     Column(modifier = modifier) {
         Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(
+        AppTextField(
             value = lastName,
             onValueChange = onLastNameChange,
-            label = { Text("Прізвище") },
-            modifier = Modifier.fillMaxWidth()
+            label = "Прізвище"
         )
         Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(
+        AppTextField(
             value = firstName,
             onValueChange = onFirstNameChange,
-            label = { Text("Ім'я") },
-            modifier = Modifier.fillMaxWidth()
+            label = "Ім'я"
         )
         Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(
+        AppTextField(
             value = middleName,
             onValueChange = onMiddleNameChange,
-            label = { Text("По батькові") },
-            modifier = Modifier.fillMaxWidth()
+            label = "По батькові"
         )
         Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(
+        AppTextField(
             value = phoneNumber,
             onValueChange = onPhoneNumberChange,
-            label = { Text("Номер телефону") },
-            modifier = Modifier.fillMaxWidth()
+            label = "Номер телефону"
         )
         Spacer(modifier = Modifier.height(8.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -138,16 +133,4 @@ fun AuthHeaderPreview() {
 @Composable
 fun CommonAuthFieldsPreview() {
     CommonAuthFields("test@mail.com", "123456", {}, {})
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SignUpExtraFieldsPreview() {
-    SignUpExtraFields("", "", "", "", false, {}, {}, {}, {}, {})
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AuthActionsPreview() {
-    AuthActions(isSignUp = false, isLoading = false, {}, {})
 }
