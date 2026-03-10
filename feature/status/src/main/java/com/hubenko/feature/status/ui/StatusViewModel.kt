@@ -2,16 +2,14 @@ package com.hubenko.feature.status.ui
 
 import androidx.lifecycle.viewModelScope
 import com.hubenko.core.base.BaseViewModel
-import com.hubenko.domain.repository.AuthRepository
-import com.hubenko.domain.repository.StatusRepository
+import com.hubenko.domain.usecase.SubmitStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class StatusViewModel @Inject constructor(
-    private val statusRepository: StatusRepository,
-    private val authRepository: AuthRepository
+    private val submitStatusUseCase: SubmitStatusUseCase
 ) : BaseViewModel<StatusState, StatusIntent, StatusEffect>(StatusState()) {
 
     override fun onIntent(intent: StatusIntent) {
@@ -25,17 +23,16 @@ class StatusViewModel @Inject constructor(
     private fun submitStatus(status: String) {
         viewModelScope.launch {
             updateState { copy(isLoading = true, error = null) }
-            try {
-                // Fetch real employeeId from auth
-                val employeeId = authRepository.getCurrentUserId() ?: "emp_unknown"
-                statusRepository.saveStatusLocally(employeeId, status)
-                
-                updateState { copy(isLoading = false, isSuccess = true) }
-            } catch (e: Exception) {
-                val errorMsg = e.message ?: "Unknown error"
-                updateState { copy(isLoading = false, error = errorMsg) }
-                sendEffect(StatusEffect.ShowError(errorMsg))
-            }
+            
+            submitStatusUseCase(status)
+                .onSuccess {
+                    updateState { copy(isLoading = false, isSuccess = true) }
+                }
+                .onFailure { e ->
+                    val errorMsg = e.message ?: "Unknown error"
+                    updateState { copy(isLoading = false, error = errorMsg) }
+                    sendEffect(StatusEffect.ShowError(errorMsg))
+                }
         }
     }
 

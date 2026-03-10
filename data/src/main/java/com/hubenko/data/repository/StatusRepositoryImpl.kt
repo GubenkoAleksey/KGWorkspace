@@ -1,12 +1,17 @@
 package com.hubenko.data.repository
 
 import android.content.Context
-import android.content.Intent
+import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hubenko.data.local.dao.EmployeeStatusDao
 import com.hubenko.data.local.entity.EmployeeStatusEntity
 import com.hubenko.domain.model.EmployeeStatus
 import com.hubenko.domain.repository.StatusRepository
+import com.hubenko.data.worker.SyncWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -33,12 +38,7 @@ class StatusRepositoryImpl @Inject constructor(
             isSynced = false
         )
         dao.insertStatus(entity)
-        
-        // Trigger sync via implicit broadcast or reflection
-        // Broadcast is cleaner than reflection for decoupling
-        val intent = Intent("com.hubenko.firestoreapp.SYNC_STATUSES")
-        intent.setPackage(context.packageName)
-        context.sendBroadcast(intent)
+        triggerSync()
     }
 
     override suspend fun getUnsyncedStatuses(): List<EmployeeStatus> {
@@ -64,6 +64,22 @@ class StatusRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    override fun triggerSync() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val syncRequest = OneTimeWorkRequestBuilder<SyncWorker>()
+            .setConstraints(constraints)
+            .build()
+
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            "SyncStatusesWork",
+            ExistingWorkPolicy.REPLACE,
+            syncRequest
+        )
     }
 
     private fun EmployeeStatusEntity.toDomain() = EmployeeStatus(
