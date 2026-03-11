@@ -20,7 +20,7 @@ class HomeViewModel @Inject constructor(
         when (intent) {
             is HomeIntent.LoadAdminStatus -> loadAdminStatus()
             is HomeIntent.OnAdminPanelClick -> {
-                sendEffect(HomeEffect.ShowToast("Панель в розробці..."))
+                sendEffect(HomeEffect.NavigateToAdmin)
             }
             is HomeIntent.OnSendStatusClick -> {
                 sendEffect(HomeEffect.NavigateToStatus)

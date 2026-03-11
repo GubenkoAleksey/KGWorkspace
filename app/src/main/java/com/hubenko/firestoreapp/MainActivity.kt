@@ -7,13 +7,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.hubenko.core.ui.theme.CoreTheme
+import com.hubenko.feature.admin.ui.AdminScreen
 import com.hubenko.feature.auth.ui.AuthScreen
 import com.hubenko.feature.home.ui.HomeScreen
 import com.hubenko.feature.status.ui.StatusScreen
@@ -33,7 +33,6 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
 
-                    // Quick check if user is already logged in
                     val isUserLoggedIn = FirebaseAuth.getInstance().currentUser != null
                     val startDestination = if (isUserLoggedIn) "home" else "login"
 
@@ -51,12 +50,19 @@ class MainActivity : ComponentActivity() {
 
                         composable("home") {
                             HomeScreen(
-                                onNavigateToStatus = { navController.navigate("status") }
+                                onNavigateToStatus = { navController.navigate("status") },
+                                onNavigateToAdmin = { navController.navigate("admin") }
                             )
                         }
 
                         composable("status") {
                             StatusScreen(
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+
+                        composable("admin") {
+                            AdminScreen(
                                 onNavigateBack = { navController.popBackStack() }
                             )
                         }

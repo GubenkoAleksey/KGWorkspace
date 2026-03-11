@@ -18,4 +18,5 @@ sealed class HomeIntent : ViewIntent {
 sealed class HomeEffect : ViewSideEffect {
     data class ShowToast(val message: String) : HomeEffect()
     object NavigateToStatus : HomeEffect()
+    object NavigateToAdmin : HomeEffect()
 }
