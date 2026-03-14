@@ -11,10 +11,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hubenko.core.ui.theme.CoreTheme
-import com.hubenko.feature.auth.ui.components.AuthActions
 import com.hubenko.feature.auth.ui.components.AuthHeader
 import com.hubenko.feature.auth.ui.components.CommonAuthFields
 import com.hubenko.feature.auth.ui.components.SignUpExtraFields
+import com.hubenko.feature.auth.ui.components.AuthSubmitActions
 
 @Composable
 fun AuthContent(
@@ -57,11 +57,11 @@ fun AuthContent(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        AuthActions(
+        AuthSubmitActions(
             isSignUp = state.isSignUp,
             isLoading = state.isLoading,
             onActionSubmit = { onIntent(AuthIntent.Submit) },
-            onToggleSignUp = { onIntent(AuthIntent.ToggleAuthMode) }
+            onToggleAuthMode = { onIntent(AuthIntent.ToggleAuthMode) }
         )
 
         state.error?.let { errorMessage ->
