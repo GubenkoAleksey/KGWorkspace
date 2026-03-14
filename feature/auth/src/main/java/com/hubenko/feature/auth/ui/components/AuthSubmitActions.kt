@@ -4,14 +4,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Modifier
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier as ComposeModifier
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hubenko.core.ui.theme.CoreTheme
@@ -25,7 +25,7 @@ fun AuthSubmitActions(
     isLoading: Boolean,
     onActionSubmit: () -> Unit,
     onToggleAuthMode: () -> Unit,
-    modifier: ComposeModifier = ComposeModifier
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier,
@@ -36,8 +36,8 @@ fun AuthSubmitActions(
         } else {
             Button(
                 onClick = onActionSubmit,
-                modifier = ComposeModifier.fillMaxWidth(),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Text(text = if (isSignUp) "Зареєструватися" else "Увійти")
             }
@@ -46,7 +46,7 @@ fun AuthSubmitActions(
 
             TextButton(
                 onClick = onToggleAuthMode,
-                modifier = ComposeModifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     text = if (isSignUp) "Вже є акаунт? Увійти" 

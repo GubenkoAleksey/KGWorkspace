@@ -9,7 +9,8 @@ fun EmployeeEntity.toDomain() = Employee(
     firstName = firstName,
     middleName = middleName,
     phoneNumber = phoneNumber,
-    role = role
+    role = role,
+    email = email
 )
 
 fun Employee.toEntity() = EmployeeEntity(
@@ -18,5 +19,6 @@ fun Employee.toEntity() = EmployeeEntity(
     firstName = firstName,
     middleName = middleName,
     phoneNumber = phoneNumber,
-    role = role
+    role = role,
+    email = email
 )

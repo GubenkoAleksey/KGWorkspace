@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.hubenko.core.ui.theme.CoreTheme
 import com.hubenko.domain.model.EmployeeStatus
 import java.text.SimpleDateFormat
 import java.util.*
@@ -24,9 +25,9 @@ fun StatusItem(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "ID Працівника: ${status.employeeId}",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.secondary
+                text = status.employeeFullName ?: "ID Працівника: ${status.employeeId}",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
@@ -50,12 +51,16 @@ fun StatusItem(
 @Preview(showBackground = true)
 @Composable
 private fun StatusItemPreview() {
-    StatusItem(
-        status = EmployeeStatus(
-            id = "1",
-            employeeId = "emp1",
-            status = "Office",
-            timestamp = System.currentTimeMillis()
+    CoreTheme {
+        StatusItem(
+            status = EmployeeStatus(
+                id = "1",
+                employeeId = "emp1",
+                employeeFullName = "Іванов Іван Іванович",
+                status = "Office",
+                timestamp = System.currentTimeMillis(),
+                isSynced = true
+            )
         )
-    )
+    }
 }

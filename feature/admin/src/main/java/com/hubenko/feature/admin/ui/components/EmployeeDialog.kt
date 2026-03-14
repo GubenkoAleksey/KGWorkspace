@@ -4,7 +4,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.hubenko.core.ui.components.AppTextField
+import com.hubenko.core.ui.theme.CoreTheme
 import com.hubenko.domain.model.Employee
 
 @Composable
@@ -18,40 +21,46 @@ fun EmployeeDialog(
     var middleName by remember { mutableStateOf(employee?.middleName ?: "") }
     var phoneNumber by remember { mutableStateOf(employee?.phoneNumber ?: "") }
     var role by remember { mutableStateOf(employee?.role ?: "USER") }
+    var email by remember { mutableStateOf(employee?.email ?: "") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (employee == null) "Додати працівника" else "Редагувати") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                AppTextField(
                     value = lastName,
                     onValueChange = { lastName = it },
-                    label = { Text("Прізвище") },
+                    label = "Прізвище",
                     modifier = Modifier.fillMaxWidth()
                 )
-                OutlinedTextField(
+                AppTextField(
                     value = firstName,
                     onValueChange = { firstName = it },
-                    label = { Text("Ім'я") },
+                    label = "Ім'я",
                     modifier = Modifier.fillMaxWidth()
                 )
-                OutlinedTextField(
+                AppTextField(
                     value = middleName,
                     onValueChange = { middleName = it },
-                    label = { Text("По батькові") },
+                    label = "По батькові",
                     modifier = Modifier.fillMaxWidth()
                 )
-                OutlinedTextField(
+                AppTextField(
                     value = phoneNumber,
                     onValueChange = { phoneNumber = it },
-                    label = { Text("Телефон") },
+                    label = "Телефон",
                     modifier = Modifier.fillMaxWidth()
                 )
-                OutlinedTextField(
-                    value = role,
-                    onValueChange = { role = it },
-                    label = { Text("Роль (ADMIN/USER)") },
+                AppTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = "Електронна пошта",
+                    modifier = Modifier.fillMaxWidth()
+                )
+                RoleDropdown(
+                    selectedRole = role,
+                    onRoleSelected = { role = it },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -66,7 +75,8 @@ fun EmployeeDialog(
                             firstName = firstName,
                             middleName = middleName,
                             phoneNumber = phoneNumber,
-                            role = role
+                            role = role,
+                            email = email
                         )
                     )
                 }
@@ -85,9 +95,11 @@ fun EmployeeDialog(
 @Preview(showBackground = true)
 @Composable
 private fun EmployeeDialogPreview() {
-    EmployeeDialog(
-        employee = null,
-        onDismiss = {},
-        onSave = {}
-    )
+    CoreTheme {
+        EmployeeDialog(
+            employee = null,
+            onDismiss = {},
+            onSave = {}
+        )
+    }
 }

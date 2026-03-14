@@ -26,7 +26,8 @@ class AuthRepositoryImpl @Inject constructor(
                     firstName = doc.getString("firstName") ?: "",
                     middleName = doc.getString("middleName") ?: "",
                     phoneNumber = doc.getString("phoneNumber") ?: "",
-                    role = doc.getString("role") ?: "USER"
+                    role = doc.getString("role") ?: "USER",
+                    email = doc.getString("email") ?: user.email ?: ""
                 )
                 employeeDao.insertEmployee(entity)
                 Result.success(user.uid)
@@ -68,7 +69,8 @@ class AuthRepositoryImpl @Inject constructor(
                     firstName = firstName,
                     middleName = middleName,
                     phoneNumber = phoneNumber,
-                    role = role
+                    role = role,
+                    email = email
                 )
                 employeeDao.insertEmployee(entity)
                 Result.success(user.uid)
