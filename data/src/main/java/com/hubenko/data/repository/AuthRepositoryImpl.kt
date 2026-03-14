@@ -84,7 +84,7 @@ class AuthRepositoryImpl @Inject constructor(
         return try {
             val document = firestore.collection("users").document(uid).get().await()
             document.getString("role") ?: "USER"
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             "USER"
         }
     }

@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 class EmployeeRepositoryImpl @Inject constructor(
     private val dao: EmployeeDao,
-    private val firestore: FirebaseFirestore
+    firestore: FirebaseFirestore
 ) : EmployeeRepository {
 
     private val employeesCollection = firestore.collection("employees")
