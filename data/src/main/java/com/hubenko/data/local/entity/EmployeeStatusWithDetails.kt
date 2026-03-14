@@ -9,5 +9,5 @@ data class EmployeeStatusWithDetails(
         parentColumn = "employeeId",
         entityColumn = "id"
     )
-    val employee: EmployeeEntity
+    val employee: EmployeeEntity? // Зроблено nullable, щоб уникнути IllegalStateException
 )
