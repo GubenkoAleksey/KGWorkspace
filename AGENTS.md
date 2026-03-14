@@ -12,6 +12,14 @@
 - `:data` - Реалізація репозиторіїв, робота з Firebase/Firestore, DTO, Room та мапери.
 - `:feature:*` - UI екрани та ViewModels. Кожна фіча реалізує MVI.
 
+### Package Naming:
+- Root package: `com.hubenko`
+- App: `com.hubenko.firestoreapp`
+- Core: `com.hubenko.core`
+- Domain: `com.hubenko.domain`
+- Data: `com.hubenko.data`
+- Features: `com.hubenko.feature.{featurename}`
+
 ## 🎨 Правило Атомарної Декомпозиції та Візуальної Ізоляції
 
 ### 1. Принцип "Один файл — один головний компонент"
@@ -42,9 +50,10 @@
   - *Stateless:* Тільки приймає `State` та лямбди для надсилання `Intent`.
 - **Розділення Screen та Content (ОБОВ'ЯЗКОВО):** `*Screen.kt` (Stateful) та `*Content.kt` (Stateless) **завжди** зберігаються у різних файлах.
 - **UDF (Unidirectional Data Flow):** Дані йдуть тільки вниз (State), івенти — тільки вгору (Intent).
+- ViewModels наслідують `BaseViewModel<S, I, E>` з `:core` та використовують Hilt для ін'єкції залежностей.
 
 ## 🛠 Валідація та Надійність (Reliability)
-- **🛑 AI Trigger (Валідація збірки):** Після внесення будь-яких змін у код, AI **зобов'язаний** переконатися, що проект успішно збирається через `gradle_build`.
+- **🛑 AI Trigger (Валідація збірки):** Після внесення будь-яких змін у код, AI **зобов'язаний** переконатися, що проект успішно збирається через `.\gradlew.bat build`.
 
 ## ✅ AI Agent Check-list
 1. [ ] Чи кожен компонент знаходиться у власному файлі?

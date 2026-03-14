@@ -81,3 +81,13 @@ fun EmployeeDialog(
         }
     )
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun EmployeeDialogPreview() {
+    EmployeeDialog(
+        employee = null,
+        onDismiss = {},
+        onSave = {}
+    )
+}

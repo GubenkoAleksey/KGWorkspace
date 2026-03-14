@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hubenko.domain.model.Employee
 
@@ -51,4 +52,21 @@ fun EmployeeItem(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EmployeeItemPreview() {
+    EmployeeItem(
+        employee = Employee(
+            id = "1",
+            lastName = "Іванов",
+            firstName = "Іван",
+            middleName = "Іванович",
+            phoneNumber = "+380991234567",
+            role = "USER"
+        ),
+        onEdit = {},
+        onDelete = {}
+    )
 }

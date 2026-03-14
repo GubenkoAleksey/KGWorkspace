@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hubenko.domain.model.EmployeeStatus
 import java.text.SimpleDateFormat
@@ -44,4 +45,17 @@ fun StatusItem(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun StatusItemPreview() {
+    StatusItem(
+        status = EmployeeStatus(
+            id = "1",
+            employeeId = "emp1",
+            status = "Office",
+            timestamp = System.currentTimeMillis()
+        )
+    )
 }

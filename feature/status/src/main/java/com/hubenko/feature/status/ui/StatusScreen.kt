@@ -5,7 +5,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.hubenko.feature.status.ui.components.ConfirmationDialog
+import com.hubenko.feature.status.ui.components.StatusConfirmationDialog
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -28,7 +28,7 @@ fun StatusScreen(
     }
 
     if (state.isSuccess) {
-        ConfirmationDialog(
+        StatusConfirmationDialog(
             onDismiss = { viewModel.onIntent(StatusIntent.DismissDialog) }
         )
     }
