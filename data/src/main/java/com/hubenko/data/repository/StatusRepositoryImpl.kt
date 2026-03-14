@@ -9,9 +9,10 @@ import androidx.work.WorkManager
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hubenko.data.local.dao.EmployeeStatusDao
 import com.hubenko.data.local.entity.EmployeeStatusEntity
+import com.hubenko.data.mapper.toDomain
+import com.hubenko.data.worker.SyncWorker
 import com.hubenko.domain.model.EmployeeStatus
 import com.hubenko.domain.repository.StatusRepository
-import com.hubenko.data.worker.SyncWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -26,7 +27,9 @@ class StatusRepositoryImpl @Inject constructor(
 ) : StatusRepository {
 
     override fun getAllStatuses(): Flow<List<EmployeeStatus>> {
-        return dao.getAllStatuses().map { list -> list.map { it.toDomain() } }
+        return dao.getAllStatusesWithDetails().map { list ->
+            list.map { it.toDomain() }
+        }
     }
 
     override suspend fun saveStatusLocally(employeeId: String, status: String) {
@@ -81,12 +84,4 @@ class StatusRepositoryImpl @Inject constructor(
             syncRequest
         )
     }
-
-    private fun EmployeeStatusEntity.toDomain() = EmployeeStatus(
-        id = id,
-        employeeId = employeeId,
-        status = status,
-        timestamp = timestamp,
-        isSynced = isSynced
-    )
 }

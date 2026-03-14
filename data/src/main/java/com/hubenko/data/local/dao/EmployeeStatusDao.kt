@@ -4,7 +4,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.hubenko.data.local.entity.EmployeeStatusEntity
+import com.hubenko.data.local.entity.EmployeeStatusWithDetails
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -15,6 +17,10 @@ interface EmployeeStatusDao {
 
     @Query("SELECT * FROM employee_status WHERE isSynced = 0 ORDER BY timestamp DESC")
     suspend fun getUnsyncedStatuses(): List<EmployeeStatusEntity>
+
+    @Transaction
+    @Query("SELECT * FROM employee_status ORDER BY timestamp DESC")
+    fun getAllStatusesWithDetails(): Flow<List<EmployeeStatusWithDetails>>
 
     @Query("SELECT * FROM employee_status ORDER BY timestamp DESC")
     fun getAllStatuses(): Flow<List<EmployeeStatusEntity>>
