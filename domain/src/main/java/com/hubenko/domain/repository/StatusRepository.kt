@@ -9,4 +9,5 @@ interface StatusRepository {
     suspend fun getUnsyncedStatuses(): List<EmployeeStatus>
     suspend fun syncStatuses(statuses: List<EmployeeStatus>): Result<Unit>
     fun triggerSync()
+    suspend fun fetchStatusesFromRemote()
 }

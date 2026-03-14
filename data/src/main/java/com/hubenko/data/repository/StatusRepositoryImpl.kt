@@ -16,6 +16,7 @@ import com.hubenko.domain.repository.StatusRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
 import javax.inject.Inject
@@ -27,8 +28,26 @@ class StatusRepositoryImpl @Inject constructor(
 ) : StatusRepository {
 
     override fun getAllStatuses(): Flow<List<EmployeeStatus>> {
-        return dao.getAllStatusesWithDetails().map { list ->
-            list.map { it.toDomain() }
+        return dao.getAllStatusesWithDetails()
+            .map { list -> list.map { it.toDomain() } }
+            .onStart { fetchStatusesFromRemote() }
+    }
+
+    override suspend fun fetchStatusesFromRemote() {
+        try {
+            val snapshot = firestore.collection("employee_statuses").get().await()
+            snapshot.documents.forEach { doc ->
+                val entity = EmployeeStatusEntity(
+                    id = doc.id,
+                    employeeId = doc.getString("employeeId") ?: "",
+                    status = doc.getString("status") ?: "",
+                    timestamp = doc.getLong("timestamp") ?: 0L,
+                    isSynced = true
+                )
+                dao.insertStatus(entity)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
