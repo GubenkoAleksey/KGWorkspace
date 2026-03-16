@@ -1,30 +1,33 @@
 package com.hubenko.feature.admin.ui
 
+import android.app.Application
+import androidx.core.content.FileProvider
 import androidx.lifecycle.viewModelScope
 import com.hubenko.core.base.BaseViewModel
 import com.hubenko.domain.model.Employee
+import com.hubenko.domain.model.EmployeeStatus
 import com.hubenko.domain.usecase.DeleteEmployeeUseCase
 import com.hubenko.domain.usecase.GetAllEmployeesUseCase
 import com.hubenko.domain.usecase.GetAllStatusesUseCase
 import com.hubenko.domain.usecase.SaveEmployeeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.util.UUID
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 
 /**
  * ViewModel для екрана адміністратора.
  * Керує бізнес-логікою отримання даних співробітників та їхніх статусів,
  * а також операціями створення, редагування та видалення.
- *
- * @property getAllEmployeesUseCase Отримання списку співробітників.
- * @property getAllStatusesUseCase Отримання списку статусів.
- * @property saveEmployeeUseCase Збереження даних співробітника.
- * @property deleteEmployeeUseCase Видалення співробітника.
  */
 @HiltViewModel
 class AdminViewModel @Inject constructor(
+    private val application: Application,
     private val getAllEmployeesUseCase: GetAllEmployeesUseCase,
     private val getAllStatusesUseCase: GetAllStatusesUseCase,
     private val saveEmployeeUseCase: SaveEmployeeUseCase,
@@ -50,6 +53,7 @@ class AdminViewModel @Inject constructor(
             is AdminIntent.OnDismissDialog -> updateState { 
                 copy(isEmployeeDialogOpen = false, editingEmployee = null) 
             }
+            is AdminIntent.OnExportStatusesClick -> exportStatusesToCsv()
         }
     }
 
@@ -70,6 +74,50 @@ class AdminViewModel @Inject constructor(
         }
     }
 
+    private fun exportStatusesToCsv() {
+        val statuses = viewState.value.statuses
+        if (statuses.isEmpty()) return
+
+        viewModelScope.launch {
+            try {
+                val uri = withContext(Dispatchers.IO) {
+                    val csvString = generateCsvContent(statuses)
+                    val file = saveCsvToFile(csvString)
+                    FileProvider.getUriForFile(
+                        application,
+                        "com.hubenko.firestoreapp.fileprovider",
+                        file
+                    )
+                }
+                sendEffect(AdminEffect.ShareFile(uri))
+            } catch (e: Exception) {
+                sendEffect(AdminEffect.ShowToast("Помилка експорту: ${e.message}"))
+            }
+        }
+    }
+
+    private fun generateCsvContent(statuses: List<EmployeeStatus>): String {
+        val sdf = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
+        val sb = StringBuilder()
+        // Header
+        sb.append("ID;ПІБ;Статус;Дата та час\n")
+        // Rows
+        statuses.forEach { status ->
+            val date = sdf.format(Date(status.timestamp))
+            val fullName = status.employeeFullName ?: "Невідомо"
+            sb.append("${status.employeeId};${fullName};${status.status};${date}\n")
+        }
+        return sb.toString()
+    }
+
+    private fun saveCsvToFile(content: String): File {
+        val dateString = SimpleDateFormat("dd_MM_yyyy", Locale.getDefault()).format(Date())
+        val fileName = "status_$dateString.csv"
+        val file = File(application.cacheDir, fileName)
+        file.writeText(content)
+        return file
+    }
+
     private fun saveEmployee(employee: Employee) {
         viewModelScope.launch {
             try {
@@ -82,7 +130,7 @@ class AdminViewModel @Inject constructor(
                 updateState { copy(isEmployeeDialogOpen = false, editingEmployee = null) }
                 sendEffect(AdminEffect.ShowToast("Співробітника збережено"))
             } catch (e: Exception) {
-                sendEffect(AdminEffect.ShowToast("Помилка збереження: \${e.message}"))
+                sendEffect(AdminEffect.ShowToast("Помилка збереження: ${e.message}"))
             }
         }
     }
@@ -93,7 +141,7 @@ class AdminViewModel @Inject constructor(
                 deleteEmployeeUseCase(id)
                 sendEffect(AdminEffect.ShowToast("Співробітника видалено"))
             } catch (e: Exception) {
-                sendEffect(AdminEffect.ShowToast("Помилка видалення: \${e.message}"))
+                sendEffect(AdminEffect.ShowToast("Помилка видалення: ${e.message}"))
             }
         }
     }

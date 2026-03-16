@@ -1,5 +1,6 @@
 package com.hubenko.feature.admin.ui
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -12,7 +13,7 @@ import kotlinx.coroutines.flow.collectLatest
 /**
  * Stateful Composable для екрана адміністратора.
  * Відповідає за зв'язок між [AdminViewModel] та [AdminContent].
- * Обробляє одноразові ефекти (SideEffects), такі як навігація та тости.
+ * Обробляє одноразові ефекти (SideEffects), такі як навігація, тости та поширення файлів.
  *
  * @param viewModel ViewModel екрана, ін'єктується через Hilt.
  * @param onNavigateBack Функція зворотного виклику для повернення на попередній екран.
@@ -31,6 +32,14 @@ fun AdminScreen(
                 is AdminEffect.NavigateBack -> onNavigateBack()
                 is AdminEffect.ShowToast -> {
                     Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                }
+                is AdminEffect.ShareFile -> {
+                    val intent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/csv"
+                        putExtra(Intent.EXTRA_STREAM, effect.uri)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    context.startActivity(Intent.createChooser(intent, "Поширити CSV"))
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.hubenko.feature.admin.ui
 
+import android.net.Uri
 import com.hubenko.core.base.ViewIntent
 import com.hubenko.core.base.ViewSideEffect
 import com.hubenko.core.base.ViewState
@@ -57,6 +58,9 @@ sealed class AdminIntent : ViewIntent {
     
     /** Закриття діалогового вікна */
     data object OnDismissDialog : AdminIntent()
+
+    /** Натиск на кнопку експорту статусів */
+    data object OnExportStatusesClick : AdminIntent()
 }
 
 /**
@@ -68,4 +72,7 @@ sealed class AdminEffect : ViewSideEffect {
     
     /** Навігація назад */
     data object NavigateBack : AdminEffect()
+
+    /** Відкриття діалогу поширення файлу */
+    data class ShareFile(val uri: Uri) : AdminEffect()
 }

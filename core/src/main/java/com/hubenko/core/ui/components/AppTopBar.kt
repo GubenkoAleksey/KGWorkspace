@@ -1,5 +1,6 @@
 package com.hubenko.core.ui.components
 
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
@@ -12,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 fun AppTopBar(
     title: String,
     onBackClick: (() -> Unit)? = null,
+    actions: @Composable RowScope.() -> Unit = {},
     colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors()
 ) {
     TopAppBar(
@@ -26,6 +28,7 @@ fun AppTopBar(
                 }
             }
         },
+        actions = actions,
         colors = colors
     )
 }
