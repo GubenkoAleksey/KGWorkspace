@@ -51,7 +51,12 @@ class MainActivity : ComponentActivity() {
                         composable("home") {
                             HomeScreen(
                                 onNavigateToStatus = { navController.navigate("status") },
-                                onNavigateToAdmin = { navController.navigate("admin") }
+                                onNavigateToAdmin = { navController.navigate("admin") },
+                                onNavigateToAuth = {
+                                    navController.navigate("login") {
+                                        popUpTo("home") { inclusive = true }
+                                    }
+                                }
                             )
                         }
 

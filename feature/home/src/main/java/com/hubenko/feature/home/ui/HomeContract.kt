@@ -13,10 +13,12 @@ sealed class HomeIntent : ViewIntent {
     object LoadAdminStatus : HomeIntent()
     object OnAdminPanelClick : HomeIntent()
     object OnSendStatusClick : HomeIntent()
+    object OnLogoutClick : HomeIntent()
 }
 
 sealed class HomeEffect : ViewSideEffect {
     data class ShowToast(val message: String) : HomeEffect()
     object NavigateToStatus : HomeEffect()
     object NavigateToAdmin : HomeEffect()
+    object NavigateToAuth : HomeEffect()
 }

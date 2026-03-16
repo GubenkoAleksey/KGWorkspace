@@ -3,13 +3,15 @@ package com.hubenko.feature.home.ui
 import androidx.lifecycle.viewModelScope
 import com.hubenko.core.base.BaseViewModel
 import com.hubenko.domain.usecase.CheckAdminStatusUseCase
+import com.hubenko.domain.usecase.LogoutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val checkAdminStatusUseCase: CheckAdminStatusUseCase
+    private val checkAdminStatusUseCase: CheckAdminStatusUseCase,
+    private val logoutUseCase: LogoutUseCase
 ) : BaseViewModel<HomeState, HomeIntent, HomeEffect>(HomeState()) {
 
     init {
@@ -24,6 +26,10 @@ class HomeViewModel @Inject constructor(
             }
             is HomeIntent.OnSendStatusClick -> {
                 sendEffect(HomeEffect.NavigateToStatus)
+            }
+            is HomeIntent.OnLogoutClick -> {
+                logoutUseCase()
+                sendEffect(HomeEffect.NavigateToAuth)
             }
         }
     }

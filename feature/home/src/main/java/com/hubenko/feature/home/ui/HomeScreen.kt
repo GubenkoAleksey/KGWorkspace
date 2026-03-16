@@ -13,7 +13,8 @@ import kotlinx.coroutines.flow.collectLatest
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     onNavigateToStatus: () -> Unit,
-    onNavigateToAdmin: () -> Unit
+     onNavigateToAdmin: () -> Unit,
+    onNavigateToAuth: () -> Unit
 ) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -23,6 +24,7 @@ fun HomeScreen(
             when (effect) {
                 is HomeEffect.NavigateToStatus -> onNavigateToStatus()
                 is HomeEffect.NavigateToAdmin -> onNavigateToAdmin()
+                is HomeEffect.NavigateToAuth -> onNavigateToAuth()
                 is HomeEffect.ShowToast -> {
                     Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
                 }
