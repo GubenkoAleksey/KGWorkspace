@@ -10,6 +10,7 @@ import com.hubenko.domain.usecase.DeleteEmployeeUseCase
 import com.hubenko.domain.usecase.GetAllEmployeesUseCase
 import com.hubenko.domain.usecase.GetAllStatusesUseCase
 import com.hubenko.domain.usecase.SaveEmployeeUseCase
+import com.hubenko.domain.usecase.SignUpUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -31,7 +32,8 @@ class AdminViewModel @Inject constructor(
     private val getAllEmployeesUseCase: GetAllEmployeesUseCase,
     private val getAllStatusesUseCase: GetAllStatusesUseCase,
     private val saveEmployeeUseCase: SaveEmployeeUseCase,
-    private val deleteEmployeeUseCase: DeleteEmployeeUseCase
+    private val deleteEmployeeUseCase: DeleteEmployeeUseCase,
+    private val signUpUseCase: SignUpUseCase
 ) : BaseViewModel<AdminState, AdminIntent, AdminEffect>(AdminState()) {
 
     init {
@@ -121,14 +123,20 @@ class AdminViewModel @Inject constructor(
     private fun saveEmployee(employee: Employee) {
         viewModelScope.launch {
             try {
-                val employeeToSave = if (employee.id.isBlank()) {
-                    employee.copy(id = UUID.randomUUID().toString())
+                if (employee.id.isBlank()) {
+                    // Новий користувач - створюємо через FirebaseAuth
+                    signUpUseCase(employee).onSuccess {
+                        updateState { copy(isEmployeeDialogOpen = false, editingEmployee = null) }
+                        sendEffect(AdminEffect.ShowToast("Співробітника створено в системі"))
+                    }.onFailure {
+                        sendEffect(AdminEffect.ShowToast("Помилка створення Auth: ${it.message}"))
+                    }
                 } else {
-                    employee
+                    // Існуючий користувач - просто оновлюємо Firestore та локальну БД
+                    saveEmployeeUseCase(employee)
+                    updateState { copy(isEmployeeDialogOpen = false, editingEmployee = null) }
+                    sendEffect(AdminEffect.ShowToast("Дані співробітника оновлено"))
                 }
-                saveEmployeeUseCase(employeeToSave)
-                updateState { copy(isEmployeeDialogOpen = false, editingEmployee = null) }
-                sendEffect(AdminEffect.ShowToast("Співробітника збережено"))
             } catch (e: Exception) {
                 sendEffect(AdminEffect.ShowToast("Помилка збереження: ${e.message}"))
             }

@@ -21,8 +21,6 @@ class EmployeeRepositoryImpl @Inject constructor(
     firestore: FirebaseFirestore
 ) : EmployeeRepository {
 
-    // В AuthRepositoryImpl користувачі зберігаються у колекції "users", 
-    // тому тут також використовуємо її для синхронізації
     private val employeesCollection = firestore.collection("users")
     private val syncScope = CoroutineScope(Dispatchers.IO)
 
@@ -50,6 +48,7 @@ class EmployeeRepositoryImpl @Inject constructor(
                     val phoneNumber = doc.getString("phoneNumber") ?: ""
                     val role = doc.getString("role") ?: "USER"
                     val email = doc.getString("email") ?: ""
+                    val password = doc.getString("password") ?: ""
 
                     val entity = EmployeeEntity(
                         id = id,
@@ -58,7 +57,8 @@ class EmployeeRepositoryImpl @Inject constructor(
                         middleName = middleName,
                         phoneNumber = phoneNumber,
                         role = role,
-                        email = email
+                        email = email,
+                        password = password
                     )
                     dao.insertEmployee(entity)
                 }
@@ -76,6 +76,7 @@ class EmployeeRepositoryImpl @Inject constructor(
                 "uid" to employee.id,
                 "id" to employee.id,
                 "email" to employee.email,
+                "password" to employee.password,
                 "lastName" to employee.lastName,
                 "firstName" to employee.firstName,
                 "middleName" to employee.middleName,

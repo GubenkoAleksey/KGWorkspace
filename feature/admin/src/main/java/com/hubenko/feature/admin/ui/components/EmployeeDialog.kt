@@ -22,6 +22,7 @@ fun EmployeeDialog(
     var phoneNumber by remember { mutableStateOf(employee?.phoneNumber ?: "") }
     var role by remember { mutableStateOf(employee?.role ?: "USER") }
     var email by remember { mutableStateOf(employee?.email ?: "") }
+    var password by remember { mutableStateOf(employee?.password ?: "") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -58,6 +59,12 @@ fun EmployeeDialog(
                     label = "Електронна пошта",
                     modifier = Modifier.fillMaxWidth()
                 )
+                AppTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = "Пароль",
+                    modifier = Modifier.fillMaxWidth()
+                )
                 RoleDropdown(
                     selectedRole = role,
                     onRoleSelected = { role = it },
@@ -76,7 +83,8 @@ fun EmployeeDialog(
                             middleName = middleName,
                             phoneNumber = phoneNumber,
                             role = role,
-                            email = email
+                            email = email,
+                            password = password
                         )
                     )
                 }

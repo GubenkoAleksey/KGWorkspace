@@ -7,5 +7,6 @@ data class Employee(
     val middleName: String,
     val phoneNumber: String,
     val role: String,
-    val email: String = ""
+    val email: String = "",
+    val password: String = ""
 )
