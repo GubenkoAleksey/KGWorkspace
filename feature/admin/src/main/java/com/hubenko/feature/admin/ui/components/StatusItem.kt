@@ -18,7 +18,8 @@ fun StatusItem(
     modifier: Modifier = Modifier
 ) {
     val sdf = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
-    val dateString = sdf.format(Date(status.timestamp))
+    val startString = sdf.format(Date(status.startTime))
+    val endString = status.endTime?.let { sdf.format(Date(it)) }
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -49,12 +50,18 @@ fun StatusItem(
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = dateString,
+                    text = "Початок: $startString",
                     style = MaterialTheme.typography.labelSmall
                 )
+                if (endString != null) {
+                    Text(
+                        text = "Кінець: $endString",
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
             }
         }
     }
@@ -71,7 +78,8 @@ private fun StatusItemPreview() {
                 employeeFullName = "Іванов Іван Іванович",
                 status = "Office",
                 note = "Запізнюся на 10 хвилин через затори",
-                timestamp = System.currentTimeMillis(),
+                startTime = System.currentTimeMillis(),
+                endTime = System.currentTimeMillis() + 3600000,
                 isSynced = true
             )
         )

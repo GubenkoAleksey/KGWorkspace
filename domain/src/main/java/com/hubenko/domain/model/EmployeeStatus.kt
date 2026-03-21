@@ -6,6 +6,7 @@ data class EmployeeStatus(
     val employeeFullName: String?, // Для відображення адміну
     val status: String,
     val note: String? = null,
-    val timestamp: Long,
+    val startTime: Long,
+    val endTime: Long? = null,
     val isSynced: Boolean
 )

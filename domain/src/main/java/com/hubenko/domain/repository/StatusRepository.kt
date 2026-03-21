@@ -11,4 +11,6 @@ interface StatusRepository {
     fun triggerSync()
     suspend fun fetchStatusesFromRemote()
     suspend fun deleteAllStatuses(): Result<Unit>
+    suspend fun getActiveStatus(employeeId: String): EmployeeStatus?
+    suspend fun updateStatusEndTime(id: String, endTime: Long): Result<Unit>
 }

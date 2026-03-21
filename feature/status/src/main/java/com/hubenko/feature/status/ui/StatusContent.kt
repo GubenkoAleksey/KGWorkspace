@@ -1,5 +1,10 @@
 package com.hubenko.feature.status.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -55,43 +60,59 @@ fun StatusContent(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    StatusCard(
-                        title = "Офіс",
-                        description = "Працюю безпосередньо в офісі",
-                        icon = Icons.Rounded.Domain,
-                        color = StatusOfficeLight,
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = { onIntent(StatusIntent.SubmitStatusClick("Office")) },
-                        enabled = !state.isLoading
-                    )
-                    StatusCard(
-                        title = "Віддалено",
-                        description = "Працюю дистанційно (Home Office)",
-                        icon = Icons.Rounded.WifiTethering,
-                        color = StatusRemoteLight,
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = { onIntent(StatusIntent.SubmitStatusClick("Remote")) },
-                        enabled = !state.isLoading
-                    )
-                    StatusCard(
-                        title = "Лікарняний",
-                        description = "Відсутній через стан здоров'я",
-                        icon = Icons.Rounded.HealthAndSafety,
-                        color = StatusSickLight,
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = { onIntent(StatusIntent.SubmitStatusClick("Sick")) },
-                        enabled = !state.isLoading
-                    )
+                    val active = state.activeStatus
+
+                    if (active == null || active.status == "Office") {
+                        StatusCard(
+                            title = if (active?.status == "Office") "Закінчити роботу (Офіс)" else "Почати роботу (Офіс)",
+                            description = "Працюю безпосередньо в офісі",
+                            icon = Icons.Rounded.Domain,
+                            color = StatusOfficeLight,
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = { onIntent(StatusIntent.SubmitStatusClick("Office")) },
+                            enabled = !state.isLoading
+                        )
+                    }
+
+                    if (active == null || active.status == "Remote") {
+                        StatusCard(
+                            title = if (active?.status == "Remote") "Закінчити роботу (Віддалено)" else "Почати роботу (Віддалено)",
+                            description = "Працюю дистанційно (Home Office)",
+                            icon = Icons.Rounded.WifiTethering,
+                            color = StatusRemoteLight,
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = { onIntent(StatusIntent.SubmitStatusClick("Remote")) },
+                            enabled = !state.isLoading
+                        )
+                    }
+
+                    if (active == null) {
+                        StatusCard(
+                            title = "Лікарняний",
+                            description = "Відсутній через стан здоров'я",
+                            icon = Icons.Rounded.HealthAndSafety,
+                            color = StatusSickLight,
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = { onIntent(StatusIntent.SubmitStatusClick("Sick")) },
+                            enabled = !state.isLoading
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                NoteInputField(
-                    note = state.note,
-                    onNoteChange = { onIntent(StatusIntent.UpdateNote(it)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !state.isLoading
-                )
+                AnimatedVisibility(
+                    visible = state.activeStatus == null,
+                    enter = fadeIn() + expandVertically(),
+                    exit = fadeOut() + shrinkVertically()
+                ) {
+                    NoteInputField(
+                        note = state.note,
+                        onNoteChange = { onIntent(StatusIntent.UpdateNote(it)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isLoading
+                    )
+                }
                 
                 Spacer(modifier = Modifier.height(24.dp))
             }

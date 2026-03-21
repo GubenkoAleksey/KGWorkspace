@@ -12,7 +12,8 @@ fun EmployeeStatusWithDetails.toDomain() = EmployeeStatus(
     } ?: "Невідомий працівник (ID: ${status.employeeId})",
     status = status.status,
     note = status.note,
-    timestamp = status.timestamp,
+    startTime = status.startTime,
+    endTime = status.endTime,
     isSynced = status.isSynced
 )
 
@@ -22,6 +23,7 @@ fun EmployeeStatusEntity.toDomain() = EmployeeStatus(
     employeeFullName = null,
     status = status,
     note = note,
-    timestamp = timestamp,
+    startTime = startTime,
+    endTime = endTime,
     isSynced = isSynced
 )

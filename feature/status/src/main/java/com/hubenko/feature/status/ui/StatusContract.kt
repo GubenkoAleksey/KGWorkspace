@@ -3,6 +3,7 @@ package com.hubenko.feature.status.ui
 import com.hubenko.core.base.ViewIntent
 import com.hubenko.core.base.ViewSideEffect
 import com.hubenko.core.base.ViewState
+import com.hubenko.domain.model.EmployeeStatus
 
 data class StatusState(
     val isLoading: Boolean = false,
@@ -10,10 +11,12 @@ data class StatusState(
     val error: String? = null,
     val note: String = "",
     val showConfirmDialog: Boolean = false,
-    val pendingStatus: String? = null
+    val pendingStatus: String? = null,
+    val activeStatus: EmployeeStatus? = null
 ) : ViewState
 
 sealed class StatusIntent : ViewIntent {
+    object LoadActiveStatus : StatusIntent()
     data class SubmitStatusClick(val status: String) : StatusIntent()
     object ConfirmSubmit : StatusIntent()
     object DismissConfirmDialog : StatusIntent()

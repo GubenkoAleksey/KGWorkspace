@@ -9,7 +9,7 @@ import com.hubenko.data.local.entity.EmployeeStatusEntity
 
 @Database(
     entities = [EmployeeStatusEntity::class, EmployeeEntity::class],
-    version = 7,
+    version = 10,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

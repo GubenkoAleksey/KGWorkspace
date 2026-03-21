@@ -42,7 +42,8 @@ class StatusRepositoryImpl @Inject constructor(
                     employeeId = doc.getString("employeeId") ?: "",
                     status = doc.getString("status") ?: "",
                     note = doc.getString("note"),
-                    timestamp = doc.getLong("timestamp") ?: 0L,
+                    startTime = doc.getLong("startTime") ?: 0L,
+                    endTime = doc.getLong("endTime"),
                     isSynced = true
                 )
                 dao.insertStatus(entity)
@@ -58,7 +59,8 @@ class StatusRepositoryImpl @Inject constructor(
             employeeId = employeeId,
             status = status,
             note = note,
-            timestamp = System.currentTimeMillis(),
+            startTime = System.currentTimeMillis(),
+            endTime = null,
             isSynced = false
         )
         dao.insertStatus(entity)
@@ -78,11 +80,11 @@ class StatusRepositoryImpl @Inject constructor(
                     "id" to status.id,
                     "employeeId" to status.employeeId,
                     "status" to status.status,
-                    "timestamp" to status.timestamp
+                    "startTime" to status.startTime
                 )
-                status.note?.let {
-                    map["note"] = it
-                }
+                status.note?.let { map["note"] = it }
+                status.endTime?.let { map["endTime"] = it }
+                
                 batch.set(docRef, map)
             }
             batch.commit().await()
@@ -111,7 +113,6 @@ class StatusRepositoryImpl @Inject constructor(
 
     override suspend fun deleteAllStatuses(): Result<Unit> {
         return try {
-            // Delete from Firestore
             val snapshot = firestore.collection("employee_statuses").get().await()
             val batch = firestore.batch()
             snapshot.documents.forEach { doc ->
@@ -119,8 +120,21 @@ class StatusRepositoryImpl @Inject constructor(
             }
             batch.commit().await()
 
-            // Delete from Room
             dao.deleteAllStatuses()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getActiveStatus(employeeId: String): EmployeeStatus? {
+        return dao.getActiveStatus(employeeId)?.toDomain()
+    }
+
+    override suspend fun updateStatusEndTime(id: String, endTime: Long): Result<Unit> {
+        return try {
+            dao.updateEndTime(id, endTime)
+            triggerSync()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

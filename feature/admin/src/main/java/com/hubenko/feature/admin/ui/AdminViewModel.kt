@@ -106,12 +106,13 @@ class AdminViewModel @Inject constructor(
         val sdf = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
         val sb = StringBuilder()
         // Header
-        sb.append("ID;ПІБ;Статус;Дата та час\n")
+        sb.append("ID;ПІБ;Статус;Початок;Кінець\n")
         // Rows
         statuses.forEach { status ->
-            val date = sdf.format(Date(status.timestamp))
+            val start = sdf.format(Date(status.startTime))
+            val end = status.endTime?.let { sdf.format(Date(it)) } ?: "-"
             val fullName = status.employeeFullName ?: "Невідомо"
-            sb.append("${status.employeeId};${fullName};${status.status};${date}\n")
+            sb.append("${status.employeeId};${fullName};${status.status};${start};${end}\n")
         }
         return sb.toString()
     }
