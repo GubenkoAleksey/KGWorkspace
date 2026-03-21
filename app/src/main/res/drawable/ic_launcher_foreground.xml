@@ -1,4 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/img_employee_status_icon" />
+    <!--
+      Для правильного відображення вашого логотипу (logo.png) з дотриманням
+      пропорцій (щоб він не розтягувався і не обрізався), рекомендується
+      використати вбудований інструмент Android Studio "Image Asset".
+    -->
+    <item
+        android:bottom="16dp"
+        android:left="16dp"
+        android:right="16dp"
+        android:top="16dp">
+        <bitmap
+            android:src="@drawable/logo"
+            android:gravity="center" />
+    </item>
 </layer-list>
