@@ -1,18 +1,3 @@
 <resources>
-    <string name="app_name">FirestoreApp</string>
-    <string name="todays_status_part1">Статус на</string>
-    <string name="todays_status_part2">сьогодні</string>
-    <string name="status_office">Офіс</string>
-    <string name="status_remote">На завданні</string>
-    <string name="status_sick">Лікарняний</string>
-    <string name="dialog_confirmation">Підтвердження</string>
-    <string name="dialog_status_updated">Статус оновлено</string>
-    <string name="dialog_ok">Добре</string>
-    <string name="nav_home">Головна</string>
-    <string name="nav_history">Історія</string>
-    <string name="nav_profile">Профіль</string>
-    <string name="action_add">Додати</string>
-    <string name="select_role_title">Оберіть користувача</string>
-    <string name="role_user">Користувач</string>
-    <string name="role_admin">Адміністратор</string>
+    <string name="app_name">KG Workspace</string>
 </resources>
