@@ -15,14 +15,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hubenko.core.ui.components.AppTopBar
 import com.hubenko.core.ui.theme.*
+import com.hubenko.feature.status.ui.components.NoteInputField
 import com.hubenko.feature.status.ui.components.StatusCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatusContent(
-    isLoading: Boolean,
-    onStatusSubmit: (String) -> Unit,
-    onBackClick: () -> Unit
+    state: StatusState,
+    onIntent: (StatusIntent) -> Unit
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -30,7 +30,7 @@ fun StatusContent(
         topBar = {
             AppTopBar(
                 title = "Оновити статус",
-                onBackClick = onBackClick,
+                onBackClick = { onIntent(StatusIntent.OnBackClick) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
                     titleContentColor = MaterialTheme.colorScheme.onBackground
@@ -61,8 +61,8 @@ fun StatusContent(
                         icon = Icons.Rounded.Domain,
                         color = StatusOfficeLight,
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = { onStatusSubmit("Office") },
-                        enabled = !isLoading
+                        onClick = { onIntent(StatusIntent.SubmitStatusClick("Office")) },
+                        enabled = !state.isLoading
                     )
                     StatusCard(
                         title = "Віддалено",
@@ -70,8 +70,8 @@ fun StatusContent(
                         icon = Icons.Rounded.WifiTethering,
                         color = StatusRemoteLight,
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = { onStatusSubmit("Remote") },
-                        enabled = !isLoading
+                        onClick = { onIntent(StatusIntent.SubmitStatusClick("Remote")) },
+                        enabled = !state.isLoading
                     )
                     StatusCard(
                         title = "Лікарняний",
@@ -79,15 +79,24 @@ fun StatusContent(
                         icon = Icons.Rounded.HealthAndSafety,
                         color = StatusSickLight,
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = { onStatusSubmit("Sick") },
-                        enabled = !isLoading
+                        onClick = { onIntent(StatusIntent.SubmitStatusClick("Sick")) },
+                        enabled = !state.isLoading
                     )
                 }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                NoteInputField(
+                    note = state.note,
+                    onNoteChange = { onIntent(StatusIntent.UpdateNote(it)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !state.isLoading
+                )
                 
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
-            if (isLoading) {
+            if (state.isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center)
                 )
@@ -101,9 +110,8 @@ fun StatusContent(
 private fun StatusContentPreview() {
     CoreTheme {
         StatusContent(
-            isLoading = false,
-            onStatusSubmit = {},
-            onBackClick = {}
+            state = StatusState(isLoading = false),
+            onIntent = {}
         )
     }
 }
@@ -113,9 +121,8 @@ private fun StatusContentPreview() {
 private fun StatusLoadingPreview() {
     CoreTheme {
         StatusContent(
-            isLoading = true,
-            onStatusSubmit = {},
-            onBackClick = {}
+            state = StatusState(isLoading = true),
+            onIntent = {}
         )
     }
 }

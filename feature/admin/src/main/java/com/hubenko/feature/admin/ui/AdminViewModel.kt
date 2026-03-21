@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.hubenko.core.base.BaseViewModel
 import com.hubenko.domain.model.Employee
 import com.hubenko.domain.model.EmployeeStatus
+import com.hubenko.domain.repository.StatusRepository
 import com.hubenko.domain.usecase.DeleteEmployeeUseCase
 import com.hubenko.domain.usecase.GetAllEmployeesUseCase
 import com.hubenko.domain.usecase.GetAllStatusesUseCase
@@ -33,7 +34,8 @@ class AdminViewModel @Inject constructor(
     private val getAllStatusesUseCase: GetAllStatusesUseCase,
     private val saveEmployeeUseCase: SaveEmployeeUseCase,
     private val deleteEmployeeUseCase: DeleteEmployeeUseCase,
-    private val signUpUseCase: SignUpUseCase
+    private val signUpUseCase: SignUpUseCase,
+    private val statusRepository: StatusRepository
 ) : BaseViewModel<AdminState, AdminIntent, AdminEffect>(AdminState()) {
 
     init {
@@ -53,9 +55,11 @@ class AdminViewModel @Inject constructor(
             is AdminIntent.OnDeleteEmployeeClick -> deleteEmployee(intent.id)
             is AdminIntent.OnSaveEmployee -> saveEmployee(intent.employee)
             is AdminIntent.OnDismissDialog -> updateState { 
-                copy(isEmployeeDialogOpen = false, editingEmployee = null) 
+                copy(isEmployeeDialogOpen = false, editingEmployee = null, isDeleteStatusesDialogOpen = false) 
             }
             is AdminIntent.OnExportStatusesClick -> exportStatusesToCsv()
+            is AdminIntent.OnDeleteAllStatusesClick -> updateState { copy(isDeleteStatusesDialogOpen = true) }
+            is AdminIntent.OnConfirmDeleteAllStatuses -> deleteAllStatuses()
         }
     }
 
@@ -151,6 +155,21 @@ class AdminViewModel @Inject constructor(
             } catch (e: Exception) {
                 sendEffect(AdminEffect.ShowToast("Помилка видалення: ${e.message}"))
             }
+        }
+    }
+
+    private fun deleteAllStatuses() {
+        viewModelScope.launch {
+            updateState { copy(isLoading = true, isDeleteStatusesDialogOpen = false) }
+            statusRepository.deleteAllStatuses()
+                .onSuccess {
+                    updateState { copy(isLoading = false) }
+                    sendEffect(AdminEffect.ShowToast("Усі статуси успішно видалено"))
+                }
+                .onFailure { e ->
+                    updateState { copy(isLoading = false) }
+                    sendEffect(AdminEffect.ShowToast("Помилка видалення: ${e.message}"))
+                }
         }
     }
 }

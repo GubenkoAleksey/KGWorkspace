@@ -27,4 +27,7 @@ interface EmployeeStatusDao {
 
     @Query("UPDATE employee_status SET isSynced = 1 WHERE id IN (:ids)")
     suspend fun markAsSynced(ids: List<String>)
+
+    @Query("DELETE FROM employee_status")
+    suspend fun deleteAllStatuses()
 }

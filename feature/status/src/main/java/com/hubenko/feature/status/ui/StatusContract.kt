@@ -7,11 +7,17 @@ import com.hubenko.core.base.ViewState
 data class StatusState(
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val note: String = "",
+    val showConfirmDialog: Boolean = false,
+    val pendingStatus: String? = null
 ) : ViewState
 
 sealed class StatusIntent : ViewIntent {
-    data class SubmitStatus(val status: String) : StatusIntent()
+    data class SubmitStatusClick(val status: String) : StatusIntent()
+    object ConfirmSubmit : StatusIntent()
+    object DismissConfirmDialog : StatusIntent()
+    data class UpdateNote(val note: String) : StatusIntent()
     object DismissDialog : StatusIntent()
     object OnBackClick : StatusIntent()
 }

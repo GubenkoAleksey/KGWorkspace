@@ -41,6 +41,7 @@ class StatusRepositoryImpl @Inject constructor(
                     id = doc.id,
                     employeeId = doc.getString("employeeId") ?: "",
                     status = doc.getString("status") ?: "",
+                    note = doc.getString("note"),
                     timestamp = doc.getLong("timestamp") ?: 0L,
                     isSynced = true
                 )
@@ -51,11 +52,12 @@ class StatusRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun saveStatusLocally(employeeId: String, status: String) {
+    override suspend fun saveStatusLocally(employeeId: String, status: String, note: String?) {
         val entity = EmployeeStatusEntity(
             id = UUID.randomUUID().toString(),
             employeeId = employeeId,
             status = status,
+            note = note,
             timestamp = System.currentTimeMillis(),
             isSynced = false
         )
@@ -78,6 +80,9 @@ class StatusRepositoryImpl @Inject constructor(
                     "status" to status.status,
                     "timestamp" to status.timestamp
                 )
+                status.note?.let {
+                    map["note"] = it
+                }
                 batch.set(docRef, map)
             }
             batch.commit().await()
@@ -102,5 +107,23 @@ class StatusRepositoryImpl @Inject constructor(
             ExistingWorkPolicy.REPLACE,
             syncRequest
         )
+    }
+
+    override suspend fun deleteAllStatuses(): Result<Unit> {
+        return try {
+            // Delete from Firestore
+            val snapshot = firestore.collection("employee_statuses").get().await()
+            val batch = firestore.batch()
+            snapshot.documents.forEach { doc ->
+                batch.delete(doc.reference)
+            }
+            batch.commit().await()
+
+            // Delete from Room
+            dao.deleteAllStatuses()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

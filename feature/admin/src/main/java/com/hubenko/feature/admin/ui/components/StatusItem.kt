@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hubenko.core.ui.theme.CoreTheme
@@ -31,9 +32,20 @@ fun StatusItem(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = status.status,
+                text = "Статус: ${status.status}",
                 style = MaterialTheme.typography.bodyLarge
             )
+            
+            if (!status.note.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Примітка: ${status.note}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontStyle = FontStyle.Italic,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -58,6 +70,7 @@ private fun StatusItemPreview() {
                 employeeId = "emp1",
                 employeeFullName = "Іванов Іван Іванович",
                 status = "Office",
+                note = "Запізнюся на 10 хвилин через затори",
                 timestamp = System.currentTimeMillis(),
                 isSynced = true
             )

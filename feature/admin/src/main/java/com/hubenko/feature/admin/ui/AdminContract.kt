@@ -23,7 +23,8 @@ data class AdminState(
     val isLoading: Boolean = false,
     val selectedTab: AdminTab = AdminTab.EMPLOYEES,
     val isEmployeeDialogOpen: Boolean = false,
-    val editingEmployee: Employee? = null
+    val editingEmployee: Employee? = null,
+    val isDeleteStatusesDialogOpen: Boolean = false
 ) : ViewState
 
 /**
@@ -61,6 +62,12 @@ sealed class AdminIntent : ViewIntent {
 
     /** Натиск на кнопку експорту статусів */
     data object OnExportStatusesClick : AdminIntent()
+
+    /** Натиск на кнопку видалення всіх статусів */
+    data object OnDeleteAllStatusesClick : AdminIntent()
+
+    /** Підтвердження видалення всіх статусів */
+    data object OnConfirmDeleteAllStatuses : AdminIntent()
 }
 
 /**

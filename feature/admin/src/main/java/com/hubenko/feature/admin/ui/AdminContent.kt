@@ -5,13 +5,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.hubenko.core.ui.components.AppTopBar
+import com.hubenko.feature.admin.ui.components.DeleteStatusesDialog
 import com.hubenko.feature.admin.ui.components.EmployeeDialog
 import com.hubenko.feature.admin.ui.components.EmployeeItem
 import com.hubenko.feature.admin.ui.components.StatusItem
@@ -38,6 +41,13 @@ fun AdminContent(
                 onBackClick = onBack,
                 actions = {
                     if (state.selectedTab == AdminTab.STATUSES && state.statuses.isNotEmpty()) {
+                        IconButton(onClick = { onIntent(AdminIntent.OnDeleteAllStatusesClick) }) {
+                            Icon(
+                                imageVector = Icons.Default.DeleteSweep,
+                                contentDescription = "Видалити всі статуси",
+                                tint = Color.Red
+                            )
+                        }
                         IconButton(onClick = { onIntent(AdminIntent.OnExportStatusesClick) }) {
                             Icon(
                                 imageVector = Icons.Default.Share,
@@ -113,6 +123,13 @@ fun AdminContent(
             employee = state.editingEmployee,
             onDismiss = { onIntent(AdminIntent.OnDismissDialog) },
             onSave = { onIntent(AdminIntent.OnSaveEmployee(it)) }
+        )
+    }
+
+    if (state.isDeleteStatusesDialogOpen) {
+        DeleteStatusesDialog(
+            onConfirm = { onIntent(AdminIntent.OnConfirmDeleteAllStatuses) },
+            onDismiss = { onIntent(AdminIntent.OnDismissDialog) }
         )
     }
 }

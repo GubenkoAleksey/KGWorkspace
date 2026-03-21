@@ -6,6 +6,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hubenko.feature.status.ui.components.StatusConfirmationDialog
+import com.hubenko.feature.status.ui.components.SubmitConfirmDialog
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -33,9 +34,16 @@ fun StatusScreen(
         )
     }
 
+    if (state.showConfirmDialog && state.pendingStatus != null) {
+        SubmitConfirmDialog(
+            status = state.pendingStatus!!,
+            onConfirm = { viewModel.onIntent(StatusIntent.ConfirmSubmit) },
+            onDismiss = { viewModel.onIntent(StatusIntent.DismissConfirmDialog) }
+        )
+    }
+
     StatusContent(
-        isLoading = state.isLoading,
-        onStatusSubmit = { status -> viewModel.onIntent(StatusIntent.SubmitStatus(status)) },
-        onBackClick = onNavigateBack
+        state = state,
+        onIntent = viewModel::onIntent
     )
 }

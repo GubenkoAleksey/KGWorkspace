@@ -9,6 +9,7 @@ data class EmployeeStatusEntity(
     val id: String,
     val employeeId: String,
     val status: String,
+    val note: String? = null,
     val timestamp: Long,
     val isSynced: Boolean = false
 )
