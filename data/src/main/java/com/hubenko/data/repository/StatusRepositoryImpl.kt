@@ -1,5 +1,6 @@
 package com.hubenko.data.repository
 
+import android.util.Log
 import android.content.Context
 import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
@@ -49,7 +50,7 @@ class StatusRepositoryImpl @Inject constructor(
                 dao.insertStatus(entity)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e(TAG, "Failed to fetch statuses from remote", e)
         }
     }
 
@@ -139,5 +140,9 @@ class StatusRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    private companion object {
+        private const val TAG = "StatusRepositoryImpl"
     }
 }

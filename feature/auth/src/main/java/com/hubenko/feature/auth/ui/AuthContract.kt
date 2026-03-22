@@ -18,7 +18,7 @@ data class AuthState(
 ) : ViewState
 
 sealed class AuthIntent : ViewIntent {
-    object ToggleAuthMode : AuthIntent()
+    data object ToggleAuthMode : AuthIntent()
     data class EmailChanged(val value: String) : AuthIntent()
     data class PasswordChanged(val value: String) : AuthIntent()
     data class LastNameChanged(val value: String) : AuthIntent()
@@ -26,10 +26,10 @@ sealed class AuthIntent : ViewIntent {
     data class MiddleNameChanged(val value: String) : AuthIntent()
     data class PhoneChanged(val value: String) : AuthIntent()
     data class AdminRoleChanged(val value: Boolean) : AuthIntent()
-    object Submit : AuthIntent()
+    data object Submit : AuthIntent()
 }
 
 sealed class AuthEffect : ViewSideEffect {
-    object NavigateToHome : AuthEffect()
+    data object NavigateToHome : AuthEffect()
     data class ShowError(val message: String) : AuthEffect()
 }

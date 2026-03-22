@@ -44,7 +44,7 @@ class StatusViewModel @Inject constructor(
                 updateState { copy(showConfirmDialog = false, pendingStatus = null) }
             }
             is StatusIntent.UpdateNote -> {
-                if (intent.note.length <= 300) {
+                if (intent.note.length <= NOTE_MAX_LENGTH) {
                     updateState { copy(note = intent.note) }
                 }
             }
@@ -70,15 +70,10 @@ class StatusViewModel @Inject constructor(
             submitStatusUseCase(status, noteToSubmit)
                 .onSuccess {
                     if (status == "Sick") {
-                        // Для лікарняного робота відразу вважається закритою за вашою логікою? 
-                        // Чи лікарняний теж активний? 
-                        // Згідно ТЗ: "якщо вибрав Лікарняний то проставляється startTime. І екран оновлюється з вибором статусів."
-                        // Це означає що він НЕ активний (завершений відразу або просто не блокує).
-                        // Але зазвичай лікарняний триває. 
-                        // Проте я зроблю як у ТЗ: "оновлюється з вибором статусів" = activeStatus = null.
+                        // Sick leave is not tracked as an active session — status screen resets to selection.
                         updateState { copy(isLoading = false, isSuccess = true, note = "", activeStatus = null) }
                     } else {
-                        // Офіс або Віддалено - стають активними
+                        // Office/Remote status becomes active — reload to get the new active record.
                         loadActiveStatus()
                         updateState { copy(isLoading = false, isSuccess = true, note = "") }
                     }
@@ -108,6 +103,5 @@ class StatusViewModel @Inject constructor(
 
     private fun dismissDialog() {
         updateState { copy(isSuccess = false) }
-        // Не виходимо, якщо просто оновили статус
     }
 }

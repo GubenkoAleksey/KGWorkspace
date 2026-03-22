@@ -10,15 +10,15 @@ data class HomeState(
 ) : ViewState
 
 sealed class HomeIntent : ViewIntent {
-    object LoadAdminStatus : HomeIntent()
-    object OnAdminPanelClick : HomeIntent()
-    object OnSendStatusClick : HomeIntent()
-    object OnLogoutClick : HomeIntent()
+    data object LoadAdminStatus : HomeIntent()
+    data object OnAdminPanelClick : HomeIntent()
+    data object OnSendStatusClick : HomeIntent()
+    data object OnLogoutClick : HomeIntent()
 }
 
 sealed class HomeEffect : ViewSideEffect {
     data class ShowToast(val message: String) : HomeEffect()
-    object NavigateToStatus : HomeEffect()
-    object NavigateToAdmin : HomeEffect()
-    object NavigateToAuth : HomeEffect()
+    data object NavigateToStatus : HomeEffect()
+    data object NavigateToAdmin : HomeEffect()
+    data object NavigateToAuth : HomeEffect()
 }

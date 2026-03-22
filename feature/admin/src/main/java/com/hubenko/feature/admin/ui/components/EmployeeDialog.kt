@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hubenko.core.ui.components.AppTextField
@@ -59,12 +60,15 @@ fun EmployeeDialog(
                     label = "Електронна пошта",
                     modifier = Modifier.fillMaxWidth()
                 )
-                AppTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = "Пароль",
-                    modifier = Modifier.fillMaxWidth()
-                )
+                if (employee == null) {
+                    AppTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = "Пароль",
+                        modifier = Modifier.fillMaxWidth(),
+                        visualTransformation = PasswordVisualTransformation()
+                    )
+                }
                 RoleDropdown(
                     selectedRole = role,
                     onRoleSelected = { role = it },

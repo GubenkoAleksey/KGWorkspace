@@ -5,6 +5,8 @@ import com.hubenko.core.base.ViewSideEffect
 import com.hubenko.core.base.ViewState
 import com.hubenko.domain.model.EmployeeStatus
 
+const val NOTE_MAX_LENGTH = 300
+
 data class StatusState(
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
@@ -16,16 +18,16 @@ data class StatusState(
 ) : ViewState
 
 sealed class StatusIntent : ViewIntent {
-    object LoadActiveStatus : StatusIntent()
+    data object LoadActiveStatus : StatusIntent()
     data class SubmitStatusClick(val status: String) : StatusIntent()
-    object ConfirmSubmit : StatusIntent()
-    object DismissConfirmDialog : StatusIntent()
+    data object ConfirmSubmit : StatusIntent()
+    data object DismissConfirmDialog : StatusIntent()
     data class UpdateNote(val note: String) : StatusIntent()
-    object DismissDialog : StatusIntent()
-    object OnBackClick : StatusIntent()
+    data object DismissDialog : StatusIntent()
+    data object OnBackClick : StatusIntent()
 }
 
 sealed class StatusEffect : ViewSideEffect {
-    object NavigateBack : StatusEffect()
+    data object NavigateBack : StatusEffect()
     data class ShowError(val message: String) : StatusEffect()
 }

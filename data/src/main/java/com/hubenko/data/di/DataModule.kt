@@ -2,6 +2,8 @@ package com.hubenko.data.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hubenko.data.local.AppDatabase
@@ -24,6 +26,35 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object DataModule {
 
+    /**
+     * Migration from version 10 to 11: removes the plaintext `password` column from the
+     * `employees` table. SQLite does not support DROP COLUMN directly on older API levels,
+     * so we recreate the table without the sensitive column.
+     */
+    private val MIGRATION_10_11 = object : Migration(10, 11) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS employees_new (
+                    id TEXT NOT NULL PRIMARY KEY,
+                    lastName TEXT NOT NULL,
+                    firstName TEXT NOT NULL,
+                    middleName TEXT NOT NULL,
+                    phoneNumber TEXT NOT NULL,
+                    role TEXT NOT NULL,
+                    email TEXT NOT NULL DEFAULT ''
+                )
+                """.trimIndent()
+            )
+            db.execSQL(
+                "INSERT INTO employees_new (id, lastName, firstName, middleName, phoneNumber, role, email) " +
+                        "SELECT id, lastName, firstName, middleName, phoneNumber, role, email FROM employees"
+            )
+            db.execSQL("DROP TABLE employees")
+            db.execSQL("ALTER TABLE employees_new RENAME TO employees")
+        }
+    }
+
     @Provides
     @Singleton
     fun provideFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -40,6 +71,7 @@ object DataModule {
             AppDatabase::class.java,
             "employee_status_db"
         )
+        .addMigrations(MIGRATION_10_11)
         .fallbackToDestructiveMigration()
         .build()
     }

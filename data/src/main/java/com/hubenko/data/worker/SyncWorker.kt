@@ -1,6 +1,7 @@
 package com.hubenko.data.worker
 
 import android.content.Context
+import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -29,8 +30,12 @@ class SyncWorker @AssistedInject constructor(
                 Result.retry()
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e(TAG, "Sync failed, will retry", e)
             Result.retry()
         }
+    }
+
+    private companion object {
+        private const val TAG = "SyncWorker"
     }
 }
