@@ -12,8 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hubenko.core.ui.components.AppTopBar
+import com.hubenko.core.ui.theme.CoreTheme
+import com.hubenko.domain.model.Employee
+import com.hubenko.domain.model.EmployeeStatus
 import com.hubenko.feature.admin.ui.components.DeleteStatusesDialog
 import com.hubenko.feature.admin.ui.components.EmployeeDialog
 import com.hubenko.feature.admin.ui.components.EmployeeItem
@@ -130,6 +134,68 @@ fun AdminContent(
         DeleteStatusesDialog(
             onConfirm = { onIntent(AdminIntent.OnConfirmDeleteAllStatuses) },
             onDismiss = { onIntent(AdminIntent.OnDismissDialog) }
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Admin - Employees Tab")
+@Composable
+private fun AdminContentEmployeesPreview() {
+    CoreTheme {
+        AdminContent(
+            state = AdminState(
+                employees = listOf(
+                    Employee(
+                        id = "1",
+                        lastName = "Іваненко",
+                        firstName = "Іван",
+                        middleName = "Іванович",
+                        phoneNumber = "+380501234567",
+                        role = "USER",
+                        email = "ivan@example.com",
+                        password = ""
+                    )
+                ),
+                selectedTab = AdminTab.EMPLOYEES
+            ),
+            onIntent = {},
+            onBack = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Admin - Statuses Tab")
+@Composable
+private fun AdminContentStatusesPreview() {
+    CoreTheme {
+        AdminContent(
+            state = AdminState(
+                statuses = listOf(
+                    EmployeeStatus(
+                        id = "1",
+                        employeeId = "emp1",
+                        employeeFullName = "Іваненко Іван Іванович",
+                        status = "Office",
+                        startTime = System.currentTimeMillis(),
+                        isSynced = true
+                    )
+                ),
+                selectedTab = AdminTab.STATUSES
+            ),
+            onIntent = {},
+            onBack = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Admin - Loading")
+@Composable
+private fun AdminContentLoadingPreview() {
+    CoreTheme {
+        AdminContent(
+            state = AdminState(isLoading = true),
+            onIntent = {},
+            onBack = {}
         )
     }
 }
