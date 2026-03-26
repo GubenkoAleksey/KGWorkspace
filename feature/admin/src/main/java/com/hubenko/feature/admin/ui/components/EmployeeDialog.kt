@@ -1,12 +1,8 @@
 package com.hubenko.feature.admin.ui.components
 
-import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.hubenko.core.ui.components.AppTextField
 import com.hubenko.core.ui.theme.CoreTheme
 import com.hubenko.domain.model.Employee
 
@@ -28,49 +24,22 @@ fun EmployeeDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (employee == null) "Додати працівника" else "Редагувати") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                AppTextField(
-                    value = lastName,
-                    onValueChange = { lastName = it },
-                    label = "Прізвище",
-                    modifier = Modifier.fillMaxWidth()
-                )
-                AppTextField(
-                    value = firstName,
-                    onValueChange = { firstName = it },
-                    label = "Ім'я",
-                    modifier = Modifier.fillMaxWidth()
-                )
-                AppTextField(
-                    value = middleName,
-                    onValueChange = { middleName = it },
-                    label = "По батькові",
-                    modifier = Modifier.fillMaxWidth()
-                )
-                AppTextField(
-                    value = phoneNumber,
-                    onValueChange = { phoneNumber = it },
-                    label = "Телефон",
-                    modifier = Modifier.fillMaxWidth()
-                )
-                AppTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = "Електронна пошта",
-                    modifier = Modifier.fillMaxWidth()
-                )
-                AppTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = "Пароль",
-                    modifier = Modifier.fillMaxWidth()
-                )
-                RoleDropdown(
-                    selectedRole = role,
-                    onRoleSelected = { role = it },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+            EmployeeFormFields(
+                lastName = lastName,
+                onLastNameChange = { lastName = it },
+                firstName = firstName,
+                onFirstNameChange = { firstName = it },
+                middleName = middleName,
+                onMiddleNameChange = { middleName = it },
+                phoneNumber = phoneNumber,
+                onPhoneNumberChange = { phoneNumber = it },
+                email = email,
+                onEmailChange = { email = it },
+                password = password,
+                onPasswordChange = { password = it },
+                role = role,
+                onRoleSelected = { role = it }
+            )
         },
         confirmButton = {
             Button(
