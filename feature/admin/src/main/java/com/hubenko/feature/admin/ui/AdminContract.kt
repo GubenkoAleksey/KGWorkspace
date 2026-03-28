@@ -57,7 +57,7 @@ sealed class AdminIntent : ViewIntent {
     data class OnDeleteEmployeeClick(val id: String) : AdminIntent()
     
     /** Збереження даних співробітника (новий або існуючий) */
-    data class OnSaveEmployee(val employee: Employee) : AdminIntent()
+    data class OnSaveEmployee(val employee: Employee, val password: String = "") : AdminIntent()
     
     /** Закриття діалогового вікна */
     data object OnDismissDialog : AdminIntent()

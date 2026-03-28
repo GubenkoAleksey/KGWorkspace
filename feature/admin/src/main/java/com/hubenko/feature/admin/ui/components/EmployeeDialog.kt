@@ -14,7 +14,7 @@ import com.hubenko.domain.model.Employee
 fun EmployeeDialog(
     employee: Employee?,
     onDismiss: () -> Unit,
-    onSave: (Employee) -> Unit
+    onSave: (Employee, String) -> Unit
 ) {
     var lastName by remember { mutableStateOf(employee?.lastName ?: "") }
     var firstName by remember { mutableStateOf(employee?.firstName ?: "") }
@@ -22,7 +22,7 @@ fun EmployeeDialog(
     var phoneNumber by remember { mutableStateOf(employee?.phoneNumber ?: "") }
     var role by remember { mutableStateOf(employee?.role ?: "USER") }
     var email by remember { mutableStateOf(employee?.email ?: "") }
-    var password by remember { mutableStateOf(employee?.password ?: "") }
+    var password by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -59,12 +59,14 @@ fun EmployeeDialog(
                     label = "Електронна пошта",
                     modifier = Modifier.fillMaxWidth()
                 )
-                AppTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = "Пароль",
-                    modifier = Modifier.fillMaxWidth()
-                )
+                if (employee == null) {
+                    AppTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = "Пароль",
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
                 RoleDropdown(
                     selectedRole = role,
                     onRoleSelected = { role = it },
@@ -83,9 +85,9 @@ fun EmployeeDialog(
                             middleName = middleName,
                             phoneNumber = phoneNumber,
                             role = role,
-                            email = email,
-                            password = password
-                        )
+                            email = email
+                        ),
+                        password
                     )
                 }
             ) {
@@ -107,7 +109,7 @@ private fun EmployeeDialogPreview() {
         EmployeeDialog(
             employee = null,
             onDismiss = {},
-            onSave = {}
+            onSave = { _, _ -> }
         )
     }
 }

@@ -27,8 +27,7 @@ class AuthRepositoryImpl @Inject constructor(
                     middleName = doc.getString("middleName") ?: "",
                     phoneNumber = doc.getString("phoneNumber") ?: "",
                     role = doc.getString("role") ?: "USER",
-                    email = doc.getString("email") ?: user.email ?: "",
-                    password = doc.getString("password") ?: ""
+                    email = doc.getString("email") ?: user.email ?: ""
                 )
                 employeeDao.insertEmployee(entity)
                 Result.success(user.uid)
@@ -57,7 +56,6 @@ class AuthRepositoryImpl @Inject constructor(
                     "uid" to user.uid,
                     "id" to user.uid,
                     "email" to email,
-                    "password" to password, // Зберігаємо пароль для відображення адміну
                     "lastName" to lastName,
                     "firstName" to firstName,
                     "middleName" to middleName,
@@ -73,8 +71,7 @@ class AuthRepositoryImpl @Inject constructor(
                     middleName = middleName,
                     phoneNumber = phoneNumber,
                     role = role,
-                    email = email,
-                    password = password
+                    email = email
                 )
                 employeeDao.insertEmployee(entity)
                 Result.success(user.uid)

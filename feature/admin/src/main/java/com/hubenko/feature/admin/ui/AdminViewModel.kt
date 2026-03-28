@@ -53,7 +53,7 @@ class AdminViewModel @Inject constructor(
                 copy(isEmployeeDialogOpen = true, editingEmployee = intent.employee) 
             }
             is AdminIntent.OnDeleteEmployeeClick -> deleteEmployee(intent.id)
-            is AdminIntent.OnSaveEmployee -> saveEmployee(intent.employee)
+            is AdminIntent.OnSaveEmployee -> saveEmployee(intent.employee, intent.password)
             is AdminIntent.OnDismissDialog -> updateState { 
                 copy(isEmployeeDialogOpen = false, editingEmployee = null, isDeleteStatusesDialogOpen = false) 
             }
@@ -135,12 +135,12 @@ class AdminViewModel @Inject constructor(
         return file
     }
 
-    private fun saveEmployee(employee: Employee) {
+    private fun saveEmployee(employee: Employee, password: String = "") {
         viewModelScope.launch {
             try {
                 if (employee.id.isBlank()) {
                     // Новий користувач - створюємо через FirebaseAuth
-                    signUpUseCase(employee).onSuccess {
+                    signUpUseCase(employee, password).onSuccess {
                         updateState { copy(isEmployeeDialogOpen = false, editingEmployee = null) }
                         sendEffect(AdminEffect.ShowToast("Співробітника створено в системі"))
                     }.onFailure {

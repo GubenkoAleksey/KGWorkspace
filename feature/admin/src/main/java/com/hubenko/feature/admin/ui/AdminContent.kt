@@ -149,7 +149,7 @@ fun AdminContent(
         EmployeeDialog(
             employee = state.editingEmployee,
             onDismiss = { onIntent(AdminIntent.OnDismissDialog) },
-            onSave = { onIntent(AdminIntent.OnSaveEmployee(it)) }
+            onSave = { employee, password -> onIntent(AdminIntent.OnSaveEmployee(employee, password)) }
         )
     }
 

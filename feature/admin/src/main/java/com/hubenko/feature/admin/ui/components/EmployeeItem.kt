@@ -46,12 +46,6 @@ fun EmployeeItem(
                     )
                 }
                 
-                val passwordText = if (employee.password.isNotEmpty()) employee.password else "не задано"
-                Text(
-                    text = "Пароль: $passwordText",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-
                 Text(
                     text = "Роль: ${employee.role}",
                     style = MaterialTheme.typography.bodySmall,
@@ -80,8 +74,7 @@ private fun EmployeeItemPreview() {
                 middleName = "Іванович",
                 phoneNumber = "+380991234567",
                 role = "USER",
-                email = "ivanov@company.com",
-                password = "password123"
+                email = "ivanov@company.com"
             ),
             onEdit = {},
             onDelete = {}

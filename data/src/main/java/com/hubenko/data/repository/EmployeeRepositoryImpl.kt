@@ -48,7 +48,6 @@ class EmployeeRepositoryImpl @Inject constructor(
                     val phoneNumber = doc.getString("phoneNumber") ?: ""
                     val role = doc.getString("role") ?: "USER"
                     val email = doc.getString("email") ?: ""
-                    val password = doc.getString("password") ?: ""
 
                     val entity = EmployeeEntity(
                         id = id,
@@ -57,8 +56,7 @@ class EmployeeRepositoryImpl @Inject constructor(
                         middleName = middleName,
                         phoneNumber = phoneNumber,
                         role = role,
-                        email = email,
-                        password = password
+                        email = email
                     )
                     dao.insertEmployee(entity)
                 }
@@ -76,7 +74,6 @@ class EmployeeRepositoryImpl @Inject constructor(
                 "uid" to employee.id,
                 "id" to employee.id,
                 "email" to employee.email,
-                "password" to employee.password,
                 "lastName" to employee.lastName,
                 "firstName" to employee.firstName,
                 "middleName" to employee.middleName,
