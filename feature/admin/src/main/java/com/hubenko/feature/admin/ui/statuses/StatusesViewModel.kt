@@ -39,6 +39,7 @@ class StatusesViewModel @Inject constructor(
             is StatusesIntent.OnDeleteAllClick -> updateState { copy(isDeleteDialogOpen = true) }
             is StatusesIntent.OnConfirmDelete -> deleteAllStatuses()
             is StatusesIntent.OnDismissDialog -> updateState { copy(isDeleteDialogOpen = false) }
+            is StatusesIntent.OnEmployeeExpandToggle -> toggleEmployeeGroup(intent.employeeId)
         }
     }
 
@@ -46,8 +47,49 @@ class StatusesViewModel @Inject constructor(
         updateState { copy(isLoading = true) }
         viewModelScope.launch {
             getAllStatusesUseCase().collectLatest { list ->
-                updateState { copy(statuses = list, isLoading = false) }
+                val sortedStatuses = list.sortedByDescending { it.startTime }
+                val expandedByEmployeeId = viewState.value.employeeGroups.associate {
+                    it.employeeId to it.isExpanded
+                }
+
+                val employeeGroups = sortedStatuses
+                    .groupBy { it.employeeId }
+                    .map { (employeeId, statuses) ->
+                        val employeeName = statuses
+                            .firstNotNullOfOrNull { it.employeeFullName?.takeIf(String::isNotBlank) }
+                            ?: "ID Працівника: $employeeId"
+
+                        EmployeeStatusesGroup(
+                            employeeId = employeeId,
+                            employeeName = employeeName,
+                            statuses = statuses.sortedByDescending { it.startTime },
+                            isExpanded = expandedByEmployeeId[employeeId] ?: false
+                        )
+                    }
+                    .sortedByDescending { it.statuses.firstOrNull()?.startTime ?: Long.MIN_VALUE }
+
+                updateState {
+                    copy(
+                        statuses = sortedStatuses,
+                        employeeGroups = employeeGroups,
+                        isLoading = false
+                    )
+                }
             }
+        }
+    }
+
+    private fun toggleEmployeeGroup(employeeId: String) {
+        updateState {
+            copy(
+                employeeGroups = employeeGroups.map { group ->
+                    if (group.employeeId == employeeId) {
+                        group.copy(isExpanded = !group.isExpanded)
+                    } else {
+                        group
+                    }
+                }
+            )
         }
     }
 

@@ -15,7 +15,8 @@ import java.util.*
 @Composable
 fun StatusItem(
     status: EmployeeStatus,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showEmployeeName: Boolean = true
 ) {
     val sdf = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
     val startString = sdf.format(Date(status.startTime))
@@ -26,12 +27,14 @@ fun StatusItem(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = status.employeeFullName ?: "ID Працівника: ${status.employeeId}",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.height(4.dp))
+            if (showEmployeeName) {
+                Text(
+                    text = status.employeeFullName ?: "ID Працівника: ${status.employeeId}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+            }
             Text(
                 text = "Статус: ${status.status}",
                 style = MaterialTheme.typography.bodyLarge
@@ -79,7 +82,8 @@ private fun StatusItemPreview() {
                 startTime = System.currentTimeMillis(),
                 endTime = System.currentTimeMillis() + 3600000,
                 isSynced = true
-            )
+            ),
+            showEmployeeName = true
         )
     }
 }
