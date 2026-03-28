@@ -11,12 +11,14 @@ import com.hubenko.data.local.dao.ReminderSettingsDao
 import com.hubenko.data.repository.AuthRepositoryImpl
 import com.hubenko.data.repository.EmployeeRepositoryImpl
 import com.hubenko.data.repository.ReminderRepositoryImpl
+import com.hubenko.data.repository.RoleRepositoryImpl
 import com.hubenko.data.repository.StatusRepositoryImpl
 import com.hubenko.data.worker.AlarmScheduler
 import com.hubenko.domain.manager.ReminderManager
 import com.hubenko.domain.repository.AuthRepository
 import com.hubenko.domain.repository.EmployeeRepository
 import com.hubenko.domain.repository.ReminderRepository
+import com.hubenko.domain.repository.RoleRepository
 import com.hubenko.domain.repository.StatusRepository
 import dagger.Module
 import dagger.Provides
@@ -77,4 +79,8 @@ object DataModule {
     @Provides
     @Singleton
     fun provideReminderManager(impl: AlarmScheduler): ReminderManager = impl
+
+    @Provides
+    @Singleton
+    fun provideRoleRepository(impl: RoleRepositoryImpl): RoleRepository = impl
 }

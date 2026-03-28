@@ -1,4 +1,4 @@
-package com.hubenko.feature.admin.ui.components
+package com.hubenko.feature.admin.ui.employees.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -16,6 +16,7 @@ import com.hubenko.domain.model.Employee
 @Composable
 fun EmployeeItem(
     employee: Employee,
+    roleLabel: String? = null,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
@@ -45,9 +46,8 @@ fun EmployeeItem(
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
-                
                 Text(
-                    text = "Роль: ${employee.role}",
+                    text = "Роль: ${roleLabel ?: employee.role}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -56,7 +56,11 @@ fun EmployeeItem(
                 Icon(Icons.Default.Edit, contentDescription = "Редагувати")
             }
             IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = "Видалити", tint = MaterialTheme.colorScheme.error)
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = "Видалити",
+                    tint = MaterialTheme.colorScheme.error
+                )
             }
         }
     }
@@ -74,10 +78,11 @@ private fun EmployeeItemPreview() {
                 middleName = "Іванович",
                 phoneNumber = "+380991234567",
                 role = "USER",
-                email = "ivanov@company.com"
+                email = "ivan@company.com"
             ),
             onEdit = {},
             onDelete = {}
         )
     }
 }
+

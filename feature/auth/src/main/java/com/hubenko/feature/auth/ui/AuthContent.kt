@@ -13,8 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.hubenko.core.ui.theme.CoreTheme
 import com.hubenko.feature.auth.ui.components.AuthHeader
 import com.hubenko.feature.auth.ui.components.CommonAuthFields
-import com.hubenko.feature.auth.ui.components.SignUpExtraFields
-import com.hubenko.feature.auth.ui.components.AuthSubmitActions
+import com.hubenko.feature.auth.ui.components.LoginSubmitButton
 
 @Composable
 fun AuthContent(
@@ -29,7 +28,7 @@ fun AuthContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        AuthHeader(state.isSignUp)
+        AuthHeader(isSignUp = false)
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -40,28 +39,11 @@ fun AuthContent(
             onPasswordChange = { onIntent(AuthIntent.PasswordChanged(it)) }
         )
 
-        if (state.isSignUp) {
-            SignUpExtraFields(
-                lastName = state.lastName,
-                firstName = state.firstName,
-                middleName = state.middleName,
-                phoneNumber = state.phone,
-                isAdminRole = state.isAdmin,
-                onLastNameChange = { onIntent(AuthIntent.LastNameChanged(it)) },
-                onFirstNameChange = { onIntent(AuthIntent.FirstNameChanged(it)) },
-                onMiddleNameChange = { onIntent(AuthIntent.MiddleNameChanged(it)) },
-                onPhoneNumberChange = { onIntent(AuthIntent.PhoneChanged(it)) },
-                onIsAdminRoleChange = { onIntent(AuthIntent.AdminRoleChanged(it)) }
-            )
-        }
-
         Spacer(modifier = Modifier.height(24.dp))
 
-        AuthSubmitActions(
-            isSignUp = state.isSignUp,
+        LoginSubmitButton(
             isLoading = state.isLoading,
-            onActionSubmit = { onIntent(AuthIntent.Submit) },
-            onToggleAuthMode = { onIntent(AuthIntent.ToggleAuthMode) }
+            onSubmit = { onIntent(AuthIntent.Submit) }
         )
 
         state.error?.let { errorMessage ->
@@ -79,7 +61,7 @@ fun AuthContent(
 private fun AuthContentPreview() {
     CoreTheme {
         AuthContent(
-            state = AuthState(isSignUp = false),
+            state = AuthState(),
             onIntent = {}
         )
     }
@@ -96,12 +78,12 @@ private fun AuthContentLoadingPreview() {
     }
 }
 
-@Preview(showBackground = true, name = "SignUp State")
+@Preview(showBackground = true, name = "Error State")
 @Composable
-private fun AuthContentSignUpPreview() {
+private fun AuthContentErrorPreview() {
     CoreTheme {
         AuthContent(
-            state = AuthState(isSignUp = true),
+            state = AuthState(error = "Невірний email або пароль"),
             onIntent = {}
         )
     }

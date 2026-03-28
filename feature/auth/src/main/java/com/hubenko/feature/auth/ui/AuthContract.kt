@@ -7,25 +7,13 @@ import com.hubenko.core.base.ViewState
 data class AuthState(
     val isLoading: Boolean = false,
     val error: String? = null,
-    val isSignUp: Boolean = false,
     val email: String = "",
-    val pass: String = "",
-    val lastName: String = "",
-    val firstName: String = "",
-    val middleName: String = "",
-    val phone: String = "",
-    val isAdmin: Boolean = false
+    val pass: String = ""
 ) : ViewState
 
 sealed class AuthIntent : ViewIntent {
-    object ToggleAuthMode : AuthIntent()
     data class EmailChanged(val value: String) : AuthIntent()
     data class PasswordChanged(val value: String) : AuthIntent()
-    data class LastNameChanged(val value: String) : AuthIntent()
-    data class FirstNameChanged(val value: String) : AuthIntent()
-    data class MiddleNameChanged(val value: String) : AuthIntent()
-    data class PhoneChanged(val value: String) : AuthIntent()
-    data class AdminRoleChanged(val value: Boolean) : AuthIntent()
     object Submit : AuthIntent()
 }
 

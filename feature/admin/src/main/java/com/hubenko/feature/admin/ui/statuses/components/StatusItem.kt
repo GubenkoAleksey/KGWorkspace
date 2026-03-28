@@ -1,4 +1,4 @@
-package com.hubenko.feature.admin.ui.components
+package com.hubenko.feature.admin.ui.statuses.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -36,7 +36,6 @@ fun StatusItem(
                 text = "Статус: ${status.status}",
                 style = MaterialTheme.typography.bodyLarge
             )
-            
             if (!status.note.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
@@ -46,7 +45,6 @@ fun StatusItem(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -77,7 +75,7 @@ private fun StatusItemPreview() {
                 employeeId = "emp1",
                 employeeFullName = "Іванов Іван Іванович",
                 status = "Office",
-                note = "Запізнюся на 10 хвилин через затори",
+                note = "Запізнюся на 10 хвилин",
                 startTime = System.currentTimeMillis(),
                 endTime = System.currentTimeMillis() + 3600000,
                 isSynced = true
@@ -85,3 +83,4 @@ private fun StatusItemPreview() {
         )
     }
 }
+

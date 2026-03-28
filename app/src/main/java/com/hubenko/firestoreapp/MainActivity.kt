@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.hubenko.core.ui.theme.CoreTheme
 import com.hubenko.feature.admin.ui.AdminScreen
+import com.hubenko.feature.admin.ui.register.RegisterEmployeeScreen
 import com.hubenko.feature.admin.ui.reminder.ReminderSettingsScreen
 import com.hubenko.feature.auth.ui.AuthScreen
 import com.hubenko.feature.home.ui.HomeScreen
@@ -72,7 +73,16 @@ class MainActivity : ComponentActivity() {
                                 onNavigateBack = { navController.popBackStack() },
                                 onNavigateToReminderSettings = { employeeId ->
                                     navController.navigate("reminder_settings/$employeeId")
+                                },
+                                onNavigateToRegisterEmployee = {
+                                    navController.navigate("admin_register")
                                 }
+                            )
+                        }
+
+                        composable("admin_register") {
+                            RegisterEmployeeScreen(
+                                onNavigateBack = { navController.popBackStack() }
                             )
                         }
 

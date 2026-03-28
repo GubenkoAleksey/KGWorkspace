@@ -1,4 +1,4 @@
-package com.hubenko.feature.admin.ui.components
+package com.hubenko.feature.admin.ui.employees.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.*
@@ -6,16 +6,26 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.hubenko.core.ui.theme.CoreTheme
+import com.hubenko.domain.model.Role
 
+/**
+ * Випадаючий список для вибору ролі.
+ * Відображає [Role.label], передає [Role.id] при виборі.
+ *
+ * @param selectedRole Поточне значення ролі (id, напр. "USER").
+ * @param roles Список ролей, завантажених з Firestore.
+ * @param onRoleSelected Callback, що передає id вибраної ролі.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoleDropdown(
     selectedRole: String,
+    roles: List<Role>,
     onRoleSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val roles = listOf("USER", "ADMIN")
     var expanded by remember { mutableStateOf(false) }
+    val displayLabel = roles.find { it.id == selectedRole }?.label ?: selectedRole
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -23,7 +33,7 @@ fun RoleDropdown(
         modifier = modifier
     ) {
         OutlinedTextField(
-            value = selectedRole,
+            value = displayLabel,
             onValueChange = {},
             readOnly = true,
             label = { Text("Роль") },
@@ -39,9 +49,9 @@ fun RoleDropdown(
         ) {
             roles.forEach { role ->
                 DropdownMenuItem(
-                    text = { Text(role) },
+                    text = { Text(role.label) },
                     onClick = {
-                        onRoleSelected(role)
+                        onRoleSelected(role.id)
                         expanded = false
                     }
                 )
@@ -50,16 +60,27 @@ fun RoleDropdown(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "User Role")
 @Composable
-private fun RoleDropdownPreview() {
+private fun RoleDropdownUserPreview() {
     CoreTheme {
         var role by remember { mutableStateOf("USER") }
         RoleDropdown(
             selectedRole = role,
+            roles = listOf(Role("USER", "Працівник"), Role("ADMIN", "Адміністратор")),
             onRoleSelected = { role = it }
         )
-        // Dummy read to avoid warning
-        println(role)
+    }
+}
+
+@Preview(showBackground = true, name = "Empty Roles")
+@Composable
+private fun RoleDropdownEmptyPreview() {
+    CoreTheme {
+        RoleDropdown(
+            selectedRole = "",
+            roles = emptyList(),
+            onRoleSelected = {}
+        )
     }
 }
