@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.hubenko.core.ui.theme.CoreTheme
 import com.hubenko.feature.admin.ui.AdminScreen
+import com.hubenko.feature.admin.ui.reminder.ReminderSettingsScreen
 import com.hubenko.feature.auth.ui.AuthScreen
 import com.hubenko.feature.home.ui.HomeScreen
 import com.hubenko.feature.status.ui.StatusScreen
@@ -68,7 +69,18 @@ class MainActivity : ComponentActivity() {
 
                         composable("admin") {
                             AdminScreen(
-                                onNavigateBack = { navController.popBackStack() }
+                                onNavigateBack = { navController.popBackStack() },
+                                onNavigateToReminderSettings = { employeeId ->
+                                    navController.navigate("reminder_settings/$employeeId")
+                                }
+                            )
+                        }
+
+                        composable("reminder_settings/{employeeId}") { backStackEntry ->
+                            val employeeId = backStackEntry.arguments?.getString("employeeId") ?: ""
+                            ReminderSettingsScreen(
+                                employeeId = employeeId,
+                                onBack = { navController.popBackStack() }
                             )
                         }
                     }

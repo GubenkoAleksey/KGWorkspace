@@ -2,6 +2,7 @@ package com.hubenko.feature.admin.ui
 
 import android.content.Intent
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -17,19 +18,26 @@ import kotlinx.coroutines.flow.collectLatest
  *
  * @param viewModel ViewModel екрана, ін'єктується через Hilt.
  * @param onNavigateBack Функція зворотного виклику для повернення на попередній екран.
+ * @param onNavigateToReminderSettings Функція для переходу до налаштувань розкладу співробітника.
  */
 @Composable
 fun AdminScreen(
     viewModel: AdminViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onNavigateToReminderSettings: (String) -> Unit
 ) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+
+    BackHandler {
+        viewModel.onIntent(AdminIntent.OnBackClick)
+    }
 
     LaunchedEffect(viewModel.effect) {
         viewModel.effect.collectLatest { effect ->
             when (effect) {
                 is AdminEffect.NavigateBack -> onNavigateBack()
+                is AdminEffect.NavigateToReminderSettings -> onNavigateToReminderSettings(effect.employeeId)
                 is AdminEffect.ShowToast -> {
                     Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
                 }
@@ -47,7 +55,6 @@ fun AdminScreen(
 
     AdminContent(
         state = state,
-        onIntent = viewModel::onIntent,
-        onBack = onNavigateBack
+        onIntent = viewModel::onIntent
     )
 }

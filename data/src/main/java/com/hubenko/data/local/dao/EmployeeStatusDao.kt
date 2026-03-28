@@ -39,4 +39,10 @@ interface EmployeeStatusDao {
 
     @Query("SELECT * FROM employee_status WHERE id = :id LIMIT 1")
     suspend fun getStatusById(id: String): EmployeeStatusEntity?
+
+    @Query("SELECT COUNT(*) FROM employee_status WHERE employeeId = :employeeId AND startTime >= :startOfDay")
+    suspend fun getStatusCountForToday(employeeId: String, startOfDay: Long): Int
+
+    @Query("SELECT * FROM employee_status WHERE employeeId = :employeeId AND startTime >= :startOfDay AND status = 'Sick' LIMIT 1")
+    suspend fun getSickStatusForToday(employeeId: String, startOfDay: Long): EmployeeStatusEntity?
 }

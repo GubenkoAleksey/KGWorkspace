@@ -140,4 +140,12 @@ class StatusRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
+
+    override suspend fun getStatusCountForToday(employeeId: String, startOfDay: Long): Int {
+        return dao.getStatusCountForToday(employeeId, startOfDay)
+    }
+
+    override suspend fun getSickStatusForToday(employeeId: String, startOfDay: Long): EmployeeStatus? {
+        return dao.getSickStatusForToday(employeeId, startOfDay)?.toDomain()
+    }
 }

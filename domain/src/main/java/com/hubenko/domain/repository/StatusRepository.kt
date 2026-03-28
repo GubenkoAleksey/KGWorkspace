@@ -13,4 +13,6 @@ interface StatusRepository {
     suspend fun deleteAllStatuses(): Result<Unit>
     suspend fun getActiveStatus(employeeId: String): EmployeeStatus?
     suspend fun updateStatusEndTime(id: String, endTime: Long): Result<Unit>
+    suspend fun getStatusCountForToday(employeeId: String, startOfDay: Long): Int
+    suspend fun getSickStatusForToday(employeeId: String, startOfDay: Long): EmployeeStatus?
 }

@@ -7,11 +7,16 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.hubenko.data.local.AppDatabase
 import com.hubenko.data.local.dao.EmployeeDao
 import com.hubenko.data.local.dao.EmployeeStatusDao
+import com.hubenko.data.local.dao.ReminderSettingsDao
 import com.hubenko.data.repository.AuthRepositoryImpl
 import com.hubenko.data.repository.EmployeeRepositoryImpl
+import com.hubenko.data.repository.ReminderRepositoryImpl
 import com.hubenko.data.repository.StatusRepositoryImpl
+import com.hubenko.data.worker.AlarmScheduler
+import com.hubenko.domain.manager.ReminderManager
 import com.hubenko.domain.repository.AuthRepository
 import com.hubenko.domain.repository.EmployeeRepository
+import com.hubenko.domain.repository.ReminderRepository
 import com.hubenko.domain.repository.StatusRepository
 import dagger.Module
 import dagger.Provides
@@ -51,6 +56,9 @@ object DataModule {
     fun provideStatusDao(db: AppDatabase): EmployeeStatusDao = db.employeeStatusDao()
 
     @Provides
+    fun provideReminderSettingsDao(db: AppDatabase): ReminderSettingsDao = db.reminderSettingsDao()
+
+    @Provides
     @Singleton
     fun provideStatusRepository(impl: StatusRepositoryImpl): StatusRepository = impl
 
@@ -61,4 +69,12 @@ object DataModule {
     @Provides
     @Singleton
     fun provideAuthRepository(impl: AuthRepositoryImpl): AuthRepository = impl
+
+    @Provides
+    @Singleton
+    fun provideReminderRepository(impl: ReminderRepositoryImpl): ReminderRepository = impl
+
+    @Provides
+    @Singleton
+    fun provideReminderManager(impl: AlarmScheduler): ReminderManager = impl
 }

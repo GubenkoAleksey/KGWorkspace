@@ -60,6 +60,16 @@ class AdminViewModel @Inject constructor(
             is AdminIntent.OnExportStatusesClick -> exportStatusesToCsv()
             is AdminIntent.OnDeleteAllStatusesClick -> updateState { copy(isDeleteStatusesDialogOpen = true) }
             is AdminIntent.OnConfirmDeleteAllStatuses -> deleteAllStatuses()
+            is AdminIntent.OnEmployeeSelectedForSchedule -> sendEffect(AdminEffect.NavigateToReminderSettings(intent.employeeId))
+            is AdminIntent.OnBackClick -> handleBackClick()
+        }
+    }
+
+    private fun handleBackClick() {
+        if (viewState.value.selectedTab == AdminTab.DASHBOARD) {
+            sendEffect(AdminEffect.NavigateBack)
+        } else {
+            updateState { copy(selectedTab = AdminTab.DASHBOARD) }
         }
     }
 

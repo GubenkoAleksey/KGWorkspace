@@ -3,6 +3,7 @@ package com.hubenko.feature.home.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -71,6 +72,21 @@ fun HomeContent(
                         text = "Панель адміністратора",
                         onClick = { onIntent(HomeIntent.OnAdminPanelClick) }
                     )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                // Кнопка для тестування сповіщення
+                OutlinedButton(
+                    onClick = { onIntent(HomeIntent.OnTestNotificationClick) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 32.dp),
+                    contentPadding = PaddingValues(16.dp)
+                ) {
+                    Icon(Icons.Default.NotificationsActive, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Тестовий сигнал сповіщення")
                 }
             }
         }

@@ -14,6 +14,7 @@ sealed class HomeIntent : ViewIntent {
     object OnAdminPanelClick : HomeIntent()
     object OnSendStatusClick : HomeIntent()
     object OnLogoutClick : HomeIntent()
+    object OnTestNotificationClick : HomeIntent()
 }
 
 sealed class HomeEffect : ViewSideEffect {
