@@ -40,6 +40,10 @@ class StatusesViewModel @Inject constructor(
             is StatusesIntent.OnConfirmDelete -> deleteAllStatuses()
             is StatusesIntent.OnDismissDialog -> updateState { copy(isDeleteDialogOpen = false) }
             is StatusesIntent.OnEmployeeExpandToggle -> toggleEmployeeGroup(intent.employeeId)
+            is StatusesIntent.OnFilterClick -> updateState { copy(isFilterSheetOpen = true) }
+            is StatusesIntent.OnDismissFilterSheet -> updateState { copy(isFilterSheetOpen = false) }
+            is StatusesIntent.OnApplyFilter -> applyFilter(intent.from, intent.to)
+            is StatusesIntent.OnClearFilter -> clearFilter()
         }
     }
 
@@ -48,35 +52,55 @@ class StatusesViewModel @Inject constructor(
         viewModelScope.launch {
             getAllStatusesUseCase().collectLatest { list ->
                 val sortedStatuses = list.sortedByDescending { it.startTime }
-                val expandedByEmployeeId = viewState.value.employeeGroups.associate {
-                    it.employeeId to it.isExpanded
-                }
-
-                val employeeGroups = sortedStatuses
-                    .groupBy { it.employeeId }
-                    .map { (employeeId, statuses) ->
-                        val employeeName = statuses
-                            .firstNotNullOfOrNull { it.employeeFullName?.takeIf(String::isNotBlank) }
-                            ?: "ID Працівника: $employeeId"
-
-                        EmployeeStatusesGroup(
-                            employeeId = employeeId,
-                            employeeName = employeeName,
-                            statuses = statuses.sortedByDescending { it.startTime },
-                            isExpanded = expandedByEmployeeId[employeeId] ?: false
-                        )
-                    }
-                    .sortedByDescending { it.statuses.firstOrNull()?.startTime ?: Long.MIN_VALUE }
-
+                val currentState = viewState.value
                 updateState {
                     copy(
                         statuses = sortedStatuses,
-                        employeeGroups = employeeGroups,
+                        employeeGroups = buildGroups(sortedStatuses, filterDateFrom, filterDateTo),
                         isLoading = false
                     )
                 }
             }
         }
+    }
+
+    private fun buildGroups(
+        allStatuses: List<EmployeeStatus>,
+        from: Long?,
+        to: Long?
+    ): List<EmployeeStatusesGroup> {
+        val filtered = if (from != null && to != null) {
+            allStatuses.filter { it.startTime in from..to }
+        } else {
+            allStatuses
+        }
+        val expandedByEmployeeId = viewState.value.employeeGroups.associate {
+            it.employeeId to it.isExpanded
+        }
+        return filtered
+            .groupBy { it.employeeId }
+            .map { (employeeId, statuses) ->
+                val employeeName = statuses
+                    .firstNotNullOfOrNull { it.employeeFullName?.takeIf(String::isNotBlank) }
+                    ?: "ID Працівника: $employeeId"
+                EmployeeStatusesGroup(
+                    employeeId = employeeId,
+                    employeeName = employeeName,
+                    statuses = statuses.sortedByDescending { it.startTime },
+                    isExpanded = expandedByEmployeeId[employeeId] ?: false
+                )
+            }
+            .sortedByDescending { it.statuses.firstOrNull()?.startTime ?: Long.MIN_VALUE }
+    }
+
+    private fun applyFilter(from: Long?, to: Long?) {
+        val groups = buildGroups(viewState.value.statuses, from, to)
+        updateState { copy(filterDateFrom = from, filterDateTo = to, employeeGroups = groups, isFilterSheetOpen = false) }
+    }
+
+    private fun clearFilter() {
+        val groups = buildGroups(viewState.value.statuses, null, null)
+        updateState { copy(filterDateFrom = null, filterDateTo = null, employeeGroups = groups, isFilterSheetOpen = false) }
     }
 
     private fun toggleEmployeeGroup(employeeId: String) {
@@ -94,7 +118,7 @@ class StatusesViewModel @Inject constructor(
     }
 
     private fun exportStatusesToCsv() {
-        val statuses = viewState.value.statuses
+        val statuses = viewState.value.employeeGroups.flatMap { it.statuses }
         if (statuses.isEmpty()) return
         viewModelScope.launch {
             try {

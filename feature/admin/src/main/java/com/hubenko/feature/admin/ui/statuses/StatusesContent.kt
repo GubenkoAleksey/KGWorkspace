@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DeleteSweep
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -17,7 +19,11 @@ import com.hubenko.core.ui.components.AppTopBar
 import com.hubenko.core.ui.theme.CoreTheme
 import com.hubenko.feature.admin.ui.statuses.components.DeleteStatusesDialog
 import com.hubenko.feature.admin.ui.statuses.components.EmployeeStatusesItem
+import com.hubenko.feature.admin.ui.statuses.components.StatusesFilterSheet
 import com.hubenko.domain.model.EmployeeStatus
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
  * Stateless Composable для екрана статусів співробітників.
@@ -54,34 +60,71 @@ fun StatusesContent(
                             )
                         }
                     }
+                    BadgedBox(
+                        badge = {
+                            if (state.filterDateFrom != null) {
+                                Badge()
+                            }
+                        }
+                    ) {
+                        IconButton(onClick = { onIntent(StatusesIntent.OnFilterClick) }) {
+                            Icon(
+                                imageVector = Icons.Default.Tune,
+                                contentDescription = "Фільтри"
+                            )
+                        }
+                    }
                 }
             )
         }
     ) { paddingValues ->
-        if (state.isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else {
-            if (state.employeeGroups.isEmpty()) {
-                Box(
+        val dateFormatter = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            if (state.filterDateFrom != null && state.filterDateTo != null) {
+                val label = "${dateFormatter.format(Date(state.filterDateFrom))} — " +
+                        dateFormatter.format(Date(state.filterDateTo))
+                Row(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                ) {
+                    FilterChip(
+                        selected = true,
+                        onClick = { onIntent(StatusesIntent.OnClearFilter) },
+                        label = { Text(label) },
+                        trailingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Скинути фільтр",
+                                modifier = Modifier.size(FilterChipDefaults.IconSize)
+                            )
+                        }
+                    )
+                }
+            }
+
+            if (state.isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else if (state.employeeGroups.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(text = "Статуси відсутні")
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -105,6 +148,16 @@ fun StatusesContent(
         DeleteStatusesDialog(
             onConfirm = { onIntent(StatusesIntent.OnConfirmDelete) },
             onDismiss = { onIntent(StatusesIntent.OnDismissDialog) }
+        )
+    }
+
+    if (state.isFilterSheetOpen) {
+        StatusesFilterSheet(
+            currentFrom = state.filterDateFrom,
+            currentTo = state.filterDateTo,
+            onApply = { from, to -> onIntent(StatusesIntent.OnApplyFilter(from, to)) },
+            onClear = { onIntent(StatusesIntent.OnClearFilter) },
+            onDismiss = { onIntent(StatusesIntent.OnDismissFilterSheet) }
         )
     }
 }

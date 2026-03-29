@@ -10,7 +10,10 @@ data class StatusesState(
     val statuses: List<EmployeeStatus> = emptyList(),
     val employeeGroups: List<EmployeeStatusesGroup> = emptyList(),
     val isLoading: Boolean = false,
-    val isDeleteDialogOpen: Boolean = false
+    val isDeleteDialogOpen: Boolean = false,
+    val filterDateFrom: Long? = null,
+    val filterDateTo: Long? = null,
+    val isFilterSheetOpen: Boolean = false
 ) : ViewState
 
 data class EmployeeStatusesGroup(
@@ -27,6 +30,10 @@ sealed class StatusesIntent : ViewIntent {
     data object OnConfirmDelete : StatusesIntent()
     data object OnDismissDialog : StatusesIntent()
     data class OnEmployeeExpandToggle(val employeeId: String) : StatusesIntent()
+    data object OnFilterClick : StatusesIntent()
+    data class OnApplyFilter(val from: Long?, val to: Long?) : StatusesIntent()
+    data object OnClearFilter : StatusesIntent()
+    data object OnDismissFilterSheet : StatusesIntent()
 }
 
 sealed class StatusesEffect : ViewSideEffect {
