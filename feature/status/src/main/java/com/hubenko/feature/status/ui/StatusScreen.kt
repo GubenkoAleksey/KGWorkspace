@@ -1,8 +1,11 @@
 package com.hubenko.feature.status.ui
 
-import android.widget.Toast
-import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hubenko.feature.status.ui.components.StatusConfirmationDialog
@@ -15,15 +18,13 @@ fun StatusScreen(
     onNavigateBack: () -> Unit
 ) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(viewModel.effect) {
         viewModel.effect.collectLatest { effect ->
             when (effect) {
                 is StatusEffect.NavigateBack -> onNavigateBack()
-                is StatusEffect.ShowError -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                }
+                is StatusEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
             }
         }
     }
@@ -44,6 +45,7 @@ fun StatusScreen(
 
     StatusContent(
         state = state,
-        onIntent = viewModel::onIntent
+        onIntent = viewModel::onIntent,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     )
 }

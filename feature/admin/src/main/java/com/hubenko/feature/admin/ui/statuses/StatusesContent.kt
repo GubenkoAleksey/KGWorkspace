@@ -1,14 +1,32 @@
 package com.hubenko.feature.admin.ui.statuses
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DeleteSweep
-import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -18,27 +36,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hubenko.core.ui.components.AppTopBar
 import com.hubenko.core.ui.theme.CoreTheme
+import com.hubenko.domain.model.EmployeeStatus
 import com.hubenko.feature.admin.ui.statuses.components.DeleteStatusesDialog
 import com.hubenko.feature.admin.ui.statuses.components.EmployeeStatusesItem
 import com.hubenko.feature.admin.ui.statuses.components.StatusesFilterSheet
-import com.hubenko.domain.model.EmployeeStatus
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-/**
- * Stateless Composable для екрана статусів співробітників.
- *
- * @param state Поточний стан екрана.
- * @param onIntent Лямбда для надсилання інтентів у ViewModel.
- * @param onBackClick Callback для повернення на Dashboard.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatusesContent(
     state: StatusesState,
     onIntent: (StatusesIntent) -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    snackbarHost: @Composable () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -77,7 +89,8 @@ fun StatusesContent(
                     }
                 }
             )
-        }
+        },
+        snackbarHost = { snackbarHost() }
     ) { paddingValues ->
         val dateFormatter = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
 
@@ -197,7 +210,8 @@ private fun StatusesContentEmptyPreview() {
         StatusesContent(
             state = StatusesState(),
             onIntent = {},
-            onBackClick = {}
+            onBackClick = {},
+            snackbarHost = { SnackbarHost(hostState = androidx.compose.material3.SnackbarHostState()) }
         )
     }
 }
@@ -209,7 +223,8 @@ private fun StatusesContentLoadingPreview() {
         StatusesContent(
             state = StatusesState(isLoading = true),
             onIntent = {},
-            onBackClick = {}
+            onBackClick = {},
+            snackbarHost = { SnackbarHost(hostState = androidx.compose.material3.SnackbarHostState()) }
         )
     }
 }
@@ -254,8 +269,8 @@ private fun StatusesContentPreview() {
                 )
             ),
             onIntent = {},
-            onBackClick = {}
+            onBackClick = {},
+            snackbarHost = { SnackbarHost(hostState = androidx.compose.material3.SnackbarHostState()) }
         )
     }
 }
-

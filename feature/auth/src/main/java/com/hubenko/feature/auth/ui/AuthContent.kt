@@ -1,9 +1,15 @@
 package com.hubenko.feature.auth.ui
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,40 +24,46 @@ import com.hubenko.feature.auth.ui.components.LoginSubmitButton
 @Composable
 fun AuthContent(
     state: AuthState,
-    onIntent: (AuthIntent) -> Unit
+    onIntent: (AuthIntent) -> Unit,
+    snackbarHost: @Composable () -> Unit = {}
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        AuthHeader(isSignUp = false)
+    Scaffold(
+        snackbarHost = { snackbarHost() }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(24.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            AuthHeader(isSignUp = false)
 
-        Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-        CommonAuthFields(
-            email = state.email,
-            password = state.pass,
-            onEmailChange = { onIntent(AuthIntent.EmailChanged(it)) },
-            onPasswordChange = { onIntent(AuthIntent.PasswordChanged(it)) }
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        LoginSubmitButton(
-            isLoading = state.isLoading,
-            onSubmit = { onIntent(AuthIntent.Submit) }
-        )
-
-        state.error?.let { errorMessage ->
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = errorMessage,
-                color = MaterialTheme.colorScheme.error
+            CommonAuthFields(
+                email = state.email,
+                password = state.pass,
+                onEmailChange = { onIntent(AuthIntent.EmailChanged(it)) },
+                onPasswordChange = { onIntent(AuthIntent.PasswordChanged(it)) }
             )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            LoginSubmitButton(
+                isLoading = state.isLoading,
+                onSubmit = { onIntent(AuthIntent.Submit) }
+            )
+
+            state.error?.let { errorMessage ->
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
         }
     }
 }

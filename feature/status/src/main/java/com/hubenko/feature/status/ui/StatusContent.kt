@@ -5,7 +5,14 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -13,14 +20,21 @@ import androidx.compose.material.icons.rounded.Domain
 import androidx.compose.material.icons.rounded.HealthAndSafety
 import androidx.compose.material.icons.rounded.WifiTethering
 import androidx.compose.material.icons.rounded.Work
-import androidx.compose.material3.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hubenko.core.ui.components.AppTopBar
-import com.hubenko.core.ui.theme.*
+import com.hubenko.core.ui.theme.CoreTheme
+import com.hubenko.core.ui.theme.StatusOfficeLight
+import com.hubenko.core.ui.theme.StatusRemoteLight
+import com.hubenko.core.ui.theme.StatusSickLight
 import com.hubenko.feature.status.ui.components.NoteInputField
 import com.hubenko.feature.status.ui.components.StatusCard
 
@@ -28,7 +42,8 @@ import com.hubenko.feature.status.ui.components.StatusCard
 @Composable
 fun StatusContent(
     state: StatusState,
-    onIntent: (StatusIntent) -> Unit
+    onIntent: (StatusIntent) -> Unit,
+    snackbarHost: @Composable () -> Unit = {}
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -42,7 +57,8 @@ fun StatusContent(
                     titleContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
-        }
+        },
+        snackbarHost = { snackbarHost() }
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -109,7 +125,7 @@ fun StatusContent(
                         enabled = !state.isLoading
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
             }
 

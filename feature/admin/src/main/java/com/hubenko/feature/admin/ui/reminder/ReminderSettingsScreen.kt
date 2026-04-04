@@ -1,9 +1,13 @@
 package com.hubenko.feature.admin.ui.reminder
 
-import android.widget.Toast
-import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.runtime.collectAsState
 
 @Composable
 fun ReminderSettingsScreen(
@@ -12,7 +16,7 @@ fun ReminderSettingsScreen(
     onBack: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
-    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(employeeId) {
         viewModel.onIntent(ReminderSettingsIntent.LoadSettings(employeeId))
@@ -20,7 +24,7 @@ fun ReminderSettingsScreen(
 
     LaunchedEffect(state.isSaved) {
         if (state.isSaved) {
-            Toast.makeText(context, "Налаштування успішно збережено", Toast.LENGTH_SHORT).show()
+            snackbarHostState.showSnackbar("Налаштування успішно збережено")
             onBack()
         }
     }
@@ -28,6 +32,7 @@ fun ReminderSettingsScreen(
     ReminderSettingsContent(
         state = state,
         onIntent = viewModel::onIntent,
-        onBack = onBack
+        onBack = onBack,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     )
 }

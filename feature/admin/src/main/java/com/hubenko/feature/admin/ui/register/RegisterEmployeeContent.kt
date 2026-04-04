@@ -1,9 +1,18 @@
 package com.hubenko.feature.admin.ui.register
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,14 +23,12 @@ import com.hubenko.core.ui.components.PrimaryActionButton
 import com.hubenko.core.ui.theme.CoreTheme
 import com.hubenko.feature.admin.ui.register.components.RegisterEmployeeForm
 
-/**
- * Stateless Composable для екрана реєстрації нового співробітника.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterEmployeeContent(
     state: RegisterEmployeeState,
-    onIntent: (RegisterEmployeeIntent) -> Unit
+    onIntent: (RegisterEmployeeIntent) -> Unit,
+    snackbarHost: @Composable () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -29,7 +36,8 @@ fun RegisterEmployeeContent(
                 title = "Реєстрація співробітника",
                 onBackClick = { onIntent(RegisterEmployeeIntent.NavigateBack) }
             )
-        }
+        },
+        snackbarHost = { snackbarHost() }
     ) { paddingValues ->
         if (state.isLoading) {
             Box(
@@ -107,4 +115,3 @@ private fun RegisterEmployeeContentLoadingPreview() {
         RegisterEmployeeContent(state = RegisterEmployeeState(isLoading = true), onIntent = {})
     }
 }
-

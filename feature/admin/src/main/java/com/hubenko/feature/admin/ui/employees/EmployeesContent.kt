@@ -1,11 +1,21 @@
 package com.hubenko.feature.admin.ui.employees
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,19 +27,13 @@ import com.hubenko.domain.model.Employee
 import com.hubenko.feature.admin.ui.employees.components.EmployeeDialog
 import com.hubenko.feature.admin.ui.employees.components.EmployeeItem
 
-/**
- * Stateless Composable для екрана списку співробітників.
- *
- * @param state Поточний стан екрана.
- * @param onIntent Лямбда для надсилання інтентів у ViewModel.
- * @param onBackClick Callback для повернення на Dashboard.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmployeesContent(
     state: EmployeesState,
     onIntent: (EmployeesIntent) -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    snackbarHost: @Composable () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -42,7 +46,8 @@ fun EmployeesContent(
             FloatingActionButton(onClick = { onIntent(EmployeesIntent.OnAddEmployeeClick) }) {
                 Icon(Icons.Default.Add, contentDescription = "Зареєструвати нового співробітника")
             }
-        }
+        },
+        snackbarHost = { snackbarHost() }
     ) { paddingValues ->
         if (state.isLoading) {
             Box(
@@ -52,6 +57,15 @@ fun EmployeesContent(
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
+            }
+        } else if (state.employees.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "Працівники відсутні")
             }
         } else {
             LazyColumn(
@@ -96,7 +110,8 @@ private fun EmployeesContentPreview() {
                 )
             ),
             onIntent = {},
-            onBackClick = {}
+            onBackClick = {},
+            snackbarHost = { SnackbarHost(hostState = androidx.compose.material3.SnackbarHostState()) }
         )
     }
 }
@@ -108,7 +123,8 @@ private fun EmployeesContentLoadingPreview() {
         EmployeesContent(
             state = EmployeesState(isLoading = true),
             onIntent = {},
-            onBackClick = {}
+            onBackClick = {},
+            snackbarHost = { SnackbarHost(hostState = androidx.compose.material3.SnackbarHostState()) }
         )
     }
 }
@@ -120,8 +136,8 @@ private fun EmployeesContentEmptyPreview() {
         EmployeesContent(
             state = EmployeesState(),
             onIntent = {},
-            onBackClick = {}
+            onBackClick = {},
+            snackbarHost = { SnackbarHost(hostState = androidx.compose.material3.SnackbarHostState()) }
         )
     }
 }
-

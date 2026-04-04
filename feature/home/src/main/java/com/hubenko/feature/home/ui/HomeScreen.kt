@@ -3,17 +3,21 @@ package com.hubenko.feature.home.ui
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
@@ -24,12 +28,16 @@ fun HomeScreen(
 ) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (!isGranted) {
-            Toast.makeText(context, "Без дозволу сповіщення-нагадування не будуть працювати", Toast.LENGTH_LONG).show()
+            scope.launch {
+                snackbarHostState.showSnackbar("Без дозволу сповіщення-нагадування не будуть працювати")
+            }
         }
     }
 
@@ -47,15 +55,14 @@ fun HomeScreen(
                 is HomeEffect.NavigateToStatus -> onNavigateToStatus()
                 is HomeEffect.NavigateToAdmin -> onNavigateToAdmin()
                 is HomeEffect.NavigateToAuth -> onNavigateToAuth()
-                is HomeEffect.ShowToast -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                }
+                is HomeEffect.ShowToast -> snackbarHostState.showSnackbar(effect.message)
             }
         }
     }
 
     HomeContent(
         state = state,
-        onIntent = viewModel::onIntent
+        onIntent = viewModel::onIntent,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     )
 }
