@@ -42,6 +42,10 @@ captures/
 .idea/caches
 .idea/modules.xml
 .idea/navEditor.xml
+.idea/appInsightsSettings.xml
+.idea/studiobot.xml
+.idea/copilot.data.migration.ask2agent.xml
+.idea/markdown.xml
 
 # Keystore files
 # Uncomment the following line if you do not want to version your release keystore
@@ -71,3 +75,16 @@ desktop.ini
 
 # KSP
 generated/ksp/
+
+# Local IDE/device selections
+.idea/deploymentTargetSelector.xml
+.idea/deviceManager.xml
+
+# Local AI assistant artifacts
+.claude/
+
+# Local build logs
+build_output.txt
+
+# Firebender local artifacts
+.firebender/
