@@ -31,8 +31,8 @@ fun PrimaryActionButton(
         shape = MaterialTheme.shapes.medium
     ) {
         Text(
-            text = text, 
-            fontSize = 18.sp, 
+            text = text,
+            fontSize = 18.sp,
             color = Color.White,
             style = MaterialTheme.typography.bodyLarge
         )

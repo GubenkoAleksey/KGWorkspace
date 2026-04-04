@@ -11,25 +11,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = PrimaryActionColorDark,
-    secondary = PurpleGrey80,
-    tertiary = Pink80,
-    background = BackgroundDark,
-    surface = BackgroundDark
+    primary = FirebaseBlueDark,
+    onPrimary = FirebaseBackgroundDark,
+    background = FirebaseBackgroundDark,
+    surface = FirebaseSurfaceDark,
+    onSurface = FirebaseOnSurfaceDark,
+    surfaceVariant = FirebaseOutlineDark,
+    onSurfaceVariant = FirebaseOnSurfaceDark,
+    outline = FirebaseOutlineDark
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = PrimaryActionColor,
-    secondary = PurpleGrey40,
-    tertiary = Pink40,
-    background = BackgroundLight,
-    surface = BackgroundLight
+    primary = FirebaseBlueLight,
+    onPrimary = FirebaseSurfaceLight,
+    background = FirebaseBackgroundLight,
+    surface = FirebaseSurfaceLight,
+    onSurface = FirebaseOnSurfaceLight,
+    surfaceVariant = FirebaseOutlineLight,
+    onSurfaceVariant = FirebaseOnSurfaceLight,
+    outline = FirebaseOutlineLight
 )
 
 @Composable
 fun CoreTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false, // Disable dynamic color to strictly follow Firebase style
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

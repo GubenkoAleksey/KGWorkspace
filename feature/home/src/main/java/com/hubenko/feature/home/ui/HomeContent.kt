@@ -1,34 +1,32 @@
 package com.hubenko.feature.home.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hubenko.core.ui.components.AppTopBar
-import com.hubenko.core.ui.components.PrimaryActionButton
+import com.hubenko.core.ui.components.ProjectItem
 import com.hubenko.core.ui.theme.CoreTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,14 +36,12 @@ fun HomeContent(
     onIntent: (HomeIntent) -> Unit,
     snackbarHost: @Composable () -> Unit = {}
 ) {
-    val configuration = LocalConfiguration.current
-    val screenHeight = configuration.screenHeightDp.dp
-
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             AppTopBar(
-                title = "Головне меню",
+                title = "Firebase",
+                userInitial = "A", // Можна буде брати з профілю
                 actions = {
                     IconButton(onClick = { onIntent(HomeIntent.OnLogoutClick) }) {
                         Icon(
@@ -53,11 +49,7 @@ fun HomeContent(
                             contentDescription = "Вийти"
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground
-                )
+                }
             )
         },
         snackbarHost = { snackbarHost() }
@@ -74,46 +66,44 @@ fun HomeContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(horizontal = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                Spacer(modifier = Modifier.height(screenHeight * 0.125f))
-
-                PrimaryActionButton(
-                    text = "Відправити статус",
+                ProjectItem(
+                    title = "Відправити статус",
+                    subtitle = "Оновіть свій поточний стан роботи",
+                    leadingIcon = Icons.AutoMirrored.Filled.Send,
                     onClick = { onIntent(HomeIntent.OnSendStatusClick) }
                 )
 
                 if (state.isAdmin) {
-                    Spacer(modifier = Modifier.height(24.dp))
-                    PrimaryActionButton(
-                        text = "Панель адміністратора",
+                    ProjectItem(
+                        title = "Панель адміністратора",
+                        subtitle = "Керування співробітниками та звітами",
+                        leadingIcon = Icons.Default.AdminPanelSettings,
                         onClick = { onIntent(HomeIntent.OnAdminPanelClick) }
                     )
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
-
-                OutlinedButton(
-                    onClick = { onIntent(HomeIntent.OnTestNotificationClick) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 32.dp),
-                    contentPadding = PaddingValues(16.dp)
-                ) {
-                    Icon(Icons.Default.NotificationsActive, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Тестовий сигнал сповіщення")
-                }
+                ProjectItem(
+                    title = "Тестове сповіщення",
+                    subtitle = "Перевірте роботу системи push-повідомлень",
+                    leadingIcon = Icons.Default.NotificationsActive,
+                    onClick = { onIntent(HomeIntent.OnTestNotificationClick) }
+                )
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
+
 }
 
-@Preview(name = "Admin View", showBackground = true)
+@Preview(name = "Admin View - Light", showBackground = true)
 @Composable
-private fun HomeContentAdminPreview() {
-    CoreTheme {
+private fun HomeContentAdminLightPreview() {
+    CoreTheme(darkTheme = false) {
         HomeContent(
             state = HomeState(isAdmin = true, isLoading = false),
             onIntent = {}
@@ -121,23 +111,12 @@ private fun HomeContentAdminPreview() {
     }
 }
 
-@Preview(name = "User View", showBackground = true)
+@Preview(name = "Admin View - Dark", showBackground = true)
 @Composable
-private fun HomeContentUserPreview() {
-    CoreTheme {
+private fun HomeContentAdminDarkPreview() {
+    CoreTheme(darkTheme = true) {
         HomeContent(
-            state = HomeState(isAdmin = false, isLoading = false),
-            onIntent = {}
-        )
-    }
-}
-
-@Preview(name = "Loading View", showBackground = true)
-@Composable
-private fun HomeContentLoadingPreview() {
-    CoreTheme {
-        HomeContent(
-            state = HomeState(isLoading = true),
+            state = HomeState(isAdmin = true, isLoading = false),
             onIntent = {}
         )
     }

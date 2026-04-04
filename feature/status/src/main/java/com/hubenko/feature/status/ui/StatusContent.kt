@@ -51,11 +51,7 @@ fun StatusContent(
         topBar = {
             AppTopBar(
                 title = "Оновити статус",
-                onBackClick = { onIntent(StatusIntent.OnBackClick) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground
-                )
+                onBackClick = { onIntent(StatusIntent.OnBackClick) }
             )
         },
         snackbarHost = { snackbarHost() }
