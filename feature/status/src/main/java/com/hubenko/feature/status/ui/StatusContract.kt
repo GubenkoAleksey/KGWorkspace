@@ -4,6 +4,7 @@ import com.hubenko.core.base.ViewIntent
 import com.hubenko.core.base.ViewSideEffect
 import com.hubenko.core.base.ViewState
 import com.hubenko.domain.model.EmployeeStatus
+import com.hubenko.domain.model.StatusType
 
 data class StatusState(
     val isLoading: Boolean = false,
@@ -12,7 +13,8 @@ data class StatusState(
     val note: String = "",
     val showConfirmDialog: Boolean = false,
     val pendingStatus: String? = null,
-    val activeStatus: EmployeeStatus? = null
+    val activeStatus: EmployeeStatus? = null,
+    val statusTypes: List<StatusType> = emptyList()
 ) : ViewState
 
 sealed class StatusIntent : ViewIntent {

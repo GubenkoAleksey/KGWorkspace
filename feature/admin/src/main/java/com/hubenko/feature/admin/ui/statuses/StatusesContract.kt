@@ -5,6 +5,7 @@ import com.hubenko.core.base.ViewIntent
 import com.hubenko.core.base.ViewSideEffect
 import com.hubenko.core.base.ViewState
 import com.hubenko.domain.model.EmployeeStatus
+import com.hubenko.domain.model.StatusType
 
 data class StatusesState(
     val statuses: List<EmployeeStatus> = emptyList(),
@@ -13,6 +14,9 @@ data class StatusesState(
     val isDeleteDialogOpen: Boolean = false,
     val filterDateFrom: Long? = null,
     val filterDateTo: Long? = null,
+    val filterEmployeeIds: Set<String> = emptySet(),
+    val filterStatusTypes: Set<String> = emptySet(),
+    val availableStatusTypes: List<StatusType> = emptyList(),
     val isFilterSheetOpen: Boolean = false
 ) : ViewState
 
@@ -31,7 +35,7 @@ sealed class StatusesIntent : ViewIntent {
     data object OnDismissDialog : StatusesIntent()
     data class OnEmployeeExpandToggle(val employeeId: String) : StatusesIntent()
     data object OnFilterClick : StatusesIntent()
-    data class OnApplyFilter(val from: Long?, val to: Long?) : StatusesIntent()
+    data class OnApplyFilter(val from: Long?, val to: Long?, val employeeIds: Set<String>, val statusTypes: Set<String>) : StatusesIntent()
     data object OnClearFilter : StatusesIntent()
     data object OnDismissFilterSheet : StatusesIntent()
 }

@@ -16,24 +16,16 @@ class RoleRepositoryImpl @Inject constructor(
     firestore: FirebaseFirestore
 ) : RoleRepository {
 
-    private val rolesCollection = firestore.collection("roles")
+    private val collection = firestore.collection("roles")
 
-    /**
-     * Слухає колекцію `roles` у Firestore в реальному часі.
-     * Якщо колекція порожня — автоматично засіює дефолтні ролі,
-     * після чого listener отримає оновлення і відправить список.
-     */
     override fun getRoles(): Flow<List<Role>> = callbackFlow {
-        val listener = rolesCollection
+        val listener = collection
             .orderBy("label")
             .addSnapshotListener { snapshot, error ->
                 if (error != null || snapshot == null) return@addSnapshotListener
 
                 if (snapshot.isEmpty) {
-                    // Колекція порожня — засіюємо дефолтні ролі
-                    CoroutineScope(Dispatchers.IO).launch {
-                        seedDefaultRoles()
-                    }
+                    CoroutineScope(Dispatchers.IO).launch { seedDefaults() }
                 } else {
                     val roles = snapshot.documents.mapNotNull { doc ->
                         val id = doc.getString("id") ?: return@mapNotNull null
@@ -47,14 +39,31 @@ class RoleRepositoryImpl @Inject constructor(
         awaitClose { listener.remove() }
     }
 
-    private suspend fun seedDefaultRoles() {
+    override suspend fun saveRole(id: String, label: String): Result<Unit> {
+        return try {
+            collection.document(id).set(mapOf("id" to id, "label" to label)).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun deleteRole(id: String): Result<Unit> {
+        return try {
+            collection.document(id).delete().await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    private suspend fun seedDefaults() {
         val defaults = listOf(
-            hashMapOf("id" to "USER", "label" to "Працівник"),
-            hashMapOf("id" to "ADMIN", "label" to "Адміністратор")
+            "USER" to "Працівник",
+            "ADMIN" to "Адміністратор"
         )
-        defaults.forEach { role ->
-            rolesCollection.add(role).await()
+        defaults.forEach { (id, label) ->
+            collection.document(id).set(mapOf("id" to id, "label" to label)).await()
         }
     }
 }
-

@@ -8,11 +8,13 @@ import com.hubenko.data.local.AppDatabase
 import com.hubenko.data.local.dao.EmployeeDao
 import com.hubenko.data.local.dao.EmployeeStatusDao
 import com.hubenko.data.local.dao.ReminderSettingsDao
+import com.hubenko.data.local.dao.StatusTypeDao
 import com.hubenko.data.repository.AuthRepositoryImpl
 import com.hubenko.data.repository.EmployeeRepositoryImpl
 import com.hubenko.data.repository.ReminderRepositoryImpl
 import com.hubenko.data.repository.RoleRepositoryImpl
 import com.hubenko.data.repository.StatusRepositoryImpl
+import com.hubenko.data.repository.StatusTypeRepositoryImpl
 import com.hubenko.data.worker.AlarmScheduler
 import com.hubenko.domain.manager.ReminderManager
 import com.hubenko.domain.repository.AuthRepository
@@ -20,6 +22,7 @@ import com.hubenko.domain.repository.EmployeeRepository
 import com.hubenko.domain.repository.ReminderRepository
 import com.hubenko.domain.repository.RoleRepository
 import com.hubenko.domain.repository.StatusRepository
+import com.hubenko.domain.repository.StatusTypeRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -61,6 +64,9 @@ object DataModule {
     fun provideReminderSettingsDao(db: AppDatabase): ReminderSettingsDao = db.reminderSettingsDao()
 
     @Provides
+    fun provideStatusTypeDao(db: AppDatabase): StatusTypeDao = db.statusTypeDao()
+
+    @Provides
     @Singleton
     fun provideStatusRepository(impl: StatusRepositoryImpl): StatusRepository = impl
 
@@ -83,4 +89,8 @@ object DataModule {
     @Provides
     @Singleton
     fun provideRoleRepository(impl: RoleRepositoryImpl): RoleRepository = impl
+
+    @Provides
+    @Singleton
+    fun provideStatusTypeRepository(impl: StatusTypeRepositoryImpl): StatusTypeRepository = impl
 }

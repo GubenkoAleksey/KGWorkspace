@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.hubenko.core.ui.theme.CoreTheme
 import com.hubenko.feature.admin.ui.dashboard.DashboardContent
+import com.hubenko.feature.admin.ui.directories.DirectoriesScreen
 import com.hubenko.feature.admin.ui.employees.EmployeesScreen
 import com.hubenko.feature.admin.ui.schedule.ScheduleScreen
 import com.hubenko.feature.admin.ui.statuses.StatusesScreen
@@ -33,6 +34,9 @@ fun AdminContent(
         )
         AdminTab.SCHEDULE -> ScheduleScreen(
             onNavigateToReminderSettings = onNavigateToReminderSettings,
+            onBackClick = onBackToMenu
+        )
+        AdminTab.DIRECTORIES -> DirectoriesScreen(
             onBackClick = onBackToMenu
         )
     }

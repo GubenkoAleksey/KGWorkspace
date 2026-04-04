@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Domain
 import androidx.compose.material.icons.rounded.HealthAndSafety
 import androidx.compose.material.icons.rounded.WifiTethering
+import androidx.compose.material.icons.rounded.Work
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -62,40 +63,35 @@ fun StatusContent(
                 ) {
                     val active = state.activeStatus
 
-                    if (active == null || active.status == "Office") {
-                        StatusCard(
-                            title = if (active?.status == "Office") "Закінчити роботу (Офіс)" else "Почати роботу (Офіс)",
-                            description = "Працюю безпосередньо в офісі",
-                            icon = Icons.Rounded.Domain,
-                            color = StatusOfficeLight,
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = { onIntent(StatusIntent.SubmitStatusClick("Office")) },
-                            enabled = !state.isLoading
-                        )
-                    }
+                    state.statusTypes.forEach { statusType ->
+                        val isSick = statusType.type == "Sick"
+                        val isActive = active?.status == statusType.type
+                        val showCard = if (isSick) active == null else active == null || isActive
 
-                    if (active == null || active.status == "Remote") {
-                        StatusCard(
-                            title = if (active?.status == "Remote") "Закінчити роботу (Віддалено)" else "Почати роботу (Віддалено)",
-                            description = "Працюю дистанційно (Home Office)",
-                            icon = Icons.Rounded.WifiTethering,
-                            color = StatusRemoteLight,
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = { onIntent(StatusIntent.SubmitStatusClick("Remote")) },
-                            enabled = !state.isLoading
-                        )
-                    }
-
-                    if (active == null) {
-                        StatusCard(
-                            title = "Лікарняний",
-                            description = "Відсутній через стан здоров'я",
-                            icon = Icons.Rounded.HealthAndSafety,
-                            color = StatusSickLight,
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = { onIntent(StatusIntent.SubmitStatusClick("Sick")) },
-                            enabled = !state.isLoading
-                        )
+                        if (showCard) {
+                            val (icon, color) = when (statusType.type) {
+                                "Office" -> Icons.Rounded.Domain to StatusOfficeLight
+                                "Remote" -> Icons.Rounded.WifiTethering to StatusRemoteLight
+                                "Sick" -> Icons.Rounded.HealthAndSafety to StatusSickLight
+                                else -> Icons.Rounded.Work to StatusOfficeLight
+                            }
+                            val title = if (isActive) "Закінчити роботу (${statusType.label})" else statusType.label
+                            val description = when (statusType.type) {
+                                "Office" -> "Працюю безпосередньо в офісі"
+                                "Remote" -> "Працюю дистанційно (Home Office)"
+                                "Sick" -> "Відсутній через стан здоров'я"
+                                else -> ""
+                            }
+                            StatusCard(
+                                title = title,
+                                description = description,
+                                icon = icon,
+                                color = color,
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = { onIntent(StatusIntent.SubmitStatusClick(statusType.type)) },
+                                enabled = !state.isLoading
+                            )
+                        }
                     }
                 }
 

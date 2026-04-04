@@ -12,7 +12,8 @@ enum class AdminTab(val title: String) {
     DASHBOARD("Панель адміністратора"),
     EMPLOYEES("Керування працівниками"),
     SCHEDULE("Розклад сповіщень"),
-    STATUSES("Статуси працівників")
+    STATUSES("Статуси працівників"),
+    DIRECTORIES("Довідники")
 }
 
 sealed class AdminIntent : ViewIntent {

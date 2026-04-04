@@ -3,6 +3,7 @@ package com.hubenko.feature.admin.ui.dashboard
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.TaskAlt
@@ -55,6 +56,11 @@ fun DashboardContent(
                 title = "Статуси",
                 icon = Icons.Default.TaskAlt,
                 onClick = { onTabSelected(AdminTab.STATUSES) }
+            )
+            DashboardButton(
+                title = "Довідники",
+                icon = Icons.Default.Book,
+                onClick = { onTabSelected(AdminTab.DIRECTORIES) }
             )
         }
     }

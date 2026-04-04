@@ -7,6 +7,7 @@ import com.hubenko.core.base.BaseViewModel
 import com.hubenko.domain.model.EmployeeStatus
 import com.hubenko.domain.repository.StatusRepository
 import com.hubenko.domain.usecase.GetAllStatusesUseCase
+import com.hubenko.domain.usecase.GetStatusTypesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -25,11 +26,21 @@ import javax.inject.Inject
 class StatusesViewModel @Inject constructor(
     private val application: Application,
     private val getAllStatusesUseCase: GetAllStatusesUseCase,
-    private val statusRepository: StatusRepository
+    private val statusRepository: StatusRepository,
+    private val getStatusTypesUseCase: GetStatusTypesUseCase
 ) : BaseViewModel<StatusesState, StatusesIntent, StatusesEffect>(StatusesState()) {
 
     init {
         onIntent(StatusesIntent.LoadData)
+        loadStatusTypes()
+    }
+
+    private fun loadStatusTypes() {
+        viewModelScope.launch {
+            getStatusTypesUseCase().collectLatest { types ->
+                updateState { copy(availableStatusTypes = types) }
+            }
+        }
     }
 
     override fun onIntent(intent: StatusesIntent) {
@@ -42,7 +53,7 @@ class StatusesViewModel @Inject constructor(
             is StatusesIntent.OnEmployeeExpandToggle -> toggleEmployeeGroup(intent.employeeId)
             is StatusesIntent.OnFilterClick -> updateState { copy(isFilterSheetOpen = true) }
             is StatusesIntent.OnDismissFilterSheet -> updateState { copy(isFilterSheetOpen = false) }
-            is StatusesIntent.OnApplyFilter -> applyFilter(intent.from, intent.to)
+            is StatusesIntent.OnApplyFilter -> applyFilter(intent.from, intent.to, intent.employeeIds, intent.statusTypes)
             is StatusesIntent.OnClearFilter -> clearFilter()
         }
     }
@@ -67,13 +78,14 @@ class StatusesViewModel @Inject constructor(
     private fun buildGroups(
         allStatuses: List<EmployeeStatus>,
         from: Long?,
-        to: Long?
+        to: Long?,
+        employeeIds: Set<String> = viewState.value.filterEmployeeIds,
+        statusTypes: Set<String> = viewState.value.filterStatusTypes
     ): List<EmployeeStatusesGroup> {
-        val filtered = if (from != null && to != null) {
-            allStatuses.filter { it.startTime in from..to }
-        } else {
-            allStatuses
-        }
+        val filtered = allStatuses
+            .let { list -> if (from != null && to != null) list.filter { it.startTime in from..to } else list }
+            .let { list -> if (employeeIds.isNotEmpty()) list.filter { it.employeeId in employeeIds } else list }
+            .let { list -> if (statusTypes.isNotEmpty()) list.filter { it.status in statusTypes } else list }
         val expandedByEmployeeId = viewState.value.employeeGroups.associate {
             it.employeeId to it.isExpanded
         }
@@ -93,14 +105,32 @@ class StatusesViewModel @Inject constructor(
             .sortedByDescending { it.statuses.firstOrNull()?.startTime ?: Long.MIN_VALUE }
     }
 
-    private fun applyFilter(from: Long?, to: Long?) {
-        val groups = buildGroups(viewState.value.statuses, from, to)
-        updateState { copy(filterDateFrom = from, filterDateTo = to, employeeGroups = groups, isFilterSheetOpen = false) }
+    private fun applyFilter(from: Long?, to: Long?, employeeIds: Set<String>, statusTypes: Set<String>) {
+        val groups = buildGroups(viewState.value.statuses, from, to, employeeIds, statusTypes)
+        updateState {
+            copy(
+                filterDateFrom = from,
+                filterDateTo = to,
+                filterEmployeeIds = employeeIds,
+                filterStatusTypes = statusTypes,
+                employeeGroups = groups,
+                isFilterSheetOpen = false
+            )
+        }
     }
 
     private fun clearFilter() {
-        val groups = buildGroups(viewState.value.statuses, null, null)
-        updateState { copy(filterDateFrom = null, filterDateTo = null, employeeGroups = groups, isFilterSheetOpen = false) }
+        val groups = buildGroups(viewState.value.statuses, null, null, emptySet(), emptySet())
+        updateState {
+            copy(
+                filterDateFrom = null,
+                filterDateTo = null,
+                filterEmployeeIds = emptySet(),
+                filterStatusTypes = emptySet(),
+                employeeGroups = groups,
+                isFilterSheetOpen = false
+            )
+        }
     }
 
     private fun toggleEmployeeGroup(employeeId: String) {

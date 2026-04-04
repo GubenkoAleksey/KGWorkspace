@@ -4,8 +4,10 @@ import androidx.lifecycle.viewModelScope
 import com.hubenko.core.base.BaseViewModel
 import com.hubenko.domain.repository.AuthRepository
 import com.hubenko.domain.repository.StatusRepository
+import com.hubenko.domain.usecase.GetStatusTypesUseCase
 import com.hubenko.domain.usecase.SubmitStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -13,11 +15,21 @@ import javax.inject.Inject
 class StatusViewModel @Inject constructor(
     private val submitStatusUseCase: SubmitStatusUseCase,
     private val statusRepository: StatusRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val getStatusTypesUseCase: GetStatusTypesUseCase
 ) : BaseViewModel<StatusState, StatusIntent, StatusEffect>(StatusState()) {
 
     init {
         onIntent(StatusIntent.LoadActiveStatus)
+        loadStatusTypes()
+    }
+
+    private fun loadStatusTypes() {
+        viewModelScope.launch {
+            getStatusTypesUseCase().collectLatest { types ->
+                updateState { copy(statusTypes = types) }
+            }
+        }
     }
 
     override fun onIntent(intent: StatusIntent) {

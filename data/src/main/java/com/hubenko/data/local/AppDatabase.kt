@@ -5,17 +5,25 @@ import androidx.room.RoomDatabase
 import com.hubenko.data.local.dao.EmployeeDao
 import com.hubenko.data.local.dao.EmployeeStatusDao
 import com.hubenko.data.local.dao.ReminderSettingsDao
+import com.hubenko.data.local.dao.StatusTypeDao
 import com.hubenko.data.local.entity.EmployeeEntity
 import com.hubenko.data.local.entity.EmployeeStatusEntity
 import com.hubenko.data.local.entity.ReminderSettingsEntity
+import com.hubenko.data.local.entity.StatusTypeEntity
 
 @Database(
-    entities = [EmployeeStatusEntity::class, EmployeeEntity::class, ReminderSettingsEntity::class],
-    version = 12,
+    entities = [
+        EmployeeStatusEntity::class,
+        EmployeeEntity::class,
+        ReminderSettingsEntity::class,
+        StatusTypeEntity::class
+    ],
+    version = 13,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun employeeStatusDao(): EmployeeStatusDao
     abstract fun employeeDao(): EmployeeDao
     abstract fun reminderSettingsDao(): ReminderSettingsDao
+    abstract fun statusTypeDao(): StatusTypeDao
 }

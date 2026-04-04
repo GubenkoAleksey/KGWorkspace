@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -62,7 +63,7 @@ fun StatusesContent(
                     }
                     BadgedBox(
                         badge = {
-                            if (state.filterDateFrom != null) {
+                            if (state.filterDateFrom != null || state.filterEmployeeIds.isNotEmpty() || state.filterStatusTypes.isNotEmpty()) {
                                 Badge()
                             }
                         }
@@ -152,10 +153,37 @@ fun StatusesContent(
     }
 
     if (state.isFilterSheetOpen) {
+        val dateFiltered = remember(state.statuses, state.filterDateFrom, state.filterDateTo) {
+            if (state.filterDateFrom != null && state.filterDateTo != null) {
+                state.statuses.filter { it.startTime in state.filterDateFrom..state.filterDateTo }
+            } else {
+                state.statuses
+            }
+        }
+        val employees = remember(dateFiltered) {
+            dateFiltered
+                .distinctBy { it.employeeId }
+                .map { it.employeeId to (it.employeeFullName?.takeIf(String::isNotBlank) ?: it.employeeId) }
+        }
+        val statusTypes = remember(dateFiltered, state.filterEmployeeIds, state.availableStatusTypes) {
+            val employeeFiltered = if (state.filterEmployeeIds.isNotEmpty()) {
+                dateFiltered.filter { it.employeeId in state.filterEmployeeIds }
+            } else {
+                dateFiltered
+            }
+            val presentTypes = employeeFiltered.map { it.status }.toSet()
+            state.availableStatusTypes
+                .filter { it.type in presentTypes }
+                .map { it.type to it.label }
+        }
         StatusesFilterSheet(
             currentFrom = state.filterDateFrom,
             currentTo = state.filterDateTo,
-            onApply = { from, to -> onIntent(StatusesIntent.OnApplyFilter(from, to)) },
+            currentSelectedEmployeeIds = state.filterEmployeeIds,
+            currentSelectedStatusTypes = state.filterStatusTypes,
+            employees = employees,
+            statusTypes = statusTypes,
+            onApply = { from, to, ids, types -> onIntent(StatusesIntent.OnApplyFilter(from, to, ids, types)) },
             onClear = { onIntent(StatusesIntent.OnClearFilter) },
             onDismiss = { onIntent(StatusesIntent.OnDismissFilterSheet) }
         )
