@@ -40,8 +40,9 @@ fun HomeContent(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             AppTopBar(
-                title = "Firebase",
-                userInitial = "A", // Можна буде брати з профілю
+                title = "Головне меню",
+                isDarkTheme = state.isDarkTheme,
+                onThemeToggle = { onIntent(HomeIntent.OnThemeToggle) },
                 actions = {
                     IconButton(onClick = { onIntent(HomeIntent.OnLogoutClick) }) {
                         Icon(

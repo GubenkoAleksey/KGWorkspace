@@ -4,9 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -19,16 +23,23 @@ import com.hubenko.feature.admin.ui.reminder.ReminderSettingsScreen
 import com.hubenko.feature.auth.ui.AuthScreen
 import com.hubenko.feature.home.ui.HomeScreen
 import com.hubenko.feature.status.ui.StatusScreen
+import com.hubenko.firestoreapp.ui.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private val viewModel: MainViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         setContent {
-            CoreTheme {
+            val isDarkThemePersistent by viewModel.isDarkTheme.collectAsState()
+            val isDarkTheme = isDarkThemePersistent ?: isSystemInDarkTheme()
+
+            CoreTheme(darkTheme = isDarkTheme) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background

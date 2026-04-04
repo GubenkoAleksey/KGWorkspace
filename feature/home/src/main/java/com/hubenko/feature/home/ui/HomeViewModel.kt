@@ -5,6 +5,7 @@ import com.hubenko.core.base.BaseViewModel
 import com.hubenko.core.utils.NotificationHelper
 import com.hubenko.domain.manager.ReminderManager
 import com.hubenko.domain.repository.AuthRepository
+import com.hubenko.domain.repository.SettingsRepository
 import com.hubenko.domain.usecase.CheckAdminStatusUseCase
 import com.hubenko.domain.usecase.LogoutUseCase
 import com.hubenko.domain.usecase.SyncMyRemindersUseCase
@@ -19,12 +20,14 @@ class HomeViewModel @Inject constructor(
     private val syncMyRemindersUseCase: SyncMyRemindersUseCase,
     private val notificationHelper: NotificationHelper,
     private val reminderManager: ReminderManager,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val settingsRepository: SettingsRepository
 ) : BaseViewModel<HomeState, HomeIntent, HomeEffect>(HomeState()) {
 
     init {
         onIntent(HomeIntent.LoadAdminStatus)
         syncReminders()
+        observeTheme()
     }
 
     override fun onIntent(intent: HomeIntent) {
@@ -44,6 +47,19 @@ class HomeViewModel @Inject constructor(
                 val employeeId = authRepository.getCurrentUserId() ?: "unknown"
                 reminderManager.scheduleTestAlarm(employeeId)
                 sendEffect(HomeEffect.ShowToast("Таймер запущено на 10 секунд..."))
+            }
+            is HomeIntent.OnThemeToggle -> {
+                viewModelScope.launch {
+                    settingsRepository.toggleTheme()
+                }
+            }
+        }
+    }
+
+    private fun observeTheme() {
+        viewModelScope.launch {
+            settingsRepository.isDarkTheme().collect { isDark ->
+                updateState { copy(isDarkTheme = isDark) }
             }
         }
     }

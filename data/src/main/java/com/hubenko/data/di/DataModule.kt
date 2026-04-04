@@ -13,6 +13,7 @@ import com.hubenko.data.repository.AuthRepositoryImpl
 import com.hubenko.data.repository.EmployeeRepositoryImpl
 import com.hubenko.data.repository.ReminderRepositoryImpl
 import com.hubenko.data.repository.RoleRepositoryImpl
+import com.hubenko.data.repository.SettingsRepositoryImpl
 import com.hubenko.data.repository.StatusRepositoryImpl
 import com.hubenko.data.repository.StatusTypeRepositoryImpl
 import com.hubenko.data.worker.AlarmScheduler
@@ -21,6 +22,7 @@ import com.hubenko.domain.repository.AuthRepository
 import com.hubenko.domain.repository.EmployeeRepository
 import com.hubenko.domain.repository.ReminderRepository
 import com.hubenko.domain.repository.RoleRepository
+import com.hubenko.domain.repository.SettingsRepository
 import com.hubenko.domain.repository.StatusRepository
 import com.hubenko.domain.repository.StatusTypeRepository
 import dagger.Module
@@ -93,4 +95,8 @@ object DataModule {
     @Provides
     @Singleton
     fun provideStatusTypeRepository(impl: StatusTypeRepositoryImpl): StatusTypeRepository = impl
+
+    @Provides
+    @Singleton
+    fun provideSettingsRepository(impl: SettingsRepositoryImpl): SettingsRepository = impl
 }

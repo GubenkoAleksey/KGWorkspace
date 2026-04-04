@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.hubenko.core.ui.theme.CoreTheme
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -60,9 +61,11 @@ fun HomeScreen(
         }
     }
 
-    HomeContent(
-        state = state,
-        onIntent = viewModel::onIntent,
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-    )
+    CoreTheme(darkTheme = state.isDarkTheme) {
+        HomeContent(
+            state = state,
+            onIntent = viewModel::onIntent,
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+        )
+    }
 }
