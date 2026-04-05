@@ -32,6 +32,7 @@ fun EmployeeDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
         title = { Text("Редагувати співробітника") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
