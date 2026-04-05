@@ -11,14 +11,17 @@ data class EmployeesState(
     val roles: List<Role> = emptyList(),
     val isLoading: Boolean = false,
     val isEmployeeDialogOpen: Boolean = false,
-    val editingEmployee: Employee? = null
+    val editingEmployee: Employee? = null,
+    val employeePendingDelete: Employee? = null
 ) : ViewState
 
 sealed class EmployeesIntent : ViewIntent {
     data object LoadData : EmployeesIntent()
     data object OnAddEmployeeClick : EmployeesIntent()
     data class OnEditEmployeeClick(val employee: Employee) : EmployeesIntent()
-    data class OnDeleteEmployeeClick(val id: String) : EmployeesIntent()
+    data class OnDeleteEmployeeClick(val employee: Employee) : EmployeesIntent()
+    data object OnConfirmDeleteEmployee : EmployeesIntent()
+    data object OnDismissDeleteDialog : EmployeesIntent()
     data class OnSaveEmployee(val employee: Employee) : EmployeesIntent()
     data object OnDismissDialog : EmployeesIntent()
 }

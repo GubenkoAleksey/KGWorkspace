@@ -31,7 +31,13 @@ class EmployeesViewModel @Inject constructor(
             is EmployeesIntent.OnEditEmployeeClick -> updateState {
                 copy(isEmployeeDialogOpen = true, editingEmployee = intent.employee)
             }
-            is EmployeesIntent.OnDeleteEmployeeClick -> deleteEmployee(intent.id)
+            is EmployeesIntent.OnDeleteEmployeeClick -> updateState {
+                copy(employeePendingDelete = intent.employee)
+            }
+            is EmployeesIntent.OnConfirmDeleteEmployee -> confirmDeleteEmployee()
+            is EmployeesIntent.OnDismissDeleteDialog -> updateState {
+                copy(employeePendingDelete = null)
+            }
             is EmployeesIntent.OnSaveEmployee -> saveEmployee(intent.employee)
             is EmployeesIntent.OnDismissDialog -> updateState {
                 copy(isEmployeeDialogOpen = false, editingEmployee = null)
@@ -67,10 +73,12 @@ class EmployeesViewModel @Inject constructor(
         }
     }
 
-    private fun deleteEmployee(id: String) {
+    private fun confirmDeleteEmployee() {
+        val employeeId = viewState.value.employeePendingDelete?.id ?: return
         viewModelScope.launch {
             try {
-                deleteEmployeeUseCase(id)
+                deleteEmployeeUseCase(employeeId)
+                updateState { copy(employeePendingDelete = null) }
                 sendEffect(EmployeesEffect.ShowToast("Співробітника видалено"))
             } catch (e: Exception) {
                 sendEffect(EmployeesEffect.ShowToast("Помилка видалення: ${e.message}"))

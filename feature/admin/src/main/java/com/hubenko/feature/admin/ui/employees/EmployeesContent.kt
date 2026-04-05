@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.hubenko.core.ui.components.AppTopBar
 import com.hubenko.core.ui.theme.CoreTheme
 import com.hubenko.domain.model.Employee
+import com.hubenko.feature.admin.ui.employees.components.DeleteEmployeeDialog
 import com.hubenko.feature.admin.ui.employees.components.EmployeeDialog
 import com.hubenko.feature.admin.ui.employees.components.EmployeeItem
 
@@ -81,7 +82,7 @@ fun EmployeesContent(
                         employee = employee,
                         roleLabel = roleLabel,
                         onEdit = { onIntent(EmployeesIntent.OnEditEmployeeClick(employee)) },
-                        onDelete = { onIntent(EmployeesIntent.OnDeleteEmployeeClick(employee.id)) }
+                        onDelete = { onIntent(EmployeesIntent.OnDeleteEmployeeClick(employee)) }
                     )
                 }
             }
@@ -94,6 +95,14 @@ fun EmployeesContent(
             roles = state.roles,
             onDismiss = { onIntent(EmployeesIntent.OnDismissDialog) },
             onSave = { employee -> onIntent(EmployeesIntent.OnSaveEmployee(employee)) }
+        )
+    }
+
+    state.employeePendingDelete?.let { employee ->
+        DeleteEmployeeDialog(
+            employee = employee,
+            onDismiss = { onIntent(EmployeesIntent.OnDismissDeleteDialog) },
+            onConfirm = { onIntent(EmployeesIntent.OnConfirmDeleteEmployee) }
         )
     }
 }
