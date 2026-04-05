@@ -21,6 +21,9 @@ val StatusOfficeLight = Color(0xFF26B2C8)
 val StatusRemoteLight = Color(0xFFF9B838)
 val StatusSickLight = Color(0xFFF05D71)
 
+val ErrorRed = Color(0xFFD32F2F)
+val ErrorRedDark = Color(0xFFE57373)
+
 // Text transparency levels for hierarchy
 fun ColorScheme.primaryText(): Color = onSurface
 fun ColorScheme.secondaryText(): Color = onSurface.copy(alpha = 0.6f)

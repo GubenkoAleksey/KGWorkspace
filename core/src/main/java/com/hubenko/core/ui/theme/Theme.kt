@@ -21,7 +21,8 @@ private val DarkColorScheme = darkColorScheme(
     onSurface = FirebaseOnSurfaceDark,
     surfaceVariant = FirebaseOutlineDark,
     onSurfaceVariant = FirebaseOnSurfaceDark,
-    outline = FirebaseOutlineDark
+    outline = FirebaseOutlineDark,
+    error = ErrorRedDark
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -32,7 +33,8 @@ private val LightColorScheme = lightColorScheme(
     onSurface = FirebaseOnSurfaceLight,
     surfaceVariant = FirebaseOutlineLight,
     onSurfaceVariant = FirebaseOnSurfaceLight,
-    outline = FirebaseOutlineLight
+    outline = FirebaseOutlineLight,
+    error = ErrorRed
 )
 
 @Composable
