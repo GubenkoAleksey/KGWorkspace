@@ -15,7 +15,6 @@ sealed class HomeIntent : ViewIntent {
     data object OnAdminPanelClick : HomeIntent()
     data object OnSendStatusClick : HomeIntent()
     data object OnLogoutClick : HomeIntent()
-    data object OnTestNotificationClick : HomeIntent()
     data object OnThemeToggle : HomeIntent()
 }
 

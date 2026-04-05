@@ -2,9 +2,6 @@ package com.hubenko.feature.home.ui
 
 import androidx.lifecycle.viewModelScope
 import com.hubenko.core.base.BaseViewModel
-import com.hubenko.core.utils.NotificationHelper
-import com.hubenko.domain.manager.ReminderManager
-import com.hubenko.domain.repository.AuthRepository
 import com.hubenko.domain.repository.SettingsRepository
 import com.hubenko.domain.usecase.CheckAdminStatusUseCase
 import com.hubenko.domain.usecase.LogoutUseCase
@@ -18,9 +15,6 @@ class HomeViewModel @Inject constructor(
     private val checkAdminStatusUseCase: CheckAdminStatusUseCase,
     private val logoutUseCase: LogoutUseCase,
     private val syncMyRemindersUseCase: SyncMyRemindersUseCase,
-    private val notificationHelper: NotificationHelper,
-    private val reminderManager: ReminderManager,
-    private val authRepository: AuthRepository,
     private val settingsRepository: SettingsRepository
 ) : BaseViewModel<HomeState, HomeIntent, HomeEffect>(HomeState()) {
 
@@ -42,11 +36,6 @@ class HomeViewModel @Inject constructor(
             is HomeIntent.OnLogoutClick -> {
                 logoutUseCase()
                 sendEffect(HomeEffect.NavigateToAuth)
-            }
-            is HomeIntent.OnTestNotificationClick -> {
-                val employeeId = authRepository.getCurrentUserId() ?: "unknown"
-                reminderManager.scheduleTestAlarm(employeeId)
-                sendEffect(HomeEffect.ShowToast("Таймер запущено на 10 секунд..."))
             }
             is HomeIntent.OnThemeToggle -> {
                 viewModelScope.launch {
