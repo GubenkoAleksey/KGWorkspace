@@ -5,16 +5,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hubenko.core.ui.components.AppTopBar
 import com.hubenko.core.ui.theme.CoreTheme
+import com.hubenko.core.ui.theme.secondaryText
 import com.hubenko.domain.model.Employee
 import com.hubenko.feature.admin.ui.employees.components.DeleteEmployeeDialog
 import com.hubenko.feature.admin.ui.employees.components.EmployeeDialog
@@ -46,8 +50,20 @@ fun EmployeesContent(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { onIntent(EmployeesIntent.OnAddEmployeeClick) }) {
-                Icon(Icons.Default.Add, contentDescription = "Зареєструвати нового співробітника")
+            Surface(
+                onClick = { onIntent(EmployeesIntent.OnAddEmployeeClick) },
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.secondaryText(),
+                tonalElevation = 0.dp,
+                shadowElevation = 2.dp
+            ) {
+                Box(
+                    modifier = Modifier.size(56.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Зареєструвати нового співробітника")
+                }
             }
         },
         snackbarHost = { snackbarHost() }
