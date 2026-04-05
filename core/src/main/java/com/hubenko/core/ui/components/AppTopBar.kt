@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.hubenko.core.ui.theme.CoreTheme
+import com.hubenko.core.ui.theme.secondaryText
 
 @Composable
 fun AppTopBar(
@@ -33,7 +34,9 @@ fun AppTopBar(
         title = {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.secondaryText()
+
             )
         },
         navigationIcon = {
@@ -51,7 +54,8 @@ fun AppTopBar(
                 IconButton(onClick = onThemeToggle) {
                     Icon(
                         imageVector = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
-                        contentDescription = "Змінити тему"
+                        contentDescription = "Змінити тему",
+                        tint = MaterialTheme.colorScheme.secondaryText()
                     )
                 }
             }

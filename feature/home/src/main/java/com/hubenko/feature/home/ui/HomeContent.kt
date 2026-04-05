@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.hubenko.core.ui.components.AppTopBar
 import com.hubenko.core.ui.components.ProjectItem
 import com.hubenko.core.ui.theme.CoreTheme
+import com.hubenko.core.ui.theme.secondaryText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,7 +48,8 @@ fun HomeContent(
                     IconButton(onClick = { onIntent(HomeIntent.OnLogoutClick) }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Logout,
-                            contentDescription = "Вийти"
+                            contentDescription = "Вийти",
+                            tint = MaterialTheme.colorScheme.secondaryText()
                         )
                     }
                 }
