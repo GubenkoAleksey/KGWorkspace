@@ -8,22 +8,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.hubenko.core.ui.components.AppTopBar
+import com.hubenko.core.ui.theme.CoreTheme
 import com.hubenko.domain.model.ReminderSettings
 import com.hubenko.feature.admin.ui.reminder.components.DaysOfWeekSelector
 import com.hubenko.feature.admin.ui.reminder.components.ReminderSection
@@ -33,18 +30,16 @@ import com.hubenko.feature.admin.ui.reminder.components.ReminderSection
 fun ReminderSettingsContent(
     state: ReminderSettingsState,
     onIntent: (ReminderSettingsIntent) -> Unit,
-    onBack: () -> Unit,
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit,
     snackbarHost: @Composable () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Налаштування нагадувань") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
-                    }
-                }
+            AppTopBar(
+                title = "Налаштування нагадувань",
+                isDarkTheme = isDarkTheme,
+                onThemeToggle = onThemeToggle
             )
         },
         snackbarHost = { snackbarHost() }
@@ -123,14 +118,15 @@ fun ReminderSettingsContent(
 @Preview(showBackground = true)
 @Composable
 private fun ReminderSettingsContentPreview() {
-    MaterialTheme {
+    CoreTheme {
         ReminderSettingsContent(
             state = ReminderSettingsState(
                 settings = ReminderSettings(),
                 isLoading = false
             ),
             onIntent = {},
-            onBack = {}
+            isDarkTheme = false,
+            onThemeToggle = {}
         )
     }
 }
@@ -138,11 +134,12 @@ private fun ReminderSettingsContentPreview() {
 @Preview(showBackground = true)
 @Composable
 private fun ReminderSettingsContentLoadingPreview() {
-    MaterialTheme {
+    CoreTheme {
         ReminderSettingsContent(
             state = ReminderSettingsState(isLoading = true),
             onIntent = {},
-            onBack = {}
+            isDarkTheme = false,
+            onThemeToggle = {}
         )
     }
 }

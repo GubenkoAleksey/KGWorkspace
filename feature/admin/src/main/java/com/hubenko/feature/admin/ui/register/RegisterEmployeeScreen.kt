@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun RegisterEmployeeScreen(
     viewModel: RegisterEmployeeViewModel = hiltViewModel(),
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit,
     onNavigateBack: () -> Unit
 ) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
@@ -30,6 +32,8 @@ fun RegisterEmployeeScreen(
     RegisterEmployeeContent(
         state = state,
         onIntent = viewModel::onIntent,
+        isDarkTheme = isDarkTheme,
+        onThemeToggle = onThemeToggle,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     )
 }

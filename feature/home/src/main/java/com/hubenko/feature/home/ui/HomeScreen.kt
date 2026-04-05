@@ -23,6 +23,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit,
     onNavigateToStatus: () -> Unit,
     onNavigateToAdmin: () -> Unit,
     onNavigateToAuth: () -> Unit
@@ -61,10 +63,11 @@ fun HomeScreen(
         }
     }
 
-    CoreTheme(darkTheme = state.isDarkTheme) {
+    CoreTheme(darkTheme = isDarkTheme) {
         HomeContent(
-            state = state,
+            state = state.copy(isDarkTheme = isDarkTheme),
             onIntent = viewModel::onIntent,
+            onThemeToggle = onThemeToggle,
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
         )
     }

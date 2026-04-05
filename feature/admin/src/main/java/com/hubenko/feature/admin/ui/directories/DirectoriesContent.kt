@@ -39,14 +39,16 @@ import com.hubenko.feature.admin.ui.directories.components.DirectoryItemRow
 fun DirectoriesContent(
     state: DirectoriesState,
     onIntent: (DirectoriesIntent) -> Unit,
-    onBackClick: () -> Unit,
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit,
     snackbarHost: @Composable () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
             AppTopBar(
                 title = "Довідники",
-                onBackClick = onBackClick
+                isDarkTheme = isDarkTheme,
+                onThemeToggle = onThemeToggle
             )
         },
         snackbarHost = { snackbarHost() }
@@ -206,7 +208,8 @@ private fun DirectoriesContentPreview() {
                 )
             ),
             onIntent = {},
-            onBackClick = {}
+            isDarkTheme = false,
+            onThemeToggle = {}
         )
     }
 }
@@ -218,7 +221,8 @@ private fun DirectoriesContentLoadingPreview() {
         DirectoriesContent(
             state = DirectoriesState(isLoading = true),
             onIntent = {},
-            onBackClick = {}
+            isDarkTheme = false,
+            onThemeToggle = {}
         )
     }
 }

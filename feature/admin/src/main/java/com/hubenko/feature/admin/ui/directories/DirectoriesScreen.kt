@@ -12,7 +12,8 @@ import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun DirectoriesScreen(
-    onBackClick: () -> Unit,
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit,
     viewModel: DirectoriesViewModel = hiltViewModel()
 ) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
@@ -29,7 +30,8 @@ fun DirectoriesScreen(
     DirectoriesContent(
         state = state,
         onIntent = viewModel::onIntent,
-        onBackClick = onBackClick,
+        isDarkTheme = isDarkTheme,
+        onThemeToggle = onThemeToggle,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     )
 }

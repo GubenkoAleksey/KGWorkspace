@@ -29,11 +29,17 @@ import com.hubenko.feature.admin.ui.AdminTab
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardContent(
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit,
     onTabSelected: (AdminTab) -> Unit
 ) {
     Scaffold(
         topBar = {
-            AppTopBar(title = "Панель адміністратора")
+            AppTopBar(
+                title = "Панель адміністратора",
+                isDarkTheme = isDarkTheme,
+                onThemeToggle = onThemeToggle
+            )
         }
     ) { paddingValues ->
         Column(
@@ -76,7 +82,11 @@ fun DashboardContent(
 @Composable
 private fun DashboardContentPreview() {
     CoreTheme {
-        DashboardContent(onTabSelected = {})
+        DashboardContent(
+            isDarkTheme = false,
+            onThemeToggle = {},
+            onTabSelected = {}
+        )
     }
 }
 

@@ -15,7 +15,8 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun StatusesScreen(
     viewModel: StatusesViewModel = hiltViewModel(),
-    onBackClick: () -> Unit
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit
 ) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -40,7 +41,8 @@ fun StatusesScreen(
     StatusesContent(
         state = state,
         onIntent = viewModel::onIntent,
-        onBackClick = onBackClick,
+        isDarkTheme = isDarkTheme,
+        onThemeToggle = onThemeToggle,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     )
 }

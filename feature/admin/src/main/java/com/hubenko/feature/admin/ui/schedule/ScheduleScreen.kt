@@ -17,8 +17,9 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun ScheduleScreen(
     viewModel: ScheduleViewModel = hiltViewModel(),
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit,
     onNavigateToReminderSettings: (String) -> Unit,
-    onBackClick: () -> Unit
 ) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
 
@@ -35,7 +36,8 @@ fun ScheduleScreen(
     ScheduleContent(
         state = state,
         onIntent = viewModel::onIntent,
-        onBackClick = onBackClick
+        isDarkTheme = isDarkTheme,
+        onThemeToggle = onThemeToggle
     )
 }
 

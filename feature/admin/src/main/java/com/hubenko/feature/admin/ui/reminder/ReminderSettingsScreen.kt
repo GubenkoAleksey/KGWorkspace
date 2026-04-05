@@ -13,6 +13,8 @@ import androidx.compose.runtime.collectAsState
 fun ReminderSettingsScreen(
     employeeId: String,
     viewModel: ReminderSettingsViewModel = hiltViewModel(),
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit,
     onBack: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
@@ -32,7 +34,8 @@ fun ReminderSettingsScreen(
     ReminderSettingsContent(
         state = state,
         onIntent = viewModel::onIntent,
-        onBack = onBack,
+        isDarkTheme = isDarkTheme,
+        onThemeToggle = onThemeToggle,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     )
 }

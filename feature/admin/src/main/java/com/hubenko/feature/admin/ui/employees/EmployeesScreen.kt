@@ -13,8 +13,9 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun EmployeesScreen(
     viewModel: EmployeesViewModel = hiltViewModel(),
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit,
     onNavigateToRegister: () -> Unit,
-    onBackClick: () -> Unit
 ) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -31,7 +32,8 @@ fun EmployeesScreen(
     EmployeesContent(
         state = state,
         onIntent = viewModel::onIntent,
-        onBackClick = onBackClick,
+        isDarkTheme = isDarkTheme,
+        onThemeToggle = onThemeToggle,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     )
 }

@@ -25,13 +25,15 @@ import com.hubenko.domain.model.Employee
 fun ScheduleContent(
     state: ScheduleState,
     onIntent: (ScheduleIntent) -> Unit,
-    onBackClick: () -> Unit
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit
 ) {
     Scaffold(
         topBar = {
             AppTopBar(
                 title = "Розклад сповіщень",
-                onBackClick = onBackClick
+                isDarkTheme = isDarkTheme,
+                onThemeToggle = onThemeToggle
             )
         }
     ) { paddingValues ->
@@ -95,7 +97,8 @@ private fun ScheduleContentPreview() {
                 )
             ),
             onIntent = {},
-            onBackClick = {}
+            isDarkTheme = false,
+            onThemeToggle = {}
         )
     }
 }
@@ -107,7 +110,8 @@ private fun ScheduleContentLoadingPreview() {
         ScheduleContent(
             state = ScheduleState(isLoading = true),
             onIntent = {},
-            onBackClick = {}
+            isDarkTheme = false,
+            onThemeToggle = {}
         )
     }
 }
@@ -119,7 +123,8 @@ private fun ScheduleContentEmptyPreview() {
         ScheduleContent(
             state = ScheduleState(),
             onIntent = {},
-            onBackClick = {}
+            isDarkTheme = false,
+            onThemeToggle = {}
         )
     }
 }

@@ -33,14 +33,16 @@ import com.hubenko.feature.admin.ui.employees.components.EmployeeItem
 fun EmployeesContent(
     state: EmployeesState,
     onIntent: (EmployeesIntent) -> Unit,
-    onBackClick: () -> Unit,
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit,
     snackbarHost: @Composable () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
             AppTopBar(
                 title = "Керування працівниками",
-                onBackClick = onBackClick
+                isDarkTheme = isDarkTheme,
+                onThemeToggle = onThemeToggle
             )
         },
         floatingActionButton = {
@@ -119,7 +121,8 @@ private fun EmployeesContentPreview() {
                 )
             ),
             onIntent = {},
-            onBackClick = {},
+            isDarkTheme = false,
+            onThemeToggle = {},
             snackbarHost = { SnackbarHost(hostState = androidx.compose.material3.SnackbarHostState()) }
         )
     }
@@ -132,7 +135,8 @@ private fun EmployeesContentLoadingPreview() {
         EmployeesContent(
             state = EmployeesState(isLoading = true),
             onIntent = {},
-            onBackClick = {},
+            isDarkTheme = false,
+            onThemeToggle = {},
             snackbarHost = { SnackbarHost(hostState = androidx.compose.material3.SnackbarHostState()) }
         )
     }
@@ -145,7 +149,8 @@ private fun EmployeesContentEmptyPreview() {
         EmployeesContent(
             state = EmployeesState(),
             onIntent = {},
-            onBackClick = {},
+            isDarkTheme = false,
+            onThemeToggle = {},
             snackbarHost = { SnackbarHost(hostState = androidx.compose.material3.SnackbarHostState()) }
         )
     }

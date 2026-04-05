@@ -33,6 +33,7 @@ import com.hubenko.core.ui.theme.CoreTheme
 fun HomeContent(
     state: HomeState,
     onIntent: (HomeIntent) -> Unit,
+    onThemeToggle: () -> Unit = { onIntent(HomeIntent.OnThemeToggle) },
     snackbarHost: @Composable () -> Unit = {}
 ) {
     Scaffold(
@@ -41,7 +42,7 @@ fun HomeContent(
             AppTopBar(
                 title = "Головне меню",
                 isDarkTheme = state.isDarkTheme,
-                onThemeToggle = { onIntent(HomeIntent.OnThemeToggle) },
+                onThemeToggle = onThemeToggle,
                 actions = {
                     IconButton(onClick = { onIntent(HomeIntent.OnLogoutClick) }) {
                         Icon(

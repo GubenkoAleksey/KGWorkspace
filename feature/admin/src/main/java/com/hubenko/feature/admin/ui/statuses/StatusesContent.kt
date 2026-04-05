@@ -49,14 +49,16 @@ import java.util.Locale
 fun StatusesContent(
     state: StatusesState,
     onIntent: (StatusesIntent) -> Unit,
-    onBackClick: () -> Unit,
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit,
     snackbarHost: @Composable () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
             AppTopBar(
                 title = "Статуси працівників",
-                onBackClick = onBackClick,
+                isDarkTheme = isDarkTheme,
+                onThemeToggle = onThemeToggle,
                 actions = {
                     if (state.employeeGroups.isNotEmpty()) {
                         IconButton(onClick = { onIntent(StatusesIntent.OnDeleteAllClick) }) {
@@ -210,7 +212,8 @@ private fun StatusesContentEmptyPreview() {
         StatusesContent(
             state = StatusesState(),
             onIntent = {},
-            onBackClick = {},
+            isDarkTheme = false,
+            onThemeToggle = {},
             snackbarHost = { SnackbarHost(hostState = androidx.compose.material3.SnackbarHostState()) }
         )
     }
@@ -223,7 +226,8 @@ private fun StatusesContentLoadingPreview() {
         StatusesContent(
             state = StatusesState(isLoading = true),
             onIntent = {},
-            onBackClick = {},
+            isDarkTheme = false,
+            onThemeToggle = {},
             snackbarHost = { SnackbarHost(hostState = androidx.compose.material3.SnackbarHostState()) }
         )
     }
@@ -269,7 +273,8 @@ private fun StatusesContentPreview() {
                 )
             ),
             onIntent = {},
-            onBackClick = {},
+            isDarkTheme = false,
+            onThemeToggle = {},
             snackbarHost = { SnackbarHost(hostState = androidx.compose.material3.SnackbarHostState()) }
         )
     }

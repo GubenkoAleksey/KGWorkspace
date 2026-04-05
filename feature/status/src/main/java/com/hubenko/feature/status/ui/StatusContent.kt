@@ -24,7 +24,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +42,8 @@ import com.hubenko.feature.status.ui.components.StatusCard
 fun StatusContent(
     state: StatusState,
     onIntent: (StatusIntent) -> Unit,
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit,
     snackbarHost: @Composable () -> Unit = {}
 ) {
     Scaffold(
@@ -51,7 +52,8 @@ fun StatusContent(
         topBar = {
             AppTopBar(
                 title = "Оновити статус",
-                onBackClick = { onIntent(StatusIntent.OnBackClick) }
+                isDarkTheme = isDarkTheme,
+                onThemeToggle = onThemeToggle
             )
         },
         snackbarHost = { snackbarHost() }
@@ -140,7 +142,9 @@ private fun StatusContentPreview() {
     CoreTheme {
         StatusContent(
             state = StatusState(isLoading = false),
-            onIntent = {}
+            onIntent = {},
+            isDarkTheme = false,
+            onThemeToggle = {}
         )
     }
 }
@@ -151,7 +155,9 @@ private fun StatusLoadingPreview() {
     CoreTheme {
         StatusContent(
             state = StatusState(isLoading = true),
-            onIntent = {}
+            onIntent = {},
+            isDarkTheme = false,
+            onThemeToggle = {}
         )
     }
 }

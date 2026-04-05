@@ -63,6 +63,8 @@ class MainActivity : ComponentActivity() {
 
                         composable("home") {
                             HomeScreen(
+                                isDarkTheme = isDarkTheme,
+                                onThemeToggle = viewModel::toggleTheme,
                                 onNavigateToStatus = { navController.navigate("status") },
                                 onNavigateToAdmin = { navController.navigate("admin") },
                                 onNavigateToAuth = {
@@ -75,12 +77,16 @@ class MainActivity : ComponentActivity() {
 
                         composable("status") {
                             StatusScreen(
+                                isDarkTheme = isDarkTheme,
+                                onThemeToggle = viewModel::toggleTheme,
                                 onNavigateBack = { navController.popBackStack() }
                             )
                         }
 
                         composable("admin") {
                             AdminScreen(
+                                isDarkTheme = isDarkTheme,
+                                onThemeToggle = viewModel::toggleTheme,
                                 onNavigateBack = { navController.popBackStack() },
                                 onNavigateToReminderSettings = { employeeId ->
                                     navController.navigate("reminder_settings/$employeeId")
@@ -93,6 +99,8 @@ class MainActivity : ComponentActivity() {
 
                         composable("admin_register") {
                             RegisterEmployeeScreen(
+                                isDarkTheme = isDarkTheme,
+                                onThemeToggle = viewModel::toggleTheme,
                                 onNavigateBack = { navController.popBackStack() }
                             )
                         }
@@ -101,6 +109,8 @@ class MainActivity : ComponentActivity() {
                             val employeeId = backStackEntry.arguments?.getString("employeeId") ?: ""
                             ReminderSettingsScreen(
                                 employeeId = employeeId,
+                                isDarkTheme = isDarkTheme,
+                                onThemeToggle = viewModel::toggleTheme,
                                 onBack = { navController.popBackStack() }
                             )
                         }

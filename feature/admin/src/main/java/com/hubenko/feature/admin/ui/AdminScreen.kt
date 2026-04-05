@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun AdminScreen(
     viewModel: AdminViewModel = hiltViewModel(),
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit,
     onNavigateBack: () -> Unit,
     onNavigateToReminderSettings: (String) -> Unit,
     onNavigateToRegisterEmployee: () -> Unit
@@ -35,8 +37,9 @@ fun AdminScreen(
 
     AdminContent(
         state = state,
+        isDarkTheme = isDarkTheme,
+        onThemeToggle = onThemeToggle,
         onTabSelected = { viewModel.onIntent(AdminIntent.OnTabSelected(it)) },
-        onBackToMenu = { viewModel.onIntent(AdminIntent.OnBackClick) },
         onNavigateToReminderSettings = onNavigateToReminderSettings,
         onNavigateToRegisterEmployee = onNavigateToRegisterEmployee
     )

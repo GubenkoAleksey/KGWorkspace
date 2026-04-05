@@ -16,28 +16,35 @@ import com.hubenko.feature.admin.ui.statuses.StatusesScreen
 @Composable
 fun AdminContent(
     state: AdminState,
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit,
     onTabSelected: (AdminTab) -> Unit,
-    onBackToMenu: () -> Unit,
     onNavigateToReminderSettings: (String) -> Unit,
     onNavigateToRegisterEmployee: () -> Unit
 ) {
     when (state.selectedTab) {
         AdminTab.DASHBOARD -> DashboardContent(
+            isDarkTheme = isDarkTheme,
+            onThemeToggle = onThemeToggle,
             onTabSelected = onTabSelected
         )
         AdminTab.EMPLOYEES -> EmployeesScreen(
             onNavigateToRegister = onNavigateToRegisterEmployee,
-            onBackClick = onBackToMenu
+            isDarkTheme = isDarkTheme,
+            onThemeToggle = onThemeToggle
         )
         AdminTab.STATUSES -> StatusesScreen(
-            onBackClick = onBackToMenu
+            isDarkTheme = isDarkTheme,
+            onThemeToggle = onThemeToggle
         )
         AdminTab.SCHEDULE -> ScheduleScreen(
             onNavigateToReminderSettings = onNavigateToReminderSettings,
-            onBackClick = onBackToMenu
+            isDarkTheme = isDarkTheme,
+            onThemeToggle = onThemeToggle
         )
         AdminTab.DIRECTORIES -> DirectoriesScreen(
-            onBackClick = onBackToMenu
+            isDarkTheme = isDarkTheme,
+            onThemeToggle = onThemeToggle
         )
     }
 }
@@ -48,8 +55,9 @@ private fun AdminContentDashboardPreview() {
     CoreTheme {
         AdminContent(
             state = AdminState(selectedTab = AdminTab.DASHBOARD),
+            isDarkTheme = false,
+            onThemeToggle = {},
             onTabSelected = {},
-            onBackToMenu = {},
             onNavigateToReminderSettings = {},
             onNavigateToRegisterEmployee = {}
         )

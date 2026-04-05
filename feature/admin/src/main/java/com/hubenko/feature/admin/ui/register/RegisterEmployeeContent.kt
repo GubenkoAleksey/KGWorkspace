@@ -28,13 +28,16 @@ import com.hubenko.feature.admin.ui.register.components.RegisterEmployeeForm
 fun RegisterEmployeeContent(
     state: RegisterEmployeeState,
     onIntent: (RegisterEmployeeIntent) -> Unit,
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit,
     snackbarHost: @Composable () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
             AppTopBar(
                 title = "Реєстрація співробітника",
-                onBackClick = { onIntent(RegisterEmployeeIntent.NavigateBack) }
+                isDarkTheme = isDarkTheme,
+                onThemeToggle = onThemeToggle
             )
         },
         snackbarHost = { snackbarHost() }
@@ -89,7 +92,12 @@ fun RegisterEmployeeContent(
 @Composable
 private fun RegisterEmployeeContentEmptyPreview() {
     CoreTheme {
-        RegisterEmployeeContent(state = RegisterEmployeeState(), onIntent = {})
+        RegisterEmployeeContent(
+            state = RegisterEmployeeState(),
+            onIntent = {},
+            isDarkTheme = false,
+            onThemeToggle = {}
+        )
     }
 }
 
@@ -103,7 +111,9 @@ private fun RegisterEmployeeContentFilledPreview() {
                 lastName = "Іванов",
                 firstName = "Іван"
             ),
-            onIntent = {}
+            onIntent = {},
+            isDarkTheme = false,
+            onThemeToggle = {}
         )
     }
 }
@@ -112,6 +122,11 @@ private fun RegisterEmployeeContentFilledPreview() {
 @Composable
 private fun RegisterEmployeeContentLoadingPreview() {
     CoreTheme {
-        RegisterEmployeeContent(state = RegisterEmployeeState(isLoading = true), onIntent = {})
+        RegisterEmployeeContent(
+            state = RegisterEmployeeState(isLoading = true),
+            onIntent = {},
+            isDarkTheme = false,
+            onThemeToggle = {}
+        )
     }
 }
