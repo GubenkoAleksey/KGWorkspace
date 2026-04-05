@@ -20,11 +20,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.hubenko.core.ui.theme.CoreTheme
+import com.hubenko.core.ui.theme.secondaryText
 
 @Composable
 fun ProjectItem(
@@ -54,20 +53,19 @@ fun ProjectItem(
                 imageVector = leadingIcon,
                 contentDescription = null,
                 modifier = Modifier.size(32.dp),
-                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                tint = MaterialTheme.colorScheme.secondaryText()
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
                     text = subtitle,
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.secondaryText()
                 )
             }
         }

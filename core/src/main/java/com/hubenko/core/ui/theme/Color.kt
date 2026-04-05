@@ -1,5 +1,6 @@
 package com.hubenko.core.ui.theme
 
+import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.graphics.Color
 
 // Firebase Colors - Light
@@ -19,3 +20,9 @@ val FirebaseOutlineDark = Color(0xFF3C4043)
 val StatusOfficeLight = Color(0xFF26B2C8)
 val StatusRemoteLight = Color(0xFFF9B838)
 val StatusSickLight = Color(0xFFF05D71)
+
+// Text transparency levels for hierarchy
+fun ColorScheme.primaryText(): Color = onSurface
+fun ColorScheme.secondaryText(): Color = onSurface.copy(alpha = 0.6f)
+fun ColorScheme.tertiaryText(): Color = onSurface.copy(alpha = 0.38f)
+
