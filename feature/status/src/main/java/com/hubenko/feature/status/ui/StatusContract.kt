@@ -11,7 +11,6 @@ import com.hubenko.feature.status.ui.model.StatusTypeUi
 @Stable
 data class StatusState(
     val isLoading: Boolean = false,
-    val isSuccess: Boolean = false,
     val error: UiText? = null,
     val note: String = "",
     val showConfirmDialog: Boolean = false,
@@ -26,11 +25,10 @@ sealed interface StatusIntent : ViewIntent {
     data object ConfirmSubmit : StatusIntent
     data object DismissConfirmDialog : StatusIntent
     data class UpdateNote(val note: String) : StatusIntent
-    data object DismissDialog : StatusIntent
     data object OnBackClick : StatusIntent
 }
 
 sealed interface StatusEffect : ViewSideEffect {
     data object NavigateBack : StatusEffect
-    data class ShowError(val message: UiText) : StatusEffect
+    data class ShowSnackbar(val message: UiText) : StatusEffect
 }

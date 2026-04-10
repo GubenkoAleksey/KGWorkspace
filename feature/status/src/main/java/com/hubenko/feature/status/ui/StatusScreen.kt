@@ -23,7 +23,7 @@ fun StatusScreen(
     ObserveAsEvents(viewModel.effect) { effect ->
         when (effect) {
             is StatusEffect.NavigateBack -> onNavigateBack()
-            is StatusEffect.ShowError -> snackbarHostState.showSnackbar(effect.message.asString(context))
+            is StatusEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.message.asString(context))
         }
     }
 

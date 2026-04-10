@@ -38,7 +38,6 @@ import com.hubenko.core.presentation.theme.StatusRemoteLight
 import com.hubenko.core.presentation.theme.StatusSickLight
 import com.hubenko.feature.status.ui.components.NoteInputField
 import com.hubenko.feature.status.ui.components.StatusCard
-import com.hubenko.feature.status.ui.components.StatusConfirmationDialog
 import com.hubenko.feature.status.ui.components.SubmitConfirmDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,12 +52,6 @@ fun StatusContent(
             status = state.pendingStatus,
             onConfirm = { onIntent(StatusIntent.ConfirmSubmit) },
             onDismiss = { onIntent(StatusIntent.DismissConfirmDialog) }
-        )
-    }
-
-    if (state.isSuccess) {
-        StatusConfirmationDialog(
-            onDismiss = { onIntent(StatusIntent.DismissDialog) }
         )
     }
 

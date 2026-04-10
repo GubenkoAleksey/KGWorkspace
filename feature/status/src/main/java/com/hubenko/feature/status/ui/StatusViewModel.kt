@@ -2,6 +2,7 @@ package com.hubenko.feature.status.ui
 
 import androidx.lifecycle.viewModelScope
 import com.hubenko.core.presentation.BaseViewModel
+import com.hubenko.core.presentation.UiText
 import com.hubenko.core.presentation.toUiText
 import com.hubenko.domain.repository.AuthDataSource
 import com.hubenko.domain.repository.StatusRepository
@@ -9,6 +10,7 @@ import com.hubenko.domain.usecase.GetStatusTypesUseCase
 import com.hubenko.domain.usecase.SubmitStatusUseCase
 import com.hubenko.domain.util.onFailure
 import com.hubenko.domain.util.onSuccess
+import com.hubenko.feature.status.R
 import com.hubenko.feature.status.ui.model.toEmployeeStatusUi
 import com.hubenko.feature.status.ui.model.toStatusTypeUi
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -64,7 +66,6 @@ class StatusViewModel @Inject constructor(
                     updateState { copy(note = intent.note) }
                 }
             }
-            is StatusIntent.DismissDialog -> updateState { copy(isSuccess = false) }
             is StatusIntent.OnBackClick -> sendEffect(StatusEffect.NavigateBack)
         }
     }
@@ -84,16 +85,17 @@ class StatusViewModel @Inject constructor(
             submitStatusUseCase(status, noteToSubmit)
                 .onSuccess {
                     if (status == "Sick") {
-                        updateState { copy(isLoading = false, isSuccess = true, note = "", activeStatus = null) }
+                        updateState { copy(isLoading = false, note = "", activeStatus = null) }
                     } else {
                         loadActiveStatus()
-                        updateState { copy(isLoading = false, isSuccess = true, note = "") }
+                        updateState { copy(isLoading = false, note = "") }
                     }
+                    sendEffect(StatusEffect.ShowSnackbar(UiText.StringResource(R.string.status_updated)))
                 }
                 .onFailure { error ->
                     val errorUiText = error.toUiText()
                     updateState { copy(isLoading = false, error = errorUiText) }
-                    sendEffect(StatusEffect.ShowError(errorUiText))
+                    sendEffect(StatusEffect.ShowSnackbar(errorUiText))
                 }
         }
     }
@@ -103,12 +105,13 @@ class StatusViewModel @Inject constructor(
             updateState { copy(isLoading = true, error = null) }
             statusRepository.updateStatusEndTime(id, System.currentTimeMillis())
                 .onSuccess {
-                    updateState { copy(isLoading = false, isSuccess = true, activeStatus = null) }
+                    updateState { copy(isLoading = false, activeStatus = null) }
+                    sendEffect(StatusEffect.ShowSnackbar(UiText.StringResource(R.string.status_updated)))
                 }
                 .onFailure { error ->
                     val errorUiText = error.toUiText()
                     updateState { copy(isLoading = false, error = errorUiText) }
-                    sendEffect(StatusEffect.ShowError(errorUiText))
+                    sendEffect(StatusEffect.ShowSnackbar(errorUiText))
                 }
         }
     }
