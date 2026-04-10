@@ -4,13 +4,6 @@ This is an Android project using **Clean Architecture**, **MVI**, **Hilt**, **Je
 
 ---
 
-## ⚠️ Refactoring Plan
-
-**Before starting any refactoring work, read [`REFACTORING_PLAN.md`](../REFACTORING_PLAN.md).**
-It contains the full analysis of current violations, a step-by-step checklist with `[ ]`/`[x]` progress tracking, and the recommended execution order. Continue from the first unchecked item.
-
----
-
 ## How to use these instructions
 
 1. **Always-apply rules** (section below) — apply to every response without exception.

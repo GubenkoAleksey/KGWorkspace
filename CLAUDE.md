@@ -4,13 +4,6 @@ Android project: **Clean Architecture · MVI · Hilt · Jetpack Compose · Fireb
 
 ---
 
-## ⚠️ Refactoring Plan
-
-**Before starting any refactoring work, read [`REFACTORING_PLAN.md`](./REFACTORING_PLAN.md).**
-It contains the full analysis of current violations, a step-by-step checklist with `[ ]`/`[x]` progress tracking, and the recommended execution order. Continue from the first unchecked item.
-
----
-
 ## Skill Auto-Activation
 
 Before writing or reviewing code in these domains, invoke the corresponding skill:
