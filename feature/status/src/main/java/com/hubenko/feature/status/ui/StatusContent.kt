@@ -33,9 +33,6 @@ import com.hubenko.core.presentation.components.AppTopBar
 import com.hubenko.core.presentation.theme.CoreTheme
 import com.hubenko.feature.status.ui.model.EmployeeStatusUi
 import com.hubenko.feature.status.ui.model.StatusTypeUi
-import com.hubenko.core.presentation.theme.StatusOfficeLight
-import com.hubenko.core.presentation.theme.StatusRemoteLight
-import com.hubenko.core.presentation.theme.StatusSickLight
 import com.hubenko.feature.status.ui.components.NoteInputField
 import com.hubenko.feature.status.ui.components.StatusCard
 import com.hubenko.feature.status.ui.components.SubmitConfirmDialog
@@ -48,8 +45,10 @@ fun StatusContent(
     snackbarHost: @Composable () -> Unit = {}
 ) {
     if (state.showConfirmDialog && state.pendingStatus != null) {
+        val pendingLabel = state.statusTypes
+            .find { it.type == state.pendingStatus }?.label ?: state.pendingStatus
         SubmitConfirmDialog(
-            status = state.pendingStatus,
+            status = pendingLabel,
             onConfirm = { onIntent(StatusIntent.ConfirmSubmit) },
             onDismiss = { onIntent(StatusIntent.DismissConfirmDialog) }
         )
@@ -88,11 +87,11 @@ fun StatusContent(
                         val showCard = if (isSick) active == null else active == null || isActive
 
                         if (showCard) {
-                            val (icon, color) = when (statusType.type) {
-                                "Office" -> Icons.Rounded.Domain to StatusOfficeLight
-                                "Remote" -> Icons.Rounded.WifiTethering to StatusRemoteLight
-                                "Sick" -> Icons.Rounded.HealthAndSafety to StatusSickLight
-                                else -> Icons.Rounded.Work to StatusOfficeLight
+                            val icon = when (statusType.type) {
+                                "Office" -> Icons.Rounded.Domain
+                                "Remote" -> Icons.Rounded.WifiTethering
+                                "Sick" -> Icons.Rounded.HealthAndSafety
+                                else -> Icons.Rounded.Work
                             }
                             val title = if (isActive) "Закінчити роботу (${statusType.label})" else statusType.label
                             val description = when (statusType.type) {
@@ -105,7 +104,6 @@ fun StatusContent(
                                 title = title,
                                 description = description,
                                 icon = icon,
-                                color = color,
                                 modifier = Modifier.fillMaxWidth(),
                                 onClick = { onIntent(StatusIntent.SubmitStatusClick(statusType.type)) },
                                 enabled = !state.isLoading

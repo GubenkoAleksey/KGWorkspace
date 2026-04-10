@@ -54,7 +54,7 @@ fun SubmitConfirmDialog(
                     TextButton(onClick = onDismiss) {
                         Text("Скасувати")
                     }
-                    Button(onClick = onConfirm) {
+                    TextButton(onClick = onConfirm) {
                         Text("Відправити")
                     }
                 }
