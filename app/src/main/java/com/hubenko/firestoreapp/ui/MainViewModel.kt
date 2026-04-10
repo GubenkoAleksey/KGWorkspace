@@ -2,7 +2,8 @@ package com.hubenko.firestoreapp.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.hubenko.domain.repository.SettingsRepository
+import com.google.firebase.auth.FirebaseAuth
+import com.hubenko.domain.repository.SettingsDataSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -12,8 +13,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsDataSource
 ) : ViewModel() {
+
+    val isLoggedIn: Boolean = FirebaseAuth.getInstance().currentUser != null
 
     val isDarkTheme: StateFlow<Boolean?> = settingsRepository.isDarkTheme()
         .stateIn(

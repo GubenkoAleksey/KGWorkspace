@@ -6,10 +6,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hubenko.core.ui.components.AppTextField
-import com.hubenko.core.ui.theme.CoreTheme
-import com.hubenko.domain.model.Employee
-import com.hubenko.domain.model.Role
+import com.hubenko.core.presentation.components.AppTextField
+import com.hubenko.core.presentation.theme.CoreTheme
+import com.hubenko.feature.admin.ui.model.EmployeeUi
+import com.hubenko.feature.admin.ui.model.RoleUi
 
 /**
  * Діалог редагування даних існуючого співробітника.
@@ -18,10 +18,10 @@ import com.hubenko.domain.model.Role
  */
 @Composable
 fun EmployeeDialog(
-    employee: Employee?,
-    roles: List<Role>,
+    employee: EmployeeUi?,
+    roles: List<RoleUi>,
     onDismiss: () -> Unit,
-    onSave: (Employee) -> Unit
+    onSave: (EmployeeUi) -> Unit
 ) {
     var lastName by remember { mutableStateOf(employee?.lastName ?: "") }
     var firstName by remember { mutableStateOf(employee?.firstName ?: "") }
@@ -51,7 +51,21 @@ fun EmployeeDialog(
         },
         confirmButton = {
             Button(onClick = {
-                onSave(Employee(id = employee?.id ?: "", lastName = lastName, firstName = firstName, middleName = middleName, phoneNumber = phoneNumber, role = role, email = email))
+                val fullName = listOf(lastName, firstName, middleName)
+                    .filter { it.isNotBlank() }
+                    .joinToString(" ")
+                onSave(
+                    EmployeeUi(
+                        id = employee?.id ?: "",
+                        lastName = lastName,
+                        firstName = firstName,
+                        middleName = middleName,
+                        fullName = fullName,
+                        phoneNumber = phoneNumber,
+                        role = role,
+                        email = email
+                    )
+                )
             }) { Text("Зберегти") }
         },
         dismissButton = {
@@ -65,11 +79,19 @@ fun EmployeeDialog(
 private fun EmployeeDialogPreview() {
     CoreTheme {
         EmployeeDialog(
-            employee = Employee("1", "Іванов", "Іван", "Іванович", "+380991234567", "USER", "ivan@company.com"),
-            roles = listOf(Role("USER", "Працівник"), Role("ADMIN", "Адміністратор")),
+            employee = EmployeeUi(
+                id = "1",
+                lastName = "Іванов",
+                firstName = "Іван",
+                middleName = "Іванович",
+                fullName = "Іванов Іван Іванович",
+                phoneNumber = "+380991234567",
+                role = "USER",
+                email = "ivan@company.com"
+            ),
+            roles = listOf(RoleUi("USER", "Працівник"), RoleUi("ADMIN", "Адміністратор")),
             onDismiss = {},
             onSave = {}
         )
     }
 }
-

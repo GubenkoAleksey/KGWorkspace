@@ -12,12 +12,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import com.hubenko.feature.status.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.hubenko.core.ui.theme.CoreTheme
+import com.hubenko.core.presentation.theme.CoreTheme
 
 @Composable
 fun StatusConfirmationDialog(onDismiss: () -> Unit) {
@@ -49,7 +51,7 @@ fun StatusConfirmationDialog(onDismiss: () -> Unit) {
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Check,
-                        contentDescription = "Success",
+                        contentDescription = stringResource(R.string.cd_success),
                         tint = Color.White,
                         modifier = Modifier.size(48.dp)
                     )

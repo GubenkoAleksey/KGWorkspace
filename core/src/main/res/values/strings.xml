@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cd_navigate_back">Назад</string>
+    <string name="cd_toggle_theme">Змінити тему</string>
+
+    <string name="error_unknown">Невідома помилка. Спробуйте ще раз</string>
+    <string name="error_permission_denied">Доступ заборонено</string>
+    <string name="error_unavailable">Сервіс тимчасово недоступний</string>
+    <string name="error_unauthenticated">Необхідна автентифікація</string>
+    <string name="error_not_found">Дані не знайдено</string>
+    <string name="error_already_exists">Запис вже існує</string>
+    <string name="error_disk_full">Недостатньо місця на пристрої</string>
+    <string name="error_no_internet">Відсутнє підключення до інтернету</string>
+</resources>

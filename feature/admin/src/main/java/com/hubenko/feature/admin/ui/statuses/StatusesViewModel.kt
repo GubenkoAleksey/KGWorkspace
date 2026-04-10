@@ -3,11 +3,18 @@ package com.hubenko.feature.admin.ui.statuses
 import android.app.Application
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewModelScope
-import com.hubenko.core.base.BaseViewModel
-import com.hubenko.domain.model.EmployeeStatus
+import com.hubenko.core.presentation.BaseViewModel
+import com.hubenko.core.presentation.UiText
+import com.hubenko.core.presentation.toUiText
+import com.hubenko.feature.admin.R
+import com.hubenko.feature.admin.ui.model.EmployeeStatusUi
+import com.hubenko.feature.admin.ui.model.toEmployeeStatusUi
+import com.hubenko.feature.admin.ui.model.StatusTypeUi
 import com.hubenko.domain.repository.StatusRepository
 import com.hubenko.domain.usecase.GetAllStatusesUseCase
 import com.hubenko.domain.usecase.GetStatusTypesUseCase
+import com.hubenko.domain.util.onFailure
+import com.hubenko.domain.util.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -17,11 +24,8 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 
-/**
- * ViewModel для екрана статусів співробітників.
- * Відповідає за завантаження, експорт CSV та видалення всіх статусів.
- */
 @HiltViewModel
 class StatusesViewModel @Inject constructor(
     private val application: Application,
@@ -38,7 +42,7 @@ class StatusesViewModel @Inject constructor(
     private fun loadStatusTypes() {
         viewModelScope.launch {
             getStatusTypesUseCase().collectLatest { types ->
-                updateState { copy(availableStatusTypes = types) }
+                updateState { copy(availableStatusTypes = types.map { StatusTypeUi(it.type, it.label) }) }
             }
         }
     }
@@ -62,8 +66,7 @@ class StatusesViewModel @Inject constructor(
         updateState { copy(isLoading = true) }
         viewModelScope.launch {
             getAllStatusesUseCase().collectLatest { list ->
-                val sortedStatuses = list.sortedByDescending { it.startTime }
-                val currentState = viewState.value
+                val sortedStatuses = list.map { it.toEmployeeStatusUi() }.sortedByDescending { it.startTime }
                 updateState {
                     copy(
                         statuses = sortedStatuses,
@@ -76,7 +79,7 @@ class StatusesViewModel @Inject constructor(
     }
 
     private fun buildGroups(
-        allStatuses: List<EmployeeStatus>,
+        allStatuses: List<EmployeeStatusUi>,
         from: Long?,
         to: Long?,
         employeeIds: Set<String> = viewState.value.filterEmployeeIds,
@@ -86,9 +89,7 @@ class StatusesViewModel @Inject constructor(
             .let { list -> if (from != null && to != null) list.filter { it.startTime in from..to } else list }
             .let { list -> if (employeeIds.isNotEmpty()) list.filter { it.employeeId in employeeIds } else list }
             .let { list -> if (statusTypes.isNotEmpty()) list.filter { it.status in statusTypes } else list }
-        val expandedByEmployeeId = viewState.value.employeeGroups.associate {
-            it.employeeId to it.isExpanded
-        }
+        val expandedByEmployeeId = viewState.value.employeeGroups.associate { it.employeeId to it.isExpanded }
         return filtered
             .groupBy { it.employeeId }
             .map { (employeeId, statuses) ->
@@ -137,11 +138,8 @@ class StatusesViewModel @Inject constructor(
         updateState {
             copy(
                 employeeGroups = employeeGroups.map { group ->
-                    if (group.employeeId == employeeId) {
-                        group.copy(isExpanded = !group.isExpanded)
-                    } else {
-                        group
-                    }
+                    if (group.employeeId == employeeId) group.copy(isExpanded = !group.isExpanded)
+                    else group
                 }
             )
         }
@@ -155,20 +153,18 @@ class StatusesViewModel @Inject constructor(
                 val uri = withContext(Dispatchers.IO) {
                     val csvString = generateCsvContent(statuses)
                     val file = saveCsvToFile(csvString)
-                    FileProvider.getUriForFile(
-                        application,
-                        "com.hubenko.firestoreapp.fileprovider",
-                        file
-                    )
+                    FileProvider.getUriForFile(application, "com.hubenko.firestoreapp.fileprovider", file)
                 }
                 sendEffect(StatusesEffect.ShareFile(uri))
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
-                sendEffect(StatusesEffect.ShowToast("Помилка експорту: ${e.message}"))
+                sendEffect(StatusesEffect.ShowSnackbar(UiText.StringResource(R.string.error_export_failed)))
             }
         }
     }
 
-    private fun generateCsvContent(statuses: List<EmployeeStatus>): String {
+    private fun generateCsvContent(statuses: List<EmployeeStatusUi>): String {
         val sdf = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
         val sb = StringBuilder()
         sb.append("ID;ПІБ;Статус;Початок;Кінець\n")
@@ -183,8 +179,7 @@ class StatusesViewModel @Inject constructor(
 
     private fun saveCsvToFile(content: String): File {
         val dateString = SimpleDateFormat("dd_MM_yyyy", Locale.getDefault()).format(Date())
-        val fileName = "status_$dateString.csv"
-        val file = File(application.cacheDir, fileName)
+        val file = File(application.cacheDir, "status_$dateString.csv")
         file.writeText(content)
         return file
     }
@@ -195,13 +190,12 @@ class StatusesViewModel @Inject constructor(
             statusRepository.deleteAllStatuses()
                 .onSuccess {
                     updateState { copy(isLoading = false) }
-                    sendEffect(StatusesEffect.ShowToast("Усі статуси успішно видалено"))
+                    sendEffect(StatusesEffect.ShowSnackbar(UiText.StringResource(R.string.success_statuses_deleted)))
                 }
-                .onFailure { e ->
+                .onFailure { error ->
                     updateState { copy(isLoading = false) }
-                    sendEffect(StatusesEffect.ShowToast("Помилка видалення: ${e.message}"))
+                    sendEffect(StatusesEffect.ShowSnackbar(error.toUiText()))
                 }
         }
     }
 }
-

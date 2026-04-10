@@ -7,14 +7,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hubenko.core.ui.theme.CoreTheme
-import com.hubenko.domain.model.EmployeeStatus
+import com.hubenko.core.presentation.theme.CoreTheme
+import com.hubenko.feature.admin.ui.model.EmployeeStatusUi
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
 fun StatusItem(
-    status: EmployeeStatus,
+    status: EmployeeStatusUi,
     modifier: Modifier = Modifier,
     showEmployeeName: Boolean = true
 ) {
@@ -73,7 +73,7 @@ fun StatusItem(
 private fun StatusItemPreview() {
     CoreTheme {
         StatusItem(
-            status = EmployeeStatus(
+            status = EmployeeStatusUi(
                 id = "1",
                 employeeId = "emp1",
                 employeeFullName = "Іванов Іван Іванович",
@@ -87,4 +87,3 @@ private fun StatusItemPreview() {
         )
     }
 }
-

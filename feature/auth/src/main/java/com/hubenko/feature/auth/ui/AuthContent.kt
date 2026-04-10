@@ -14,9 +14,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hubenko.core.ui.theme.CoreTheme
+import com.hubenko.core.presentation.UiText
+import com.hubenko.core.presentation.asString
+import com.hubenko.core.presentation.theme.CoreTheme
 import com.hubenko.feature.auth.ui.components.AuthHeader
 import com.hubenko.feature.auth.ui.components.CommonAuthFields
 import com.hubenko.feature.auth.ui.components.LoginSubmitButton
@@ -27,6 +30,7 @@ fun AuthContent(
     onIntent: (AuthIntent) -> Unit,
     snackbarHost: @Composable () -> Unit = {}
 ) {
+    val context = LocalContext.current
     Scaffold(
         snackbarHost = { snackbarHost() }
     ) { paddingValues ->
@@ -60,7 +64,7 @@ fun AuthContent(
             state.error?.let { errorMessage ->
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = errorMessage,
+                    text = errorMessage.asString(context),
                     color = MaterialTheme.colorScheme.error
                 )
             }
@@ -95,7 +99,7 @@ private fun AuthContentLoadingPreview() {
 private fun AuthContentErrorPreview() {
     CoreTheme {
         AuthContent(
-            state = AuthState(error = "Невірний email або пароль"),
+            state = AuthState(error = UiText.DynamicString("Невірний email або пароль")),
             onIntent = {}
         )
     }

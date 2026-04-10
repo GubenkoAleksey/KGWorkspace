@@ -10,15 +10,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hubenko.core.ui.theme.CoreTheme
-import com.hubenko.core.ui.theme.secondaryText
-import com.hubenko.domain.model.Employee
+import com.hubenko.core.presentation.theme.CoreTheme
+import com.hubenko.core.presentation.theme.secondaryText
+import com.hubenko.feature.admin.R
+import com.hubenko.feature.admin.ui.model.EmployeeUi
 
 @Composable
 fun EmployeeItem(
-    employee: Employee,
+    employee: EmployeeUi,
     roleLabel: String? = null,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
@@ -40,7 +42,7 @@ fun EmployeeItem(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "${employee.lastName} ${employee.firstName} ${employee.middleName}",
+                    text = employee.fullName,
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -62,14 +64,14 @@ fun EmployeeItem(
             IconButton(onClick = onEdit) {
                 Icon(
                     Icons.Default.Edit,
-                    contentDescription = "Редагувати",
+                    contentDescription = stringResource(R.string.cd_edit),
                     tint = MaterialTheme.colorScheme.secondaryText()
                 )
             }
             IconButton(onClick = onDelete) {
                 Icon(
                     Icons.Default.Delete,
-                    contentDescription = "Видалити",
+                    contentDescription = stringResource(R.string.cd_delete),
                     tint = MaterialTheme.colorScheme.error
                 )
             }
@@ -82,11 +84,12 @@ fun EmployeeItem(
 private fun EmployeeItemPreview() {
     CoreTheme {
         EmployeeItem(
-            employee = Employee(
+            employee = EmployeeUi(
                 id = "1",
                 lastName = "Іванов",
                 firstName = "Іван",
                 middleName = "Іванович",
+                fullName = "Іванов Іван Іванович",
                 phoneNumber = "+380991234567",
                 role = "USER",
                 email = "ivan@company.com"
@@ -102,11 +105,12 @@ private fun EmployeeItemPreview() {
 private fun EmployeeItemDarkPreview() {
     CoreTheme(darkTheme = true) {
         EmployeeItem(
-            employee = Employee(
+            employee = EmployeeUi(
                 id = "1",
                 lastName = "Іванов",
                 firstName = "Іван",
                 middleName = "Іванович",
+                fullName = "Іванов Іван Іванович",
                 phoneNumber = "+380991234567",
                 role = "USER",
                 email = "ivan@company.com"
@@ -116,4 +120,3 @@ private fun EmployeeItemDarkPreview() {
         )
     }
 }
-

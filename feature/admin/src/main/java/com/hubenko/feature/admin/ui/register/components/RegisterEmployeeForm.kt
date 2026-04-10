@@ -6,10 +6,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hubenko.core.ui.components.AppTextField
-import com.hubenko.core.ui.theme.CoreTheme
-import com.hubenko.domain.model.Role
+import com.hubenko.core.presentation.components.AppTextField
+import com.hubenko.core.presentation.theme.CoreTheme
 import com.hubenko.feature.admin.ui.employees.components.RoleDropdown
+import com.hubenko.feature.admin.ui.model.RoleUi
 
 @Composable
 fun RegisterEmployeeForm(
@@ -20,7 +20,7 @@ fun RegisterEmployeeForm(
     middleName: String,
     phone: String,
     role: String,
-    roles: List<Role>,
+    roles: List<RoleUi>,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onLastNameChange: (String) -> Unit,
@@ -58,7 +58,7 @@ private fun RegisterEmployeeFormEmptyPreview() {
         RegisterEmployeeForm(
             email = "", password = "", lastName = "", firstName = "",
             middleName = "", phone = "", role = "",
-            roles = listOf(Role("USER", "Працівник"), Role("ADMIN", "Адміністратор")),
+            roles = listOf(RoleUi("USER", "Працівник"), RoleUi("ADMIN", "Адміністратор")),
             onEmailChange = {}, onPasswordChange = {}, onLastNameChange = {},
             onFirstNameChange = {}, onMiddleNameChange = {}, onPhoneChange = {},
             onRoleChange = {}
@@ -74,7 +74,7 @@ private fun RegisterEmployeeFormAdminPreview() {
             email = "admin@company.com", password = "pass123",
             lastName = "Іванов", firstName = "Іван", middleName = "Іванович",
             phone = "+380991234567", role = "ADMIN",
-            roles = listOf(Role("USER", "Працівник"), Role("ADMIN", "Адміністратор")),
+            roles = listOf(RoleUi("USER", "Працівник"), RoleUi("ADMIN", "Адміністратор")),
             onEmailChange = {}, onPasswordChange = {}, onLastNameChange = {},
             onFirstNameChange = {}, onMiddleNameChange = {}, onPhoneChange = {},
             onRoleChange = {}

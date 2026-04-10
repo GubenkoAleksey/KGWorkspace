@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hubenko.core.ui.theme.CoreTheme
+import com.hubenko.core.presentation.theme.CoreTheme
 
 /**
  * Кнопка підтвердження входу в систему.

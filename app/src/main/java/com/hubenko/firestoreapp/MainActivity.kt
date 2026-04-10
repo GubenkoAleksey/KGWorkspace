@@ -9,20 +9,20 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.FirebaseAuth
-import com.hubenko.core.ui.theme.CoreTheme
-import com.hubenko.feature.admin.ui.AdminScreen
-import com.hubenko.feature.admin.ui.register.RegisterEmployeeScreen
-import com.hubenko.feature.admin.ui.reminder.ReminderSettingsScreen
-import com.hubenko.feature.auth.ui.AuthScreen
-import com.hubenko.feature.home.ui.HomeScreen
-import com.hubenko.feature.status.ui.StatusScreen
+import com.hubenko.core.presentation.theme.CoreTheme
+import com.hubenko.feature.admin.navigation.AdminRoute
+import com.hubenko.feature.admin.navigation.adminGraph
+import com.hubenko.feature.auth.navigation.AuthRoute
+import com.hubenko.feature.auth.navigation.authGraph
+import com.hubenko.feature.home.navigation.HomeRoute
+import com.hubenko.feature.home.navigation.homeGraph
+import com.hubenko.feature.status.navigation.StatusRoute
+import com.hubenko.feature.status.navigation.statusGraph
 import com.hubenko.firestoreapp.ui.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            val isDarkThemePersistent by viewModel.isDarkTheme.collectAsState()
+            val isDarkThemePersistent by viewModel.isDarkTheme.collectAsStateWithLifecycle()
             val isDarkTheme = isDarkThemePersistent ?: isSystemInDarkTheme()
 
             CoreTheme(darkTheme = isDarkTheme) {
@@ -45,75 +45,40 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
-
-                    val isUserLoggedIn = FirebaseAuth.getInstance().currentUser != null
-                    val startDestination = if (isUserLoggedIn) "home" else "login"
+                    val startDestination = if (viewModel.isLoggedIn) HomeRoute else AuthRoute
 
                     NavHost(navController = navController, startDestination = startDestination) {
-                        
-                        composable("login") {
-                            AuthScreen(
-                                onNavigateToHome = {
-                                    navController.navigate("home") {
-                                        popUpTo("login") { inclusive = true }
-                                    }
+
+                        authGraph(
+                            onNavigateToHome = {
+                                navController.navigate(HomeRoute) {
+                                    popUpTo(AuthRoute) { inclusive = true }
                                 }
-                            )
-                        }
+                            }
+                        )
 
-                        composable("home") {
-                            HomeScreen(
-                                isDarkTheme = isDarkTheme,
-                                onThemeToggle = viewModel::toggleTheme,
-                                onNavigateToStatus = { navController.navigate("status") },
-                                onNavigateToAdmin = { navController.navigate("admin") },
-                                onNavigateToAuth = {
-                                    navController.navigate("login") {
-                                        popUpTo("home") { inclusive = true }
-                                    }
+                        homeGraph(
+                            onNavigateToStatus = { navController.navigate(StatusRoute) },
+                            onNavigateToAdmin = { navController.navigate(AdminRoute) },
+                            onNavigateToAuth = {
+                                navController.navigate(AuthRoute) {
+                                    popUpTo(HomeRoute) { inclusive = true }
                                 }
-                            )
-                        }
+                            },
+                            onThemeToggle = viewModel::toggleTheme
+                        )
 
-                        composable("status") {
-                            StatusScreen(
-                                isDarkTheme = isDarkTheme,
-                                onThemeToggle = viewModel::toggleTheme,
-                                onNavigateBack = { navController.popBackStack() }
-                            )
-                        }
+                        statusGraph(
+                            onNavigateBack = { navController.popBackStack() }
+                        )
 
-                        composable("admin") {
-                            AdminScreen(
-                                isDarkTheme = isDarkTheme,
-                                onThemeToggle = viewModel::toggleTheme,
-                                onNavigateBack = { navController.popBackStack() },
-                                onNavigateToReminderSettings = { employeeId ->
-                                    navController.navigate("reminder_settings/$employeeId")
-                                },
-                                onNavigateToRegisterEmployee = {
-                                    navController.navigate("admin_register")
-                                }
-                            )
-                        }
-
-                        composable("admin_register") {
-                            RegisterEmployeeScreen(
-                                isDarkTheme = isDarkTheme,
-                                onThemeToggle = viewModel::toggleTheme,
-                                onNavigateBack = { navController.popBackStack() }
-                            )
-                        }
-
-                        composable("reminder_settings/{employeeId}") { backStackEntry ->
-                            val employeeId = backStackEntry.arguments?.getString("employeeId") ?: ""
-                            ReminderSettingsScreen(
-                                employeeId = employeeId,
-                                isDarkTheme = isDarkTheme,
-                                onThemeToggle = viewModel::toggleTheme,
-                                onBack = { navController.popBackStack() }
-                            )
-                        }
+                        adminGraph(
+                            onNavigateBack = { navController.popBackStack() },
+                            onNavigateToRegisterEmployee = { navController.navigate(com.hubenko.feature.admin.navigation.RegisterEmployeeRoute) },
+                            onNavigateToReminderSettings = { employeeId ->
+                                navController.navigate(com.hubenko.feature.admin.navigation.ReminderSettingsRoute(employeeId))
+                            }
+                        )
                     }
                 }
             }

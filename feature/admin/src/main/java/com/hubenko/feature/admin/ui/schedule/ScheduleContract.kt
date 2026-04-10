@@ -1,21 +1,22 @@
 package com.hubenko.feature.admin.ui.schedule
 
-import com.hubenko.core.base.ViewIntent
-import com.hubenko.core.base.ViewSideEffect
-import com.hubenko.core.base.ViewState
-import com.hubenko.domain.model.Employee
+import androidx.compose.runtime.Stable
+import com.hubenko.core.presentation.ViewIntent
+import com.hubenko.core.presentation.ViewSideEffect
+import com.hubenko.core.presentation.ViewState
+import com.hubenko.feature.admin.ui.model.EmployeeUi
 
+@Stable
 data class ScheduleState(
-    val employees: List<Employee> = emptyList(),
+    val employees: List<EmployeeUi> = emptyList(),
     val isLoading: Boolean = false
 ) : ViewState
 
-sealed class ScheduleIntent : ViewIntent {
-    data object LoadData : ScheduleIntent()
-    data class OnEmployeeClick(val employeeId: String) : ScheduleIntent()
+sealed interface ScheduleIntent : ViewIntent {
+    data object LoadData : ScheduleIntent
+    data class OnEmployeeClick(val employeeId: String) : ScheduleIntent
 }
 
-sealed class ScheduleEffect : ViewSideEffect {
-    data class NavigateToReminderSettings(val employeeId: String) : ScheduleEffect()
+sealed interface ScheduleEffect : ViewSideEffect {
+    data class NavigateToReminderSettings(val employeeId: String) : ScheduleEffect
 }
-

@@ -16,14 +16,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.hubenko.core.ui.theme.CoreTheme
-import kotlinx.coroutines.flow.collectLatest
+import com.hubenko.core.presentation.ObserveAsEvents
+import com.hubenko.core.presentation.asString
 import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
-    isDarkTheme: Boolean,
     onThemeToggle: () -> Unit,
     onNavigateToStatus: () -> Unit,
     onNavigateToAdmin: () -> Unit,
@@ -52,23 +51,19 @@ fun HomeScreen(
         }
     }
 
-    LaunchedEffect(viewModel.effect) {
-        viewModel.effect.collectLatest { effect ->
-            when (effect) {
-                is HomeEffect.NavigateToStatus -> onNavigateToStatus()
-                is HomeEffect.NavigateToAdmin -> onNavigateToAdmin()
-                is HomeEffect.NavigateToAuth -> onNavigateToAuth()
-                is HomeEffect.ShowToast -> snackbarHostState.showSnackbar(effect.message)
-            }
+    ObserveAsEvents(viewModel.effect) { effect ->
+        when (effect) {
+            is HomeEffect.NavigateToStatus -> onNavigateToStatus()
+            is HomeEffect.NavigateToAdmin -> onNavigateToAdmin()
+            is HomeEffect.NavigateToAuth -> onNavigateToAuth()
+            is HomeEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.message.asString(context))
         }
     }
 
-    CoreTheme(darkTheme = isDarkTheme) {
-        HomeContent(
-            state = state.copy(isDarkTheme = isDarkTheme),
-            onIntent = viewModel::onIntent,
-            onThemeToggle = onThemeToggle,
-            snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-        )
-    }
+    HomeContent(
+        state = state,
+        onIntent = viewModel::onIntent,
+        onThemeToggle = onThemeToggle,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+    )
 }

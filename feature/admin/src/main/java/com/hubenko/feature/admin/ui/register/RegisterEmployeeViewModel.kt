@@ -1,10 +1,16 @@
 package com.hubenko.feature.admin.ui.register
 
 import androidx.lifecycle.viewModelScope
-import com.hubenko.core.base.BaseViewModel
+import com.hubenko.core.presentation.BaseViewModel
+import com.hubenko.core.presentation.UiText
+import com.hubenko.core.presentation.toUiText
+import com.hubenko.feature.admin.R
+import com.hubenko.feature.admin.ui.model.toRoleUi
 import com.hubenko.domain.model.Employee
 import com.hubenko.domain.usecase.GetRolesUseCase
 import com.hubenko.domain.usecase.SignUpUseCase
+import com.hubenko.domain.util.onFailure
+import com.hubenko.domain.util.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -41,8 +47,7 @@ class RegisterEmployeeViewModel @Inject constructor(
             getRolesUseCase().collectLatest { roles ->
                 updateState {
                     copy(
-                        roles = roles,
-                        // Автоматично вибираємо першу роль зі списку якщо ще не вибрана
+                        roles = roles.map { it.toRoleUi() },
                         role = if (role.isBlank() && roles.isNotEmpty()) roles.first().id else role
                     )
                 }
@@ -66,14 +71,13 @@ class RegisterEmployeeViewModel @Inject constructor(
             signUpUseCase(employee, state.password)
                 .onSuccess {
                     updateState { copy(isLoading = false) }
-                    sendEffect(RegisterEmployeeEffect.ShowToast("Співробітника зареєстровано успішно"))
+                    sendEffect(RegisterEmployeeEffect.ShowSnackbar(UiText.StringResource(R.string.success_employee_registered)))
                     sendEffect(RegisterEmployeeEffect.NavigateBack)
                 }
-                .onFailure { e ->
+                .onFailure { error ->
                     updateState { copy(isLoading = false) }
-                    sendEffect(RegisterEmployeeEffect.ShowToast("Помилка реєстрації: ${e.message}"))
+                    sendEffect(RegisterEmployeeEffect.ShowSnackbar(error.toUiText()))
                 }
         }
     }
 }
-

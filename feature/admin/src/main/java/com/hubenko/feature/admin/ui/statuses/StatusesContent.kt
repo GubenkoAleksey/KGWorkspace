@@ -32,11 +32,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hubenko.core.ui.components.AppTopBar
-import com.hubenko.core.ui.theme.CoreTheme
-import com.hubenko.domain.model.EmployeeStatus
+import com.hubenko.feature.admin.R
+import com.hubenko.core.presentation.components.AppTopBar
+import com.hubenko.core.presentation.theme.CoreTheme
+import com.hubenko.feature.admin.ui.model.EmployeeStatusUi
 import com.hubenko.feature.admin.ui.statuses.components.DeleteStatusesDialog
 import com.hubenko.feature.admin.ui.statuses.components.EmployeeStatusesItem
 import com.hubenko.feature.admin.ui.statuses.components.StatusesFilterSheet
@@ -49,29 +51,25 @@ import java.util.Locale
 fun StatusesContent(
     state: StatusesState,
     onIntent: (StatusesIntent) -> Unit,
-    isDarkTheme: Boolean,
-    onThemeToggle: () -> Unit,
     snackbarHost: @Composable () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
             AppTopBar(
                 title = "Статуси працівників",
-                isDarkTheme = isDarkTheme,
-                onThemeToggle = onThemeToggle,
                 actions = {
                     if (state.employeeGroups.isNotEmpty()) {
                         IconButton(onClick = { onIntent(StatusesIntent.OnDeleteAllClick) }) {
                             Icon(
                                 imageVector = Icons.Default.DeleteSweep,
-                                contentDescription = "Видалити всі статуси",
+                                contentDescription = stringResource(R.string.cd_delete_all_statuses),
                                 tint = Color.Red
                             )
                         }
                         IconButton(onClick = { onIntent(StatusesIntent.OnExportClick) }) {
                             Icon(
                                 imageVector = Icons.Default.Share,
-                                contentDescription = "Експортувати CSV"
+                                contentDescription = stringResource(R.string.cd_export_csv)
                             )
                         }
                     }
@@ -85,7 +83,7 @@ fun StatusesContent(
                         IconButton(onClick = { onIntent(StatusesIntent.OnFilterClick) }) {
                             Icon(
                                 imageVector = Icons.Default.Tune,
-                                contentDescription = "Фільтри"
+                                contentDescription = stringResource(R.string.cd_filter)
                             )
                         }
                     }
@@ -116,7 +114,7 @@ fun StatusesContent(
                         trailingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Скинути фільтр",
+                                contentDescription = stringResource(R.string.cd_clear_filter),
                                 modifier = Modifier.size(FilterChipDefaults.IconSize)
                             )
                         }
@@ -212,8 +210,6 @@ private fun StatusesContentEmptyPreview() {
         StatusesContent(
             state = StatusesState(),
             onIntent = {},
-            isDarkTheme = false,
-            onThemeToggle = {},
             snackbarHost = { SnackbarHost(hostState = androidx.compose.material3.SnackbarHostState()) }
         )
     }
@@ -226,8 +222,6 @@ private fun StatusesContentLoadingPreview() {
         StatusesContent(
             state = StatusesState(isLoading = true),
             onIntent = {},
-            isDarkTheme = false,
-            onThemeToggle = {},
             snackbarHost = { SnackbarHost(hostState = androidx.compose.material3.SnackbarHostState()) }
         )
     }
@@ -237,7 +231,7 @@ private fun StatusesContentLoadingPreview() {
 @Composable
 private fun StatusesContentPreview() {
     val sampleStatuses = listOf(
-        EmployeeStatus(
+        EmployeeStatusUi(
             id = "1",
             employeeId = "emp_1",
             employeeFullName = "Іванов Іван",
@@ -247,7 +241,7 @@ private fun StatusesContentPreview() {
             endTime = null,
             isSynced = true
         ),
-        EmployeeStatus(
+        EmployeeStatusUi(
             id = "2",
             employeeId = "emp_1",
             employeeFullName = "Іванов Іван",
@@ -273,8 +267,6 @@ private fun StatusesContentPreview() {
                 )
             ),
             onIntent = {},
-            isDarkTheme = false,
-            onThemeToggle = {},
             snackbarHost = { SnackbarHost(hostState = androidx.compose.material3.SnackbarHostState()) }
         )
     }

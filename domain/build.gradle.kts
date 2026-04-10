@@ -14,5 +14,15 @@ kotlin {
 
 dependencies {
     implementation(libs.kotlinx.coroutines.core)
-    implementation("javax.inject:javax.inject:1")
+    implementation(libs.javax.inject)
+
+    testImplementation(libs.junit5.api)
+    testRuntimeOnly(libs.junit5.engine)
+    testImplementation(libs.assertk)
+    testImplementation(libs.turbine)
+    testImplementation(libs.kotlinx.coroutines.test)
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }

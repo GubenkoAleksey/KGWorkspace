@@ -1,13 +1,18 @@
 package com.hubenko.feature.admin.ui.directories
 
 import androidx.lifecycle.viewModelScope
-import com.hubenko.core.base.BaseViewModel
+import com.hubenko.core.presentation.BaseViewModel
+import com.hubenko.core.presentation.toUiText
+import com.hubenko.feature.admin.ui.model.RoleUi
+import com.hubenko.feature.admin.ui.model.StatusTypeUi
+import com.hubenko.feature.admin.ui.model.toRoleUi
 import com.hubenko.domain.usecase.DeleteRoleUseCase
 import com.hubenko.domain.usecase.DeleteStatusTypeUseCase
 import com.hubenko.domain.usecase.GetRolesUseCase
 import com.hubenko.domain.usecase.GetStatusTypesUseCase
 import com.hubenko.domain.usecase.SaveRoleUseCase
 import com.hubenko.domain.usecase.SaveStatusTypeUseCase
+import com.hubenko.domain.util.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -30,12 +35,12 @@ class DirectoriesViewModel @Inject constructor(
     private fun loadData() {
         viewModelScope.launch {
             getStatusTypesUseCase().collectLatest { types ->
-                updateState { copy(statusTypes = types) }
+                updateState { copy(statusTypes = types.map { StatusTypeUi(it.type, it.label) }) }
             }
         }
         viewModelScope.launch {
             getRolesUseCase().collectLatest { roles ->
-                updateState { copy(roles = roles) }
+                updateState { copy(roles = roles.map { it.toRoleUi() }) }
             }
         }
     }
@@ -77,7 +82,7 @@ class DirectoriesViewModel @Inject constructor(
         viewModelScope.launch {
             updateState { copy(isLoading = true, dialog = null) }
             saveStatusTypeUseCase(type, label)
-                .onFailure { sendEffect(DirectoriesEffect.ShowToast("Помилка збереження: ${it.message}")) }
+                .onFailure { sendEffect(DirectoriesEffect.ShowSnackbar(it.toUiText())) }
             updateState { copy(isLoading = false) }
         }
     }
@@ -86,7 +91,7 @@ class DirectoriesViewModel @Inject constructor(
         viewModelScope.launch {
             updateState { copy(isLoading = true, dialog = null) }
             deleteStatusTypeUseCase(type)
-                .onFailure { sendEffect(DirectoriesEffect.ShowToast("Помилка видалення: ${it.message}")) }
+                .onFailure { sendEffect(DirectoriesEffect.ShowSnackbar(it.toUiText())) }
             updateState { copy(isLoading = false) }
         }
     }
@@ -95,7 +100,7 @@ class DirectoriesViewModel @Inject constructor(
         viewModelScope.launch {
             updateState { copy(isLoading = true, dialog = null) }
             saveRoleUseCase(id, label)
-                .onFailure { sendEffect(DirectoriesEffect.ShowToast("Помилка збереження: ${it.message}")) }
+                .onFailure { sendEffect(DirectoriesEffect.ShowSnackbar(it.toUiText())) }
             updateState { copy(isLoading = false) }
         }
     }
@@ -104,7 +109,7 @@ class DirectoriesViewModel @Inject constructor(
         viewModelScope.launch {
             updateState { copy(isLoading = true, dialog = null) }
             deleteRoleUseCase(id)
-                .onFailure { sendEffect(DirectoriesEffect.ShowToast("Помилка видалення: ${it.message}")) }
+                .onFailure { sendEffect(DirectoriesEffect.ShowSnackbar(it.toUiText())) }
             updateState { copy(isLoading = false) }
         }
     }

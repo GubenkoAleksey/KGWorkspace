@@ -22,12 +22,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hubenko.core.ui.components.AppTopBar
-import com.hubenko.core.ui.theme.CoreTheme
-import com.hubenko.core.ui.theme.secondaryText
-import com.hubenko.domain.model.Employee
+import com.hubenko.core.presentation.components.AppTopBar
+import com.hubenko.feature.admin.R
+import com.hubenko.core.presentation.theme.CoreTheme
+import com.hubenko.core.presentation.theme.secondaryText
 import com.hubenko.feature.admin.ui.employees.components.DeleteEmployeeDialog
 import com.hubenko.feature.admin.ui.employees.components.EmployeeDialog
 import com.hubenko.feature.admin.ui.employees.components.EmployeeItem
@@ -37,17 +38,11 @@ import com.hubenko.feature.admin.ui.employees.components.EmployeeItem
 fun EmployeesContent(
     state: EmployeesState,
     onIntent: (EmployeesIntent) -> Unit,
-    isDarkTheme: Boolean,
-    onThemeToggle: () -> Unit,
     snackbarHost: @Composable () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
-            AppTopBar(
-                title = "Керування працівниками",
-                isDarkTheme = isDarkTheme,
-                onThemeToggle = onThemeToggle
-            )
+            AppTopBar(title = "Керування працівниками")
         },
         floatingActionButton = {
             Surface(
@@ -62,7 +57,7 @@ fun EmployeesContent(
                     modifier = Modifier.size(56.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = "Зареєструвати нового співробітника")
+                    Icon(Icons.Default.Add, contentDescription = stringResource(R.string.cd_add_employee))
                 }
             }
         },
@@ -94,7 +89,7 @@ fun EmployeesContent(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(state.employees) { employee ->
+                items(state.employees, key = { it.id }) { employee ->
                     val roleLabel = state.roles.firstOrNull { it.id == employee.role }?.label
                     EmployeeItem(
                         employee = employee,
@@ -132,13 +127,11 @@ private fun EmployeesContentPreview() {
         EmployeesContent(
             state = EmployeesState(
                 employees = listOf(
-                    Employee("1", "Іванов", "Іван", "Іванович", "+380991234567", "USER", "ivan@company.com"),
-                    Employee("2", "Петренко", "Петро", "Петрович", "+380997654321", "ADMIN", "petro@company.com")
+                    com.hubenko.feature.admin.ui.model.EmployeeUi("1", "Іванов", "Іван", "Іванович", "Іванов Іван Іванович", "+380991234567", "USER", "ivan@company.com"),
+                    com.hubenko.feature.admin.ui.model.EmployeeUi("2", "Петренко", "Петро", "Петрович", "Петренко Петро Петрович", "+380997654321", "ADMIN", "petro@company.com")
                 )
             ),
             onIntent = {},
-            isDarkTheme = false,
-            onThemeToggle = {},
             snackbarHost = { SnackbarHost(hostState = androidx.compose.material3.SnackbarHostState()) }
         )
     }
@@ -151,8 +144,6 @@ private fun EmployeesContentLoadingPreview() {
         EmployeesContent(
             state = EmployeesState(isLoading = true),
             onIntent = {},
-            isDarkTheme = false,
-            onThemeToggle = {},
             snackbarHost = { SnackbarHost(hostState = androidx.compose.material3.SnackbarHostState()) }
         )
     }
@@ -165,8 +156,6 @@ private fun EmployeesContentEmptyPreview() {
         EmployeesContent(
             state = EmployeesState(),
             onIntent = {},
-            isDarkTheme = false,
-            onThemeToggle = {},
             snackbarHost = { SnackbarHost(hostState = androidx.compose.material3.SnackbarHostState()) }
         )
     }

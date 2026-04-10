@@ -18,9 +18,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hubenko.core.ui.components.AppTopBar
-import com.hubenko.core.ui.components.PrimaryActionButton
-import com.hubenko.core.ui.theme.CoreTheme
+import com.hubenko.core.presentation.components.AppTopBar
+import com.hubenko.core.presentation.components.PrimaryActionButton
+import com.hubenko.core.presentation.theme.CoreTheme
 import com.hubenko.feature.admin.ui.register.components.RegisterEmployeeForm
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,17 +28,11 @@ import com.hubenko.feature.admin.ui.register.components.RegisterEmployeeForm
 fun RegisterEmployeeContent(
     state: RegisterEmployeeState,
     onIntent: (RegisterEmployeeIntent) -> Unit,
-    isDarkTheme: Boolean,
-    onThemeToggle: () -> Unit,
     snackbarHost: @Composable () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
-            AppTopBar(
-                title = "Реєстрація співробітника",
-                isDarkTheme = isDarkTheme,
-                onThemeToggle = onThemeToggle
-            )
+            AppTopBar(title = "Реєстрація співробітника")
         },
         snackbarHost = { snackbarHost() }
     ) { paddingValues ->
@@ -94,9 +88,7 @@ private fun RegisterEmployeeContentEmptyPreview() {
     CoreTheme {
         RegisterEmployeeContent(
             state = RegisterEmployeeState(),
-            onIntent = {},
-            isDarkTheme = false,
-            onThemeToggle = {}
+            onIntent = {}
         )
     }
 }
@@ -111,9 +103,7 @@ private fun RegisterEmployeeContentFilledPreview() {
                 lastName = "Іванов",
                 firstName = "Іван"
             ),
-            onIntent = {},
-            isDarkTheme = false,
-            onThemeToggle = {}
+            onIntent = {}
         )
     }
 }
@@ -124,9 +114,7 @@ private fun RegisterEmployeeContentLoadingPreview() {
     CoreTheme {
         RegisterEmployeeContent(
             state = RegisterEmployeeState(isLoading = true),
-            onIntent = {},
-            isDarkTheme = false,
-            onThemeToggle = {}
+            onIntent = {}
         )
     }
 }

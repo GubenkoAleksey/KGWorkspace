@@ -9,22 +9,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hubenko.core.ui.theme.CoreTheme
-
-// Імпортуємо R-клас із модуля :core
-import com.hubenko.core.R
+import com.hubenko.core.presentation.theme.CoreTheme
+import com.hubenko.feature.auth.R
 
 @Composable
 fun AuthHeader(isSignUp: Boolean) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         // Тепер завантажуємо логотип напряму, статично та безпечно!
         Image(
-            painter = painterResource(id = R.drawable.logo),
-            contentDescription = "App Logo",
+            painter = painterResource(id = com.hubenko.core.R.drawable.logo),
+            contentDescription = stringResource(R.string.cd_app_logo),
             contentScale = ContentScale.Fit, // Зберігає пропорції
             modifier = Modifier
                 .fillMaxWidth(0.8f) // Займає 80% ширини екрану

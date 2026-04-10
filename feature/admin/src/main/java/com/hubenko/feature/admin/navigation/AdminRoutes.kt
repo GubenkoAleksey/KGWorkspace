@@ -1,0 +1,12 @@
+package com.hubenko.feature.admin.navigation
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data object AdminRoute
+
+@Serializable
+data object RegisterEmployeeRoute
+
+@Serializable
+data class ReminderSettingsRoute(val employeeId: String)

@@ -5,12 +5,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.hubenko.core.ui.theme.CoreTheme
-import com.hubenko.domain.model.Role
+import com.hubenko.core.presentation.theme.CoreTheme
+import com.hubenko.feature.admin.ui.model.RoleUi
 
 /**
  * Випадаючий список для вибору ролі.
- * Відображає [Role.label], передає [Role.id] при виборі.
+ * Відображає [RoleUi.label], передає [RoleUi.id] при виборі.
  *
  * @param selectedRole Поточне значення ролі (id, напр. "USER").
  * @param roles Список ролей, завантажених з Firestore.
@@ -20,7 +20,7 @@ import com.hubenko.domain.model.Role
 @Composable
 fun RoleDropdown(
     selectedRole: String,
-    roles: List<Role>,
+    roles: List<RoleUi>,
     onRoleSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -67,7 +67,7 @@ private fun RoleDropdownUserPreview() {
         var role by remember { mutableStateOf("USER") }
         RoleDropdown(
             selectedRole = role,
-            roles = listOf(Role("USER", "Працівник"), Role("ADMIN", "Адміністратор")),
+            roles = listOf(RoleUi("USER", "Працівник"), RoleUi("ADMIN", "Адміністратор")),
             onRoleSelected = { role = it }
         )
     }

@@ -12,9 +12,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hubenko.core.ui.components.AppTopBar
-import com.hubenko.core.ui.theme.CoreTheme
-import com.hubenko.domain.model.Employee
+import com.hubenko.core.presentation.components.AppTopBar
+import com.hubenko.core.presentation.theme.CoreTheme
+import com.hubenko.feature.admin.ui.model.EmployeeUi
 
 /**
  * Stateless Composable для екрана розкладу сповіщень.
@@ -24,17 +24,11 @@ import com.hubenko.domain.model.Employee
 @Composable
 fun ScheduleContent(
     state: ScheduleState,
-    onIntent: (ScheduleIntent) -> Unit,
-    isDarkTheme: Boolean,
-    onThemeToggle: () -> Unit
+    onIntent: (ScheduleIntent) -> Unit
 ) {
     Scaffold(
         topBar = {
-            AppTopBar(
-                title = "Розклад сповіщень",
-                isDarkTheme = isDarkTheme,
-                onThemeToggle = onThemeToggle
-            )
+            AppTopBar(title = "Розклад сповіщень")
         }
     ) { paddingValues ->
         if (state.isLoading) {
@@ -54,7 +48,7 @@ fun ScheduleContent(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(state.employees) { employee ->
+                items(state.employees, key = { it.id }) { employee ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -92,13 +86,11 @@ private fun ScheduleContentPreview() {
         ScheduleContent(
             state = ScheduleState(
                 employees = listOf(
-                    Employee("1", "Іванов", "Іван", "Іванович", "+380991234567", "USER"),
-                    Employee("2", "Петренко", "Петро", "Петрович", "+380997654321", "ADMIN")
+                    EmployeeUi("1", "Іванов", "Іван", "Іванович", "Іванов Іван Іванович", "+380991234567", "USER", ""),
+                    EmployeeUi("2", "Петренко", "Петро", "Петрович", "Петренко Петро Петрович", "+380997654321", "ADMIN", "")
                 )
             ),
-            onIntent = {},
-            isDarkTheme = false,
-            onThemeToggle = {}
+            onIntent = {}
         )
     }
 }
@@ -109,9 +101,7 @@ private fun ScheduleContentLoadingPreview() {
     CoreTheme {
         ScheduleContent(
             state = ScheduleState(isLoading = true),
-            onIntent = {},
-            isDarkTheme = false,
-            onThemeToggle = {}
+            onIntent = {}
         )
     }
 }
@@ -122,10 +112,7 @@ private fun ScheduleContentEmptyPreview() {
     CoreTheme {
         ScheduleContent(
             state = ScheduleState(),
-            onIntent = {},
-            isDarkTheme = false,
-            onThemeToggle = {}
+            onIntent = {}
         )
     }
 }
-

@@ -4,36 +4,32 @@ import android.content.Intent
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.flow.collectLatest
+import com.hubenko.core.presentation.ObserveAsEvents
+import com.hubenko.core.presentation.asString
 
 @Composable
 fun StatusesScreen(
-    viewModel: StatusesViewModel = hiltViewModel(),
-    isDarkTheme: Boolean,
-    onThemeToggle: () -> Unit
+    viewModel: StatusesViewModel = hiltViewModel()
 ) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(viewModel.effect) {
-        viewModel.effect.collectLatest { effect ->
-            when (effect) {
-                is StatusesEffect.ShowToast -> snackbarHostState.showSnackbar(effect.message)
-                is StatusesEffect.ShareFile -> {
-                    val intent = Intent(Intent.ACTION_SEND).apply {
-                        type = "text/csv"
-                        putExtra(Intent.EXTRA_STREAM, effect.uri)
-                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    }
-                    context.startActivity(Intent.createChooser(intent, "Поширити CSV"))
+    ObserveAsEvents(viewModel.effect) { effect ->
+        when (effect) {
+            is StatusesEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.message.asString(context))
+            is StatusesEffect.ShareFile -> {
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/csv"
+                    putExtra(Intent.EXTRA_STREAM, effect.uri)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
+                context.startActivity(Intent.createChooser(intent, "Поширити CSV"))
             }
         }
     }
@@ -41,8 +37,6 @@ fun StatusesScreen(
     StatusesContent(
         state = state,
         onIntent = viewModel::onIntent,
-        isDarkTheme = isDarkTheme,
-        onThemeToggle = onThemeToggle,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     )
 }

@@ -17,11 +17,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hubenko.core.ui.components.AppTopBar
-import com.hubenko.core.ui.theme.CoreTheme
-import com.hubenko.domain.model.ReminderSettings
+import com.hubenko.core.presentation.asString
+import com.hubenko.core.presentation.components.AppTopBar
+import com.hubenko.core.presentation.theme.CoreTheme
+import com.hubenko.feature.admin.ui.model.ReminderSettingsUi
 import com.hubenko.feature.admin.ui.reminder.components.DaysOfWeekSelector
 import com.hubenko.feature.admin.ui.reminder.components.ReminderSection
 
@@ -30,17 +32,12 @@ import com.hubenko.feature.admin.ui.reminder.components.ReminderSection
 fun ReminderSettingsContent(
     state: ReminderSettingsState,
     onIntent: (ReminderSettingsIntent) -> Unit,
-    isDarkTheme: Boolean,
-    onThemeToggle: () -> Unit,
     snackbarHost: @Composable () -> Unit = {}
 ) {
+    val context = LocalContext.current
     Scaffold(
         topBar = {
-            AppTopBar(
-                title = "Налаштування нагадувань",
-                isDarkTheme = isDarkTheme,
-                onThemeToggle = onThemeToggle
-            )
+            AppTopBar(title = "Налаштування нагадувань")
         },
         snackbarHost = { snackbarHost() }
     ) { paddingValues ->
@@ -95,7 +92,7 @@ fun ReminderSettingsContent(
 
                 if (state.error != null) {
                     Text(
-                        text = state.error,
+                        text = state.error.asString(context),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyMedium
                     )
@@ -121,12 +118,10 @@ private fun ReminderSettingsContentPreview() {
     CoreTheme {
         ReminderSettingsContent(
             state = ReminderSettingsState(
-                settings = ReminderSettings(),
+                settings = ReminderSettingsUi(),
                 isLoading = false
             ),
-            onIntent = {},
-            isDarkTheme = false,
-            onThemeToggle = {}
+            onIntent = {}
         )
     }
 }
@@ -137,9 +132,7 @@ private fun ReminderSettingsContentLoadingPreview() {
     CoreTheme {
         ReminderSettingsContent(
             state = ReminderSettingsState(isLoading = true),
-            onIntent = {},
-            isDarkTheme = false,
-            onThemeToggle = {}
+            onIntent = {}
         )
     }
 }

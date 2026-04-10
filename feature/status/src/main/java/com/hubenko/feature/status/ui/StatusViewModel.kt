@@ -1,11 +1,16 @@
 package com.hubenko.feature.status.ui
 
 import androidx.lifecycle.viewModelScope
-import com.hubenko.core.base.BaseViewModel
-import com.hubenko.domain.repository.AuthRepository
+import com.hubenko.core.presentation.BaseViewModel
+import com.hubenko.core.presentation.toUiText
+import com.hubenko.domain.repository.AuthDataSource
 import com.hubenko.domain.repository.StatusRepository
 import com.hubenko.domain.usecase.GetStatusTypesUseCase
 import com.hubenko.domain.usecase.SubmitStatusUseCase
+import com.hubenko.domain.util.onFailure
+import com.hubenko.domain.util.onSuccess
+import com.hubenko.feature.status.ui.model.toEmployeeStatusUi
+import com.hubenko.feature.status.ui.model.toStatusTypeUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -15,7 +20,7 @@ import javax.inject.Inject
 class StatusViewModel @Inject constructor(
     private val submitStatusUseCase: SubmitStatusUseCase,
     private val statusRepository: StatusRepository,
-    private val authRepository: AuthRepository,
+    private val authRepository: AuthDataSource,
     private val getStatusTypesUseCase: GetStatusTypesUseCase
 ) : BaseViewModel<StatusState, StatusIntent, StatusEffect>(StatusState()) {
 
@@ -27,7 +32,7 @@ class StatusViewModel @Inject constructor(
     private fun loadStatusTypes() {
         viewModelScope.launch {
             getStatusTypesUseCase().collectLatest { types ->
-                updateState { copy(statusTypes = types) }
+                updateState { copy(statusTypes = types.map { it.toStatusTypeUi() }) }
             }
         }
     }
@@ -44,7 +49,6 @@ class StatusViewModel @Inject constructor(
                     val currentNote = viewState.value.note
                     val active = viewState.value.activeStatus
                     updateState { copy(showConfirmDialog = false, pendingStatus = null) }
-                    
                     if (active != null && active.status == pending) {
                         finishStatus(active.id)
                     } else {
@@ -60,7 +64,7 @@ class StatusViewModel @Inject constructor(
                     updateState { copy(note = intent.note) }
                 }
             }
-            is StatusIntent.DismissDialog -> dismissDialog()
+            is StatusIntent.DismissDialog -> updateState { copy(isSuccess = false) }
             is StatusIntent.OnBackClick -> sendEffect(StatusEffect.NavigateBack)
         }
     }
@@ -69,36 +73,27 @@ class StatusViewModel @Inject constructor(
         viewModelScope.launch {
             val userId = authRepository.getCurrentUserId() ?: return@launch
             val active = statusRepository.getActiveStatus(userId)
-            updateState { copy(activeStatus = active) }
+            updateState { copy(activeStatus = active?.toEmployeeStatusUi()) }
         }
     }
 
     private fun submitStatus(status: String, note: String) {
         viewModelScope.launch {
             updateState { copy(isLoading = true, error = null) }
-            
             val noteToSubmit = note.trim().takeIf { it.isNotEmpty() }
-            
             submitStatusUseCase(status, noteToSubmit)
                 .onSuccess {
                     if (status == "Sick") {
-                        // Для лікарняного робота відразу вважається закритою за вашою логікою? 
-                        // Чи лікарняний теж активний? 
-                        // Згідно ТЗ: "якщо вибрав Лікарняний то проставляється startTime. І екран оновлюється з вибором статусів."
-                        // Це означає що він НЕ активний (завершений відразу або просто не блокує).
-                        // Але зазвичай лікарняний триває. 
-                        // Проте я зроблю як у ТЗ: "оновлюється з вибором статусів" = activeStatus = null.
                         updateState { copy(isLoading = false, isSuccess = true, note = "", activeStatus = null) }
                     } else {
-                        // Офіс або Віддалено - стають активними
                         loadActiveStatus()
                         updateState { copy(isLoading = false, isSuccess = true, note = "") }
                     }
                 }
-                .onFailure { e ->
-                    val errorMsg = e.message ?: "Unknown error"
-                    updateState { copy(isLoading = false, error = errorMsg) }
-                    sendEffect(StatusEffect.ShowError(errorMsg))
+                .onFailure { error ->
+                    val errorUiText = error.toUiText()
+                    updateState { copy(isLoading = false, error = errorUiText) }
+                    sendEffect(StatusEffect.ShowError(errorUiText))
                 }
         }
     }
@@ -110,16 +105,11 @@ class StatusViewModel @Inject constructor(
                 .onSuccess {
                     updateState { copy(isLoading = false, isSuccess = true, activeStatus = null) }
                 }
-                .onFailure { e ->
-                    val errorMsg = e.message ?: "Unknown error"
-                    updateState { copy(isLoading = false, error = errorMsg) }
-                    sendEffect(StatusEffect.ShowError(errorMsg))
+                .onFailure { error ->
+                    val errorUiText = error.toUiText()
+                    updateState { copy(isLoading = false, error = errorUiText) }
+                    sendEffect(StatusEffect.ShowError(errorUiText))
                 }
         }
-    }
-
-    private fun dismissDialog() {
-        updateState { copy(isSuccess = false) }
-        // Не виходимо, якщо просто оновили статус
     }
 }

@@ -1,5 +1,6 @@
 package com.hubenko.feature.admin.ui.statuses.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,10 +20,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hubenko.core.ui.theme.CoreTheme
-import com.hubenko.domain.model.EmployeeStatus
+import com.hubenko.core.presentation.theme.CoreTheme
+import com.hubenko.feature.admin.R
+import com.hubenko.feature.admin.ui.model.EmployeeStatusUi
 import com.hubenko.feature.admin.ui.statuses.EmployeeStatusesGroup
 
 @Composable
@@ -63,18 +66,20 @@ fun EmployeeStatusesItem(
                         Icons.Default.KeyboardArrowDown
                     },
                     contentDescription = if (group.isExpanded) {
-                        "Згорнути список статусів"
+                        stringResource(R.string.cd_collapse)
                     } else {
-                        "Розгорнути список статусів"
+                        stringResource(R.string.cd_expand)
                     }
                 )
             }
 
-            if (group.isExpanded) {
-                Spacer(modifier = Modifier.height(12.dp))
-                group.statuses.forEach { status ->
-                    StatusItem(status = status, showEmployeeName = false)
-                    Spacer(modifier = Modifier.height(8.dp))
+            AnimatedVisibility(visible = group.isExpanded) {
+                Column {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    group.statuses.forEach { status ->
+                        StatusItem(status = status, showEmployeeName = false)
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                 }
             }
         }
@@ -129,9 +134,9 @@ private fun EmployeeStatusesItemExpandedEmptyPreview() {
     }
 }
 
-private fun previewStatuses(): List<EmployeeStatus> {
+private fun previewStatuses(): List<EmployeeStatusUi> {
     return listOf(
-        EmployeeStatus(
+        EmployeeStatusUi(
             id = "1",
             employeeId = "emp_1",
             employeeFullName = "Іванов Іван",
@@ -141,7 +146,7 @@ private fun previewStatuses(): List<EmployeeStatus> {
             endTime = null,
             isSynced = true
         ),
-        EmployeeStatus(
+        EmployeeStatusUi(
             id = "2",
             employeeId = "emp_1",
             employeeFullName = "Іванов Іван",
@@ -153,4 +158,3 @@ private fun previewStatuses(): List<EmployeeStatus> {
         )
     )
 }
-

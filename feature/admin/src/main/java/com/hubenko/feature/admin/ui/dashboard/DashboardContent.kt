@@ -15,9 +15,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hubenko.core.ui.components.AppTopBar
-import com.hubenko.core.ui.components.ProjectItem
-import com.hubenko.core.ui.theme.CoreTheme
+import com.hubenko.core.presentation.components.AppTopBar
+import com.hubenko.core.presentation.components.ProjectItem
+import com.hubenko.core.presentation.theme.CoreTheme
 import com.hubenko.feature.admin.ui.AdminTab
 
 /**
@@ -29,17 +29,11 @@ import com.hubenko.feature.admin.ui.AdminTab
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardContent(
-    isDarkTheme: Boolean,
-    onThemeToggle: () -> Unit,
     onTabSelected: (AdminTab) -> Unit
 ) {
     Scaffold(
         topBar = {
-            AppTopBar(
-                title = "Панель адміністратора",
-                isDarkTheme = isDarkTheme,
-                onThemeToggle = onThemeToggle
-            )
+            AppTopBar(title = "Панель адміністратора")
         }
     ) { paddingValues ->
         Column(
@@ -83,8 +77,6 @@ fun DashboardContent(
 private fun DashboardContentPreview() {
     CoreTheme {
         DashboardContent(
-            isDarkTheme = false,
-            onThemeToggle = {},
             onTabSelected = {}
         )
     }

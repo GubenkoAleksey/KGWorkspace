@@ -5,6 +5,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.hubenko.domain.repository.StatusRepository
+import com.hubenko.domain.util.Result
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -18,15 +19,10 @@ class SyncWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         return try {
             val unsynced = repository.getUnsyncedStatuses()
-            if (unsynced.isEmpty()) {
-                return Result.success()
-            }
-            
-            val syncResult = repository.syncStatuses(unsynced)
-            if (syncResult.isSuccess) {
-                Result.success()
-            } else {
-                Result.retry()
+            if (unsynced.isEmpty()) return Result.success()
+            when (repository.syncStatuses(unsynced)) {
+                is com.hubenko.domain.util.Result.Success -> Result.success()
+                is com.hubenko.domain.util.Result.Error -> Result.retry()
             }
         } catch (e: Exception) {
             e.printStackTrace()

@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import com.hubenko.core.utils.NotificationHelper
+import com.hubenko.core.presentation.utils.NotificationHelper
 import com.hubenko.domain.repository.ReminderRepository
 import com.hubenko.domain.repository.StatusRepository
 import dagger.hilt.android.AndroidEntryPoint

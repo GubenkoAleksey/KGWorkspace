@@ -1,17 +1,14 @@
 package com.hubenko.feature.admin.ui.schedule
 
 import androidx.lifecycle.viewModelScope
-import com.hubenko.core.base.BaseViewModel
+import com.hubenko.core.presentation.BaseViewModel
+import com.hubenko.feature.admin.ui.model.toEmployeeUi
 import com.hubenko.domain.usecase.GetAllEmployeesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/**
- * ViewModel для екрана розкладу сповіщень.
- * Завантажує список співробітників для вибору налаштувань нагадувань.
- */
 @HiltViewModel
 class ScheduleViewModel @Inject constructor(
     private val getAllEmployeesUseCase: GetAllEmployeesUseCase
@@ -34,9 +31,8 @@ class ScheduleViewModel @Inject constructor(
         updateState { copy(isLoading = true) }
         viewModelScope.launch {
             getAllEmployeesUseCase().collectLatest { list ->
-                updateState { copy(employees = list, isLoading = false) }
+                updateState { copy(employees = list.map { it.toEmployeeUi() }, isLoading = false) }
             }
         }
     }
 }
-

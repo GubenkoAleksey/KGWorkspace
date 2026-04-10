@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cd_logout">Вийти</string>
+    <string name="error_check_status_failed">Помилка перевірки статусу</string>
+</resources>

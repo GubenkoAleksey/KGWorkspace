@@ -22,19 +22,21 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hubenko.core.ui.components.AppTopBar
-import com.hubenko.core.ui.components.ProjectItem
-import com.hubenko.core.ui.theme.CoreTheme
-import com.hubenko.core.ui.theme.secondaryText
+import com.hubenko.feature.home.R
+import com.hubenko.core.presentation.components.AppTopBar
+import com.hubenko.core.presentation.components.ProjectItem
+import com.hubenko.core.presentation.theme.CoreTheme
+import com.hubenko.core.presentation.theme.secondaryText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeContent(
     state: HomeState,
     onIntent: (HomeIntent) -> Unit,
-    onThemeToggle: () -> Unit = { onIntent(HomeIntent.OnThemeToggle) },
+    onThemeToggle: () -> Unit,
     snackbarHost: @Composable () -> Unit = {}
 ) {
     Scaffold(
@@ -42,13 +44,12 @@ fun HomeContent(
         topBar = {
             AppTopBar(
                 title = "Головне меню",
-                isDarkTheme = state.isDarkTheme,
                 onThemeToggle = onThemeToggle,
                 actions = {
                     IconButton(onClick = { onIntent(HomeIntent.OnLogoutClick) }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Logout,
-                            contentDescription = "Вийти",
+                            contentDescription = stringResource(R.string.cd_logout),
                             tint = MaterialTheme.colorScheme.secondaryText()
                         )
                     }
@@ -103,7 +104,8 @@ private fun HomeContentAdminLightPreview() {
     CoreTheme(darkTheme = false) {
         HomeContent(
             state = HomeState(isAdmin = true, isLoading = false),
-            onIntent = {}
+            onIntent = {},
+            onThemeToggle = {}
         )
     }
 }
@@ -114,7 +116,8 @@ private fun HomeContentAdminDarkPreview() {
     CoreTheme(darkTheme = true) {
         HomeContent(
             state = HomeState(isAdmin = true, isLoading = false),
-            onIntent = {}
+            onIntent = {},
+            onThemeToggle = {}
         )
     }
 }

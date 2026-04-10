@@ -1,6 +1,6 @@
 package com.hubenko.feature.admin.ui
 
-import com.hubenko.core.base.BaseViewModel
+import com.hubenko.core.presentation.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

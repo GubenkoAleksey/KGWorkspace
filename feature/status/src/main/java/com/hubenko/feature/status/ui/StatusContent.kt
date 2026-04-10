@@ -29,32 +29,44 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hubenko.core.ui.components.AppTopBar
-import com.hubenko.core.ui.theme.CoreTheme
-import com.hubenko.core.ui.theme.StatusOfficeLight
-import com.hubenko.core.ui.theme.StatusRemoteLight
-import com.hubenko.core.ui.theme.StatusSickLight
+import com.hubenko.core.presentation.components.AppTopBar
+import com.hubenko.core.presentation.theme.CoreTheme
+import com.hubenko.feature.status.ui.model.EmployeeStatusUi
+import com.hubenko.feature.status.ui.model.StatusTypeUi
+import com.hubenko.core.presentation.theme.StatusOfficeLight
+import com.hubenko.core.presentation.theme.StatusRemoteLight
+import com.hubenko.core.presentation.theme.StatusSickLight
 import com.hubenko.feature.status.ui.components.NoteInputField
 import com.hubenko.feature.status.ui.components.StatusCard
+import com.hubenko.feature.status.ui.components.StatusConfirmationDialog
+import com.hubenko.feature.status.ui.components.SubmitConfirmDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatusContent(
     state: StatusState,
     onIntent: (StatusIntent) -> Unit,
-    isDarkTheme: Boolean,
-    onThemeToggle: () -> Unit,
     snackbarHost: @Composable () -> Unit = {}
 ) {
+    if (state.showConfirmDialog && state.pendingStatus != null) {
+        SubmitConfirmDialog(
+            status = state.pendingStatus,
+            onConfirm = { onIntent(StatusIntent.ConfirmSubmit) },
+            onDismiss = { onIntent(StatusIntent.DismissConfirmDialog) }
+        )
+    }
+
+    if (state.isSuccess) {
+        StatusConfirmationDialog(
+            onDismiss = { onIntent(StatusIntent.DismissDialog) }
+        )
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            AppTopBar(
-                title = "Оновити статус",
-                isDarkTheme = isDarkTheme,
-                onThemeToggle = onThemeToggle
-            )
+            AppTopBar(title = "Оновити статус")
         },
         snackbarHost = { snackbarHost() }
     ) { paddingValues ->
@@ -142,9 +154,7 @@ private fun StatusContentPreview() {
     CoreTheme {
         StatusContent(
             state = StatusState(isLoading = false),
-            onIntent = {},
-            isDarkTheme = false,
-            onThemeToggle = {}
+            onIntent = {}
         )
     }
 }
@@ -155,9 +165,35 @@ private fun StatusLoadingPreview() {
     CoreTheme {
         StatusContent(
             state = StatusState(isLoading = true),
-            onIntent = {},
-            isDarkTheme = false,
-            onThemeToggle = {}
+            onIntent = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Active Status")
+@Composable
+private fun StatusActivePreview() {
+    CoreTheme {
+        StatusContent(
+            state = StatusState(
+                isLoading = false,
+                activeStatus = EmployeeStatusUi(
+                    id = "1",
+                    employeeId = "emp1",
+                    employeeFullName = "Іванов Іван Іванович",
+                    status = "Office",
+                    note = null,
+                    startTime = System.currentTimeMillis() - 3_600_000,
+                    endTime = null,
+                    isSynced = true
+                ),
+                statusTypes = listOf(
+                    StatusTypeUi(type = "Office", label = "Офіс"),
+                    StatusTypeUi(type = "Remote", label = "Дистанційно"),
+                    StatusTypeUi(type = "Sick", label = "Лікарняний")
+                )
+            ),
+            onIntent = {}
         )
     }
 }

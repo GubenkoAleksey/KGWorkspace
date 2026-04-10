@@ -12,9 +12,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
 class AlarmScheduler @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ReminderManager {

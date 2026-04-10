@@ -25,13 +25,15 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hubenko.core.ui.components.AppTopBar
-import com.hubenko.core.ui.theme.CoreTheme
-import com.hubenko.domain.model.Role
-import com.hubenko.domain.model.StatusType
+import com.hubenko.core.presentation.components.AppTopBar
+import com.hubenko.core.presentation.theme.CoreTheme
+import com.hubenko.feature.admin.R
 import com.hubenko.feature.admin.ui.directories.components.DirectoryEntryDialog
+import com.hubenko.feature.admin.ui.model.RoleUi
+import com.hubenko.feature.admin.ui.model.StatusTypeUi
 import com.hubenko.feature.admin.ui.directories.components.DirectoryItemRow
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,17 +41,11 @@ import com.hubenko.feature.admin.ui.directories.components.DirectoryItemRow
 fun DirectoriesContent(
     state: DirectoriesState,
     onIntent: (DirectoriesIntent) -> Unit,
-    isDarkTheme: Boolean,
-    onThemeToggle: () -> Unit,
     snackbarHost: @Composable () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
-            AppTopBar(
-                title = "Довідники",
-                isDarkTheme = isDarkTheme,
-                onThemeToggle = onThemeToggle
-            )
+            AppTopBar(title = "Довідники")
         },
         snackbarHost = { snackbarHost() }
     ) { paddingValues ->
@@ -184,7 +180,7 @@ private fun DirectorySectionHeader(
         IconButton(onClick = onAdd) {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = "Додати",
+                contentDescription = stringResource(R.string.cd_add),
                 tint = MaterialTheme.colorScheme.primary
             )
         }
@@ -198,18 +194,16 @@ private fun DirectoriesContentPreview() {
         DirectoriesContent(
             state = DirectoriesState(
                 statusTypes = listOf(
-                    StatusType("Office", "В офісі"),
-                    StatusType("Remote", "Віддалено"),
-                    StatusType("Sick", "Лікарняний")
+                    StatusTypeUi("Office", "В офісі"),
+                    StatusTypeUi("Remote", "Віддалено"),
+                    StatusTypeUi("Sick", "Лікарняний")
                 ),
                 roles = listOf(
-                    Role("USER", "Працівник"),
-                    Role("ADMIN", "Адміністратор")
+                    RoleUi("USER", "Працівник"),
+                    RoleUi("ADMIN", "Адміністратор")
                 )
             ),
-            onIntent = {},
-            isDarkTheme = false,
-            onThemeToggle = {}
+            onIntent = {}
         )
     }
 }
@@ -220,9 +214,7 @@ private fun DirectoriesContentLoadingPreview() {
     CoreTheme {
         DirectoriesContent(
             state = DirectoriesState(isLoading = true),
-            onIntent = {},
-            isDarkTheme = false,
-            onThemeToggle = {}
+            onIntent = {}
         )
     }
 }

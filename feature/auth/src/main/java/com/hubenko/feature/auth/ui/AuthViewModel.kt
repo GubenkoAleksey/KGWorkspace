@@ -1,15 +1,17 @@
 package com.hubenko.feature.auth.ui
 
 import androidx.lifecycle.viewModelScope
-import com.hubenko.core.base.BaseViewModel
-import com.hubenko.domain.repository.AuthRepository
+import com.hubenko.core.presentation.BaseViewModel
+import com.hubenko.core.presentation.toUiText
+import com.hubenko.domain.repository.AuthDataSource
+import com.hubenko.domain.util.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthDataSource
 ) : BaseViewModel<AuthState, AuthIntent, AuthEffect>(AuthState()) {
 
     override fun onIntent(intent: AuthIntent) {
@@ -24,15 +26,16 @@ class AuthViewModel @Inject constructor(
         val state = viewState.value
         viewModelScope.launch {
             updateState { copy(isLoading = true, error = null) }
-            val result = authRepository.signIn(state.email, state.pass)
-
-            if (result.isSuccess) {
-                updateState { copy(isLoading = false) }
-                sendEffect(AuthEffect.NavigateToHome)
-            } else {
-                val errorMsg = result.exceptionOrNull()?.message ?: "Login failed"
-                updateState { copy(isLoading = false, error = errorMsg) }
-                sendEffect(AuthEffect.ShowError(errorMsg))
+            when (val result = authRepository.signIn(state.email, state.pass)) {
+                is Result.Success -> {
+                    updateState { copy(isLoading = false) }
+                    sendEffect(AuthEffect.NavigateToHome)
+                }
+                is Result.Error -> {
+                    val errorUiText = result.error.toUiText()
+                    updateState { copy(isLoading = false, error = errorUiText) }
+                    sendEffect(AuthEffect.ShowError(errorUiText))
+                }
             }
         }
     }

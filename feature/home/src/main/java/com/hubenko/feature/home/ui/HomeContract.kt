@@ -1,26 +1,25 @@
 package com.hubenko.feature.home.ui
 
-import com.hubenko.core.base.ViewIntent
-import com.hubenko.core.base.ViewSideEffect
-import com.hubenko.core.base.ViewState
+import com.hubenko.core.presentation.UiText
+import com.hubenko.core.presentation.ViewIntent
+import com.hubenko.core.presentation.ViewSideEffect
+import com.hubenko.core.presentation.ViewState
 
 data class HomeState(
     val isAdmin: Boolean = false,
-    val isLoading: Boolean = true,
-    val isDarkTheme: Boolean = false
+    val isLoading: Boolean = true
 ) : ViewState
 
-sealed class HomeIntent : ViewIntent {
-    data object LoadAdminStatus : HomeIntent()
-    data object OnAdminPanelClick : HomeIntent()
-    data object OnSendStatusClick : HomeIntent()
-    data object OnLogoutClick : HomeIntent()
-    data object OnThemeToggle : HomeIntent()
+sealed interface HomeIntent : ViewIntent {
+    data object LoadAdminStatus : HomeIntent
+    data object OnAdminPanelClick : HomeIntent
+    data object OnSendStatusClick : HomeIntent
+    data object OnLogoutClick : HomeIntent
 }
 
-sealed class HomeEffect : ViewSideEffect {
-    data class ShowToast(val message: String) : HomeEffect()
-    data object NavigateToStatus : HomeEffect()
-    data object NavigateToAdmin : HomeEffect()
-    data object NavigateToAuth : HomeEffect()
+sealed interface HomeEffect : ViewSideEffect {
+    data class ShowSnackbar(val message: UiText) : HomeEffect
+    data object NavigateToStatus : HomeEffect
+    data object NavigateToAdmin : HomeEffect
+    data object NavigateToAuth : HomeEffect
 }

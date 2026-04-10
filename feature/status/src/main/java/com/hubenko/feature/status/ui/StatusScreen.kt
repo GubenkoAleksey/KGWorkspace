@@ -3,53 +3,33 @@ package com.hubenko.feature.status.ui
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.hubenko.feature.status.ui.components.StatusConfirmationDialog
-import com.hubenko.feature.status.ui.components.SubmitConfirmDialog
-import kotlinx.coroutines.flow.collectLatest
+import com.hubenko.core.presentation.ObserveAsEvents
+import com.hubenko.core.presentation.asString
 
 @Composable
 fun StatusScreen(
     viewModel: StatusViewModel = hiltViewModel(),
-    isDarkTheme: Boolean,
-    onThemeToggle: () -> Unit,
     onNavigateBack: () -> Unit
 ) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
-    LaunchedEffect(viewModel.effect) {
-        viewModel.effect.collectLatest { effect ->
-            when (effect) {
-                is StatusEffect.NavigateBack -> onNavigateBack()
-                is StatusEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
-            }
+    ObserveAsEvents(viewModel.effect) { effect ->
+        when (effect) {
+            is StatusEffect.NavigateBack -> onNavigateBack()
+            is StatusEffect.ShowError -> snackbarHostState.showSnackbar(effect.message.asString(context))
         }
-    }
-
-    if (state.isSuccess) {
-        StatusConfirmationDialog(
-            onDismiss = { viewModel.onIntent(StatusIntent.DismissDialog) }
-        )
-    }
-
-    if (state.showConfirmDialog && state.pendingStatus != null) {
-        SubmitConfirmDialog(
-            status = state.pendingStatus!!,
-            onConfirm = { viewModel.onIntent(StatusIntent.ConfirmSubmit) },
-            onDismiss = { viewModel.onIntent(StatusIntent.DismissConfirmDialog) }
-        )
     }
 
     StatusContent(
         state = state,
         onIntent = viewModel::onIntent,
-        isDarkTheme = isDarkTheme,
-        onThemeToggle = onThemeToggle,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     )
 }

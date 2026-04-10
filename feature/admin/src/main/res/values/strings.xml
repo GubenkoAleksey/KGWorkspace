@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cd_edit">Редагувати</string>
+    <string name="cd_delete">Видалити</string>
+    <string name="cd_add">Додати</string>
+    <string name="cd_add_employee">Зареєструвати нового співробітника</string>
+    <string name="cd_delete_all_statuses">Видалити всі статуси</string>
+    <string name="cd_export_csv">Експортувати CSV</string>
+    <string name="cd_filter">Фільтри</string>
+    <string name="cd_clear_filter">Скинути фільтр</string>
+    <string name="cd_expand">Розгорнути список статусів</string>
+    <string name="cd_collapse">Згорнути список статусів</string>
+
+    <string name="error_employee_empty_name">Введіть ім\'я працівника</string>
+    <string name="error_employee_empty_email">Введіть електронну пошту</string>
+    <string name="error_employee_invalid_email">Невірний формат електронної пошти</string>
+    <string name="error_employee_empty_phone">Введіть номер телефону</string>
+
+    <string name="success_settings_saved">Налаштування успішно збережено</string>
+    <string name="success_employee_saved">Дані співробітника оновлено</string>
+    <string name="success_employee_deleted">Співробітника видалено</string>
+    <string name="success_employee_registered">Співробітника зареєстровано успішно</string>
+    <string name="success_statuses_deleted">Усі статуси успішно видалено</string>
+    <string name="error_export_failed">Помилка експорту</string>
+    <string name="error_save_failed">Помилка збереження</string>
+    <string name="error_delete_failed">Помилка видалення</string>
+    <string name="error_register_failed">Помилка реєстрації</string>
+</resources>

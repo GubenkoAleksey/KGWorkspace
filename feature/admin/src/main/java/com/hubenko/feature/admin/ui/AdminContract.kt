@@ -1,8 +1,8 @@
 package com.hubenko.feature.admin.ui
 
-import com.hubenko.core.base.ViewIntent
-import com.hubenko.core.base.ViewSideEffect
-import com.hubenko.core.base.ViewState
+import com.hubenko.core.presentation.ViewIntent
+import com.hubenko.core.presentation.ViewSideEffect
+import com.hubenko.core.presentation.ViewState
 
 data class AdminState(
     val selectedTab: AdminTab = AdminTab.DASHBOARD
@@ -16,11 +16,11 @@ enum class AdminTab(val title: String) {
     DIRECTORIES("Довідники")
 }
 
-sealed class AdminIntent : ViewIntent {
-    data class OnTabSelected(val tab: AdminTab) : AdminIntent()
-    data object OnBackClick : AdminIntent()
+sealed interface AdminIntent : ViewIntent {
+    data class OnTabSelected(val tab: AdminTab) : AdminIntent
+    data object OnBackClick : AdminIntent
 }
 
-sealed class AdminEffect : ViewSideEffect {
-    data object NavigateBack : AdminEffect()
+sealed interface AdminEffect : ViewSideEffect {
+    data object NavigateBack : AdminEffect
 }

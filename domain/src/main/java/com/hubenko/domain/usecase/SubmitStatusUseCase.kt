@@ -1,22 +1,19 @@
 package com.hubenko.domain.usecase
 
-import com.hubenko.domain.repository.AuthRepository
+import com.hubenko.domain.error.DataError
+import com.hubenko.domain.repository.AuthDataSource
 import com.hubenko.domain.repository.StatusRepository
+import com.hubenko.domain.util.EmptyResult
+import com.hubenko.domain.util.Result
 import javax.inject.Inject
 
 class SubmitStatusUseCase @Inject constructor(
     private val statusRepository: StatusRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthDataSource
 ) {
-    suspend operator fun invoke(status: String, note: String? = null): Result<Unit> {
-        return try {
-            val employeeId = authRepository.getCurrentUserId() 
-                ?: return Result.failure(Exception("User not authenticated"))
-            
-            statusRepository.saveStatusLocally(employeeId, status, note)
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    suspend operator fun invoke(status: String, note: String? = null): EmptyResult<DataError.Local> {
+        val employeeId = authRepository.getCurrentUserId()
+            ?: return Result.Error(DataError.Local.UNKNOWN)
+        return statusRepository.saveStatusLocally(employeeId, status, note)
     }
 }

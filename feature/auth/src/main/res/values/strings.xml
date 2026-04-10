@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cd_app_logo">App Logo</string>
+
+    <string name="error_auth_empty_email">Введіть електронну пошту</string>
+    <string name="error_auth_invalid_email">Невірний формат електронної пошти</string>
+    <string name="error_auth_empty_password">Введіть пароль</string>
+    <string name="error_auth_password_too_short">Пароль має містити щонайменше 6 символів</string>
+</resources>

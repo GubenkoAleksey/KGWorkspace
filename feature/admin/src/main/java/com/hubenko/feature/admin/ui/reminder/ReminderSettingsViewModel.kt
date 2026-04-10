@@ -1,66 +1,88 @@
 package com.hubenko.feature.admin.ui.reminder
 
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.hubenko.domain.model.ReminderSettings
+import androidx.navigation.toRoute
+import com.hubenko.core.presentation.BaseViewModel
+import com.hubenko.core.presentation.UiText
+import com.hubenko.core.presentation.ViewIntent
+import com.hubenko.core.presentation.ViewSideEffect
+import com.hubenko.core.presentation.ViewState
+import com.hubenko.feature.admin.R
+import com.hubenko.feature.admin.navigation.ReminderSettingsRoute
+import com.hubenko.feature.admin.ui.model.ReminderSettingsUi
+import com.hubenko.feature.admin.ui.model.toDomain
+import com.hubenko.feature.admin.ui.model.toReminderSettingsUi
 import com.hubenko.domain.usecase.GetReminderSettingsUseCase
 import com.hubenko.domain.usecase.SaveReminderSettingsUseCase
+import com.hubenko.domain.util.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class ReminderSettingsState(
-    val settings: ReminderSettings = ReminderSettings(),
+    val settings: ReminderSettingsUi = ReminderSettingsUi(),
     val isLoading: Boolean = false,
-    val error: String? = null,
-    val isSaved: Boolean = false
-)
+    val error: UiText? = null
+) : ViewState
 
-sealed class ReminderSettingsIntent {
-    data class LoadSettings(val employeeId: String) : ReminderSettingsIntent()
-    data class UpdateSettings(val settings: ReminderSettings) : ReminderSettingsIntent()
-    object SaveSettings : ReminderSettingsIntent()
+sealed interface ReminderSettingsIntent : ViewIntent {
+    data class UpdateSettings(val settings: ReminderSettingsUi) : ReminderSettingsIntent
+    data object SaveSettings : ReminderSettingsIntent
+}
+
+sealed interface ReminderSettingsEffect : ViewSideEffect {
+    data object NavigateBack : ReminderSettingsEffect
+    data class ShowSnackbar(val message: UiText) : ReminderSettingsEffect
 }
 
 @HiltViewModel
 class ReminderSettingsViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val getReminderSettingsUseCase: GetReminderSettingsUseCase,
     private val saveReminderSettingsUseCase: SaveReminderSettingsUseCase
-) : ViewModel() {
+) : BaseViewModel<ReminderSettingsState, ReminderSettingsIntent, ReminderSettingsEffect>(
+    ReminderSettingsState()
+) {
+    private val employeeId = savedStateHandle.toRoute<ReminderSettingsRoute>().employeeId
 
-    private val _state = MutableStateFlow(ReminderSettingsState())
-    val state: StateFlow<ReminderSettingsState> = _state.asStateFlow()
+    init {
+        loadSettings()
+    }
 
-    fun onIntent(intent: ReminderSettingsIntent) {
+    override fun onIntent(intent: ReminderSettingsIntent) {
         when (intent) {
-            is ReminderSettingsIntent.LoadSettings -> loadSettings(intent.employeeId)
-            is ReminderSettingsIntent.UpdateSettings -> {
-                _state.update { it.copy(settings = intent.settings) }
-            }
+            is ReminderSettingsIntent.UpdateSettings -> updateState { copy(settings = intent.settings) }
             ReminderSettingsIntent.SaveSettings -> saveSettings()
         }
     }
 
-    private fun loadSettings(employeeId: String) {
+    private fun loadSettings() {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
+            updateState { copy(isLoading = true) }
             getReminderSettingsUseCase(employeeId)
-                .catch { e -> _state.update { it.copy(error = e.message, isLoading = false) } }
+                .catch { e ->
+                    updateState { copy(error = UiText.DynamicString(e.message ?: ""), isLoading = false) }
+                }
                 .collect { settings ->
-                    _state.update { it.copy(settings = settings, isLoading = false) }
+                    updateState { copy(settings = settings.toReminderSettingsUi(), isLoading = false) }
                 }
         }
     }
 
     private fun saveSettings() {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
-            val result = saveReminderSettingsUseCase(_state.value.settings)
-            if (result.isSuccess) {
-                _state.update { it.copy(isLoading = false, isSaved = true) }
-            } else {
-                _state.update { it.copy(isLoading = false, error = "Failed to save") }
+            updateState { copy(isLoading = true) }
+            when (saveReminderSettingsUseCase(viewState.value.settings.toDomain())) {
+                is Result.Success -> {
+                    updateState { copy(isLoading = false) }
+                    sendEffect(ReminderSettingsEffect.ShowSnackbar(UiText.StringResource(R.string.success_settings_saved)))
+                    sendEffect(ReminderSettingsEffect.NavigateBack)
+                }
+                is Result.Error -> {
+                    updateState { copy(isLoading = false, error = UiText.StringResource(com.hubenko.core.R.string.error_unknown)) }
+                }
             }
         }
     }
