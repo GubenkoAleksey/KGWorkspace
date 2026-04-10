@@ -10,6 +10,7 @@ fun DataError.toUiText(): UiText {
         DataError.Firestore.UNAVAILABLE -> UiText.StringResource(R.string.error_unavailable)
         DataError.Firestore.UNAUTHENTICATED -> UiText.StringResource(R.string.error_unauthenticated)
         DataError.Firestore.ALREADY_EXISTS -> UiText.StringResource(R.string.error_already_exists)
+        DataError.Firestore.INVALID_CREDENTIALS -> UiText.StringResource(R.string.error_invalid_credentials)
         DataError.Firestore.UNKNOWN -> UiText.StringResource(R.string.error_unknown)
         DataError.Local.DISK_FULL -> UiText.StringResource(R.string.error_disk_full)
         DataError.Local.NOT_FOUND -> UiText.StringResource(R.string.error_not_found)

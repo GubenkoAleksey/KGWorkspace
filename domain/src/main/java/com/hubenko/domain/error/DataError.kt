@@ -10,6 +10,7 @@ sealed interface DataError : Error {
         UNAVAILABLE,
         UNAUTHENTICATED,
         ALREADY_EXISTS,
+        INVALID_CREDENTIALS,
         UNKNOWN
     }
 

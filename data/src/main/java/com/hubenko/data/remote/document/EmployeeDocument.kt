@@ -1,9 +1,7 @@
 package com.hubenko.data.remote.document
 
-import com.google.firebase.firestore.DocumentId
-
 data class EmployeeDocument(
-    @DocumentId val id: String = "",
+    val id: String = "",
     val lastName: String = "",
     val firstName: String = "",
     val middleName: String = "",

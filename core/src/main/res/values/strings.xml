@@ -9,6 +9,7 @@
     <string name="error_unauthenticated">Необхідна автентифікація</string>
     <string name="error_not_found">Дані не знайдено</string>
     <string name="error_already_exists">Запис вже існує</string>
+    <string name="error_invalid_credentials">Невірний email або пароль</string>
     <string name="error_disk_full">Недостатньо місця на пристрої</string>
     <string name="error_no_internet">Відсутнє підключення до інтернету</string>
 </resources>
