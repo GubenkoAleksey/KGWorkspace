@@ -96,7 +96,7 @@ fun StatusContent(
                             val title = if (isActive) "Закінчити роботу (${statusType.label})" else statusType.label
                             val description = when (statusType.type) {
                                 "Office" -> "Працюю безпосередньо в офісі"
-                                "Remote" -> "Працюю дистанційно (Home Office)"
+                                "Remote" -> "Працюю віддалено"
                                 "Sick" -> "Відсутній через стан здоров'я"
                                 else -> ""
                             }
