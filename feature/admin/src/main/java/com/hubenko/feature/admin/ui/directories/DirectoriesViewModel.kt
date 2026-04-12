@@ -73,6 +73,14 @@ class DirectoriesViewModel @Inject constructor(
 
             is DirectoriesIntent.OnConfirmDeleteRole -> deleteRole(intent.id)
 
+            is DirectoriesIntent.OnToggleSection -> updateState {
+                val updated = if (intent.section in expandedSections)
+                    expandedSections - intent.section
+                else
+                    expandedSections + intent.section
+                copy(expandedSections = updated)
+            }
+
             is DirectoriesIntent.OnDismissDialog ->
                 updateState { copy(dialog = null) }
         }

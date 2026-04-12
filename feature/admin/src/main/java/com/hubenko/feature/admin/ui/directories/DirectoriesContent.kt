@@ -1,6 +1,16 @@
 package com.hubenko.feature.admin.ui.directories
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,10 +19,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -23,18 +36,22 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hubenko.core.presentation.components.AppTopBar
 import com.hubenko.core.presentation.theme.CoreTheme
+import com.hubenko.core.presentation.theme.secondaryText
 import com.hubenko.feature.admin.R
 import com.hubenko.feature.admin.ui.directories.components.DirectoryEntryDialog
+import com.hubenko.feature.admin.ui.directories.components.DirectoryItemRow
 import com.hubenko.feature.admin.ui.model.RoleUi
 import com.hubenko.feature.admin.ui.model.StatusTypeUi
-import com.hubenko.feature.admin.ui.directories.components.DirectoryItemRow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,37 +82,105 @@ fun DirectoriesContent(
                     .padding(paddingValues),
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
-                item {
+                item(key = "header_status_types") {
                     DirectorySectionHeader(
                         title = "Типи статусів",
+                        isExpanded = DirectorySection.StatusTypes in state.expandedSections,
+                        onToggle = { onIntent(DirectoriesIntent.OnToggleSection(DirectorySection.StatusTypes)) },
                         onAdd = { onIntent(DirectoriesIntent.OnAddStatusTypeClick) }
                     )
                 }
-                items(state.statusTypes, key = { it.type }) { item ->
-                    DirectoryItemRow(
-                        label = item.label,
-                        keyValue = item.type,
-                        onEdit = { onIntent(DirectoriesIntent.OnEditStatusTypeClick(item)) },
-                        onDelete = { onIntent(DirectoriesIntent.OnDeleteStatusTypeClick(item)) }
-                    )
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                item(key = "content_status_types") {
+                    AnimatedVisibility(
+                        visible = DirectorySection.StatusTypes in state.expandedSections,
+                        enter = expandVertically(
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioLowBouncy,
+                                stiffness = Spring.StiffnessMediumLow
+                            )
+                        ) + fadeIn(),
+                        exit = shrinkVertically(
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                stiffness = Spring.StiffnessMediumLow
+                            )
+                        ) + fadeOut()
+                    ) {
+                        Column {
+                            state.statusTypes.forEach { item ->
+                                key(item.type) {
+                                    DirectoryItemRow(
+                                        label = item.label,
+                                        keyValue = item.type,
+                                        onEdit = {
+                                            onIntent(
+                                                DirectoriesIntent.OnEditStatusTypeClick(
+                                                    item
+                                                )
+                                            )
+                                        },
+                                        onDelete = {
+                                            onIntent(
+                                                DirectoriesIntent.OnDeleteStatusTypeClick(
+                                                    item
+                                                )
+                                            )
+                                        }
+                                    )
+                                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                                }
+                            }
+                        }
+                    }
                 }
 
-                item {
+                item(key = "spacer_roles") {
                     Spacer(modifier = Modifier.height(8.dp))
+                }
+                item(key = "header_roles") {
                     DirectorySectionHeader(
                         title = "Ролі користувачів",
+                        isExpanded = DirectorySection.Roles in state.expandedSections,
+                        onToggle = { onIntent(DirectoriesIntent.OnToggleSection(DirectorySection.Roles)) },
                         onAdd = { onIntent(DirectoriesIntent.OnAddRoleClick) }
                     )
                 }
-                items(state.roles, key = { it.id }) { item ->
-                    DirectoryItemRow(
-                        label = item.label,
-                        keyValue = item.id,
-                        onEdit = { onIntent(DirectoriesIntent.OnEditRoleClick(item)) },
-                        onDelete = { onIntent(DirectoriesIntent.OnDeleteRoleClick(item)) }
-                    )
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                item(key = "content_roles") {
+                    AnimatedVisibility(
+                        visible = DirectorySection.Roles in state.expandedSections,
+                        enter = expandVertically(
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioLowBouncy,
+                                stiffness = Spring.StiffnessMediumLow
+                            )
+                        ) + fadeIn(),
+                        exit = shrinkVertically(
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                stiffness = Spring.StiffnessMediumLow
+                            )
+                        ) + fadeOut()
+                    ) {
+                        Column {
+                            state.roles.forEach { item ->
+                                key(item.id) {
+                                    DirectoryItemRow(
+                                        label = item.label,
+                                        keyValue = item.id,
+                                        onEdit = { onIntent(DirectoriesIntent.OnEditRoleClick(item)) },
+                                        onDelete = {
+                                            onIntent(
+                                                DirectoriesIntent.OnDeleteRoleClick(
+                                                    item
+                                                )
+                                            )
+                                        }
+                                    )
+                                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -163,26 +248,51 @@ fun DirectoriesContent(
 @Composable
 private fun DirectorySectionHeader(
     title: String,
-    onAdd: () -> Unit
+    isExpanded: Boolean,
+    onToggle: () -> Unit,
+    onAdd: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = Modifier
+    val chevronRotation by animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        label = "chevron_rotation"
+    )
+    Card(
+        modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .clickable { onToggle() },
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.weight(1f)
-        )
-        IconButton(onClick = onAdd) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = stringResource(R.string.cd_add),
-                tint = MaterialTheme.colorScheme.primary
+        Row(
+            modifier = Modifier
+                .padding(start = 16.dp, top = 4.dp, bottom = 4.dp, end = 4.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.weight(1f)
             )
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowDown,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.secondaryText(),
+                modifier = Modifier.graphicsLayer { rotationZ = chevronRotation }
+            )
+            IconButton(onClick = onAdd) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(R.string.cd_add),
+                    tint = MaterialTheme.colorScheme.secondaryText()
+                )
+            }
         }
     }
 }

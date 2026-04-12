@@ -8,12 +8,15 @@ import com.hubenko.core.presentation.ViewState
 import com.hubenko.feature.admin.ui.model.RoleUi
 import com.hubenko.feature.admin.ui.model.StatusTypeUi
 
+enum class DirectorySection { StatusTypes, Roles }
+
 @Stable
 data class DirectoriesState(
     val statusTypes: List<StatusTypeUi> = emptyList(),
     val roles: List<RoleUi> = emptyList(),
     val isLoading: Boolean = false,
-    val dialog: DirectoryDialog? = null
+    val dialog: DirectoryDialog? = null,
+    val expandedSections: Set<DirectorySection> = DirectorySection.entries.toSet()
 ) : ViewState
 
 sealed interface DirectoryDialog {
@@ -36,6 +39,7 @@ sealed interface DirectoriesIntent : ViewIntent {
     data class OnSaveRole(val id: String, val label: String) : DirectoriesIntent
     data class OnConfirmDeleteRole(val id: String) : DirectoriesIntent
 
+    data class OnToggleSection(val section: DirectorySection) : DirectoriesIntent
     data object OnDismissDialog : DirectoriesIntent
 }
 

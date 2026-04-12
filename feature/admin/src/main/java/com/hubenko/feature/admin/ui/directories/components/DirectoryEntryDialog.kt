@@ -1,12 +1,15 @@
 package com.hubenko.feature.admin.ui.directories.components
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hubenko.core.presentation.theme.CoreTheme
+import com.hubenko.core.presentation.theme.secondaryText
 
 @Composable
 fun DirectoryEntryDialog(
@@ -26,6 +29,23 @@ fun DirectoryEntryDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
+            val secondaryText = MaterialTheme.colorScheme.secondaryText()
+            val fieldColors = OutlinedTextFieldDefaults.colors(
+                focusedLabelColor = secondaryText,
+                unfocusedLabelColor = secondaryText,
+                disabledLabelColor = secondaryText,
+                focusedBorderColor = secondaryText,
+                unfocusedBorderColor = secondaryText,
+                disabledBorderColor = secondaryText,
+                focusedPlaceholderColor = secondaryText,
+                unfocusedPlaceholderColor = secondaryText,
+                disabledPlaceholderColor = secondaryText,
+                cursorColor = secondaryText,
+                selectionColors = TextSelectionColors(
+                    handleColor = Color.Transparent,
+                    backgroundColor = secondaryText.copy(alpha = 0.3f)
+                )
+            )
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = key,
@@ -33,6 +53,7 @@ fun DirectoryEntryDialog(
                     label = { Text(keyLabel) },
                     singleLine = true,
                     enabled = isKeyEditable,
+                    colors = fieldColors,
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
@@ -40,6 +61,7 @@ fun DirectoryEntryDialog(
                     onValueChange = { label = it },
                     label = { Text(labelLabel) },
                     singleLine = true,
+                    colors = fieldColors,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
