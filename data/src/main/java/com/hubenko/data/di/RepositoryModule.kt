@@ -2,6 +2,8 @@ package com.hubenko.data.di
 
 import com.hubenko.data.repository.DataStoreSettingsDataSource
 import com.hubenko.data.repository.FirebaseAuthDataSource
+import com.hubenko.data.repository.FirestoreBaseRateDataSource
+import com.hubenko.data.repository.FirestoreHourlyRateDataSource
 import com.hubenko.data.repository.FirestoreRoleDataSource
 import com.hubenko.data.repository.FirestoreStatusTypeDataSource
 import com.hubenko.data.repository.OfflineFirstEmployeeRepository
@@ -10,7 +12,9 @@ import com.hubenko.data.repository.OfflineFirstStatusRepository
 import com.hubenko.data.worker.AlarmScheduler
 import com.hubenko.domain.manager.ReminderManager
 import com.hubenko.domain.repository.AuthDataSource
+import com.hubenko.domain.repository.BaseRateDataSource
 import com.hubenko.domain.repository.EmployeeRepository
+import com.hubenko.domain.repository.HourlyRateDataSource
 import com.hubenko.domain.repository.ReminderRepository
 import com.hubenko.domain.repository.RoleDataSource
 import com.hubenko.domain.repository.SettingsDataSource
@@ -45,6 +49,14 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindRoleDataSource(impl: FirestoreRoleDataSource): RoleDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindBaseRateDataSource(impl: FirestoreBaseRateDataSource): BaseRateDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindHourlyRateDataSource(impl: FirestoreHourlyRateDataSource): HourlyRateDataSource
 
     @Binds
     @Singleton

@@ -50,6 +50,8 @@ import com.hubenko.core.presentation.theme.secondaryText
 import com.hubenko.feature.admin.R
 import com.hubenko.feature.admin.ui.directories.components.DirectoryEntryDialog
 import com.hubenko.feature.admin.ui.directories.components.DirectoryItemRow
+import com.hubenko.feature.admin.ui.model.BaseRateUi
+import com.hubenko.feature.admin.ui.model.HourlyRateUi
 import com.hubenko.feature.admin.ui.model.RoleUi
 import com.hubenko.feature.admin.ui.model.StatusTypeUi
 
@@ -182,6 +184,94 @@ fun DirectoriesContent(
                         }
                     }
                 }
+
+                item(key = "spacer_base_rates") {
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                item(key = "header_base_rates") {
+                    DirectorySectionHeader(
+                        title = "Основна ставка",
+                        isExpanded = DirectorySection.BaseRates in state.expandedSections,
+                        onToggle = { onIntent(DirectoriesIntent.OnToggleSection(DirectorySection.BaseRates)) },
+                        onAdd = { onIntent(DirectoriesIntent.OnAddBaseRateClick) }
+                    )
+                }
+                item(key = "content_base_rates") {
+                    AnimatedVisibility(
+                        visible = DirectorySection.BaseRates in state.expandedSections,
+                        enter = expandVertically(
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioLowBouncy,
+                                stiffness = Spring.StiffnessMediumLow
+                            )
+                        ) + fadeIn(),
+                        exit = shrinkVertically(
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                stiffness = Spring.StiffnessMediumLow
+                            )
+                        ) + fadeOut()
+                    ) {
+                        Column {
+                            state.baseRates.forEach { item ->
+                                key(item.id) {
+                                    DirectoryItemRow(
+                                        label = item.label,
+                                        keyValue = item.id,
+                                        value = "%.2f грн".format(item.value),
+                                        onEdit = { onIntent(DirectoriesIntent.OnEditBaseRateClick(item)) },
+                                        onDelete = { onIntent(DirectoriesIntent.OnDeleteBaseRateClick(item)) }
+                                    )
+                                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                                }
+                            }
+                        }
+                    }
+                }
+
+                item(key = "spacer_hourly_rates") {
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                item(key = "header_hourly_rates") {
+                    DirectorySectionHeader(
+                        title = "Оплата за годину",
+                        isExpanded = DirectorySection.HourlyRates in state.expandedSections,
+                        onToggle = { onIntent(DirectoriesIntent.OnToggleSection(DirectorySection.HourlyRates)) },
+                        onAdd = { onIntent(DirectoriesIntent.OnAddHourlyRateClick) }
+                    )
+                }
+                item(key = "content_hourly_rates") {
+                    AnimatedVisibility(
+                        visible = DirectorySection.HourlyRates in state.expandedSections,
+                        enter = expandVertically(
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioLowBouncy,
+                                stiffness = Spring.StiffnessMediumLow
+                            )
+                        ) + fadeIn(),
+                        exit = shrinkVertically(
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                stiffness = Spring.StiffnessMediumLow
+                            )
+                        ) + fadeOut()
+                    ) {
+                        Column {
+                            state.hourlyRates.forEach { item ->
+                                key(item.id) {
+                                    DirectoryItemRow(
+                                        label = item.label,
+                                        keyValue = item.id,
+                                        value = "%.2f грн/год".format(item.value),
+                                        onEdit = { onIntent(DirectoriesIntent.OnEditHourlyRateClick(item)) },
+                                        onDelete = { onIntent(DirectoriesIntent.OnDeleteHourlyRateClick(item)) }
+                                    )
+                                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -194,7 +284,7 @@ fun DirectoriesContent(
             initialKey = dialog.item?.type ?: "",
             initialLabel = dialog.item?.label ?: "",
             isKeyEditable = dialog.item == null,
-            onSave = { key, label -> onIntent(DirectoriesIntent.OnSaveStatusType(key, label)) },
+            onSave = { key, label, _ -> onIntent(DirectoriesIntent.OnSaveStatusType(key, label)) },
             onDismiss = { onIntent(DirectoriesIntent.OnDismissDialog) }
         )
 
@@ -205,7 +295,7 @@ fun DirectoriesContent(
             initialKey = dialog.item?.id ?: "",
             initialLabel = dialog.item?.label ?: "",
             isKeyEditable = dialog.item == null,
-            onSave = { key, label -> onIntent(DirectoriesIntent.OnSaveRole(key, label)) },
+            onSave = { key, label, _ -> onIntent(DirectoriesIntent.OnSaveRole(key, label)) },
             onDismiss = { onIntent(DirectoriesIntent.OnDismissDialog) }
         )
 
@@ -231,6 +321,68 @@ fun DirectoriesContent(
             text = { Text("«${dialog.label}» буде видалено з Firebase.") },
             confirmButton = {
                 TextButton(onClick = { onIntent(DirectoriesIntent.OnConfirmDeleteRole(dialog.id)) }) {
+                    Text("Видалити", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { onIntent(DirectoriesIntent.OnDismissDialog) }) {
+                    Text("Скасувати")
+                }
+            }
+        )
+
+        is DirectoryDialog.EditBaseRate -> DirectoryEntryDialog(
+            title = if (dialog.item == null) "Додати ставку" else "Редагувати ставку",
+            keyLabel = "ID ставки",
+            labelLabel = "Назва",
+            valueLabel = "Сума (грн)",
+            initialKey = dialog.item?.id ?: "",
+            initialLabel = dialog.item?.label ?: "",
+            initialValue = dialog.item?.value?.let { "%.2f".format(it) } ?: "",
+            isKeyEditable = dialog.item == null,
+            onSave = { key, label, value ->
+                onIntent(DirectoriesIntent.OnSaveBaseRate(key, label, value.toDoubleOrNull() ?: 0.0))
+            },
+            onDismiss = { onIntent(DirectoriesIntent.OnDismissDialog) }
+        )
+
+        is DirectoryDialog.ConfirmDeleteBaseRate -> AlertDialog(
+            onDismissRequest = { onIntent(DirectoriesIntent.OnDismissDialog) },
+            title = { Text("Видалити ставку?") },
+            text = { Text("«${dialog.label}» буде видалено з Firebase.") },
+            confirmButton = {
+                TextButton(onClick = { onIntent(DirectoriesIntent.OnConfirmDeleteBaseRate(dialog.id)) }) {
+                    Text("Видалити", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { onIntent(DirectoriesIntent.OnDismissDialog) }) {
+                    Text("Скасувати")
+                }
+            }
+        )
+
+        is DirectoryDialog.EditHourlyRate -> DirectoryEntryDialog(
+            title = if (dialog.item == null) "Додати тариф" else "Редагувати тариф",
+            keyLabel = "ID тарифу",
+            labelLabel = "Назва",
+            valueLabel = "Значення (грн/год)",
+            initialKey = dialog.item?.id ?: "",
+            initialLabel = dialog.item?.label ?: "",
+            initialValue = dialog.item?.value?.let { "%.2f".format(it) } ?: "",
+            isKeyEditable = dialog.item == null,
+            onSave = { key, label, value ->
+                onIntent(DirectoriesIntent.OnSaveHourlyRate(key, label, value.toDoubleOrNull() ?: 0.0))
+            },
+            onDismiss = { onIntent(DirectoriesIntent.OnDismissDialog) }
+        )
+
+        is DirectoryDialog.ConfirmDeleteHourlyRate -> AlertDialog(
+            onDismissRequest = { onIntent(DirectoriesIntent.OnDismissDialog) },
+            title = { Text("Видалити тариф?") },
+            text = { Text("«${dialog.label}» буде видалено з Firebase.") },
+            confirmButton = {
+                TextButton(onClick = { onIntent(DirectoriesIntent.OnConfirmDeleteHourlyRate(dialog.id)) }) {
                     Text("Видалити", color = MaterialTheme.colorScheme.error)
                 }
             },
@@ -311,6 +463,14 @@ private fun DirectoriesContentPreview() {
                 roles = listOf(
                     RoleUi("USER", "Працівник"),
                     RoleUi("ADMIN", "Адміністратор")
+                ),
+                baseRates = listOf(
+                    BaseRateUi("FULL_TIME", "Повна ставка", 1.0),
+                    BaseRateUi("HALF_TIME", "Половина ставки", 0.5)
+                ),
+                hourlyRates = listOf(
+                    HourlyRateUi("RATE_50", "50 грн/год", 50.0),
+                    HourlyRateUi("RATE_100", "100 грн/год", 100.0)
                 )
             ),
             onIntent = {}

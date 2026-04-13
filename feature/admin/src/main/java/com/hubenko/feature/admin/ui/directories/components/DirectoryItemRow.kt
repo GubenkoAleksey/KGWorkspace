@@ -20,7 +20,8 @@ fun DirectoryItemRow(
     keyValue: String,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    value: String? = null
 ) {
     Row(
         modifier = modifier
@@ -34,7 +35,7 @@ fun DirectoryItemRow(
                 style = MaterialTheme.typography.bodyLarge
             )
             Text(
-                text = keyValue,
+                text = if (value != null) "$keyValue · $value" else keyValue,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
