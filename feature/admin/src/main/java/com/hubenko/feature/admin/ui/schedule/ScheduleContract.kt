@@ -4,11 +4,10 @@ import androidx.compose.runtime.Stable
 import com.hubenko.core.presentation.ViewIntent
 import com.hubenko.core.presentation.ViewSideEffect
 import com.hubenko.core.presentation.ViewState
-import com.hubenko.feature.admin.ui.model.EmployeeUi
 
 @Stable
 data class ScheduleState(
-    val employees: List<EmployeeUi> = emptyList(),
+    val employees: List<ScheduleEmployeeUi> = emptyList(),
     val isLoading: Boolean = false
 ) : ViewState
 

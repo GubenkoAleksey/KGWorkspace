@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface ReminderRepository {
     fun getReminderSettings(employeeId: String): Flow<ReminderSettings>
+    fun getAllReminderSettings(): Flow<List<ReminderSettings>>
     suspend fun saveReminderSettings(settings: ReminderSettings): EmptyResult<DataError.Firestore>
     suspend fun updateLocalCache(settings: ReminderSettings)
     suspend fun getLocalSettings(employeeId: String): ReminderSettings?

@@ -1,13 +1,15 @@
 package com.hubenko.feature.admin.ui.schedule
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material3.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,8 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hubenko.core.presentation.components.AppTopBar
 import com.hubenko.core.presentation.theme.CoreTheme
-import com.hubenko.core.presentation.theme.secondaryText
-import com.hubenko.feature.admin.ui.model.EmployeeUi
+import com.hubenko.feature.admin.ui.schedule.components.ScheduleEmployeeItem
 
 /**
  * Stateless Composable для екрана розкладу сповіщень.
@@ -51,43 +52,10 @@ fun ScheduleContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(state.employees, key = { it.id }) { employee ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onIntent(ScheduleIntent.OnEmployeeClick(employee.id)) },
-                        shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        ),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Schedule,
-                                contentDescription = null,
-                                modifier = Modifier.size(32.dp),
-                                tint = MaterialTheme.colorScheme.secondaryText()
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = "${employee.lastName} ${employee.firstName}",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                Text(
-                                    text = employee.phoneNumber,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.secondaryText()
-                                )
-                            }
-                        }
-                    }
+                    ScheduleEmployeeItem(
+                        employee = employee,
+                        onClick = { onIntent(ScheduleIntent.OnEmployeeClick(employee.id)) }
+                    )
                 }
             }
         }
@@ -101,8 +69,28 @@ private fun ScheduleContentPreview() {
         ScheduleContent(
             state = ScheduleState(
                 employees = listOf(
-                    EmployeeUi("1", "Іванов", "Іван", "Іванович", "Іванов Іван Іванович", "+380991234567", "USER", ""),
-                    EmployeeUi("2", "Петренко", "Петро", "Петрович", "Петренко Петро Петрович", "+380997654321", "ADMIN", "")
+                    ScheduleEmployeeUi(
+                        id = "1",
+                        fullName = "Іванов Іван Іванович",
+                        morningEnabled = true,
+                        morningStartTime = "07:30",
+                        morningEndTime = "08:00",
+                        eveningEnabled = true,
+                        eveningStartTime = "17:30",
+                        eveningEndTime = "18:00",
+                        formattedDaysOfWeek = "Пн, Вт, Ср, Чт, Пт"
+                    ),
+                    ScheduleEmployeeUi(
+                        id = "2",
+                        fullName = "Петренко Петро Петрович",
+                        morningEnabled = true,
+                        morningStartTime = "08:00",
+                        morningEndTime = "08:30",
+                        eveningEnabled = false,
+                        eveningStartTime = "17:00",
+                        eveningEndTime = "17:30",
+                        formattedDaysOfWeek = "Пн, Ср, Пт"
+                    )
                 )
             ),
             onIntent = {}

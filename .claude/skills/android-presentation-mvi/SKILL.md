@@ -248,8 +248,7 @@ private fun NoteListContentPreview() {
 ### Component Decomposition Rules
 - SRP: one logical role per composable file
 - Reusable components → `:core` module, grouped by type (`buttons/`, `inputs/`, `cards/`)
-- Feature components → `feature/ui/components/` grouped by screen → logical section
-- Rule for grouping: < 3 components in a section → flat, >= 3 → group in subpackage
+- Feature components → always in `feature/ui/<screen>/components/` subpackage — no exceptions, regardless of count
 
 ---
 

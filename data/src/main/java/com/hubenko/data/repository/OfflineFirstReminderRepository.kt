@@ -28,6 +28,10 @@ class OfflineFirstReminderRepository @Inject constructor(
         }
     }
 
+    override fun getAllReminderSettings(): Flow<List<ReminderSettings>> {
+        return dao.getAllSettings().map { entities -> entities.map { it.toDomain() } }
+    }
+
     override suspend fun saveReminderSettings(settings: ReminderSettings): EmptyResult<DataError.Firestore> =
         firestoreSafeCall {
             val document = ReminderSettingsDocument(
