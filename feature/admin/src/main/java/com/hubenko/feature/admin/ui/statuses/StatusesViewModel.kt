@@ -43,7 +43,13 @@ class StatusesViewModel @Inject constructor(
     private fun loadStatusTypes() {
         viewModelScope.launch {
             getStatusTypesUseCase().collectLatest { types ->
-                updateState { copy(availableStatusTypes = types.map { it.toStatusTypeUi() }) }
+                val statusTypes = types.map { it.toStatusTypeUi() }
+                updateState {
+                    copy(
+                        availableStatusTypes = statusTypes,
+                        employeeGroups = buildGroups(statuses, filterDateFrom, filterDateTo, filterEmployeeIds, filterStatusTypes, statusTypes)
+                    )
+                }
             }
         }
     }
@@ -84,8 +90,10 @@ class StatusesViewModel @Inject constructor(
         from: Long?,
         to: Long?,
         employeeIds: Set<String> = viewState.value.filterEmployeeIds,
-        statusTypes: Set<String> = viewState.value.filterStatusTypes
+        statusTypes: Set<String> = viewState.value.filterStatusTypes,
+        availableTypes: List<StatusTypeUi> = viewState.value.availableStatusTypes
     ): List<EmployeeStatusesGroup> {
+        val labelByType = availableTypes.associate { it.type to it.label }
         val filtered = allStatuses
             .let { list -> if (from != null && to != null) list.filter { it.startTime in from..to } else list }
             .let { list -> if (employeeIds.isNotEmpty()) list.filter { it.employeeId in employeeIds } else list }
@@ -100,7 +108,9 @@ class StatusesViewModel @Inject constructor(
                 EmployeeStatusesGroup(
                     employeeId = employeeId,
                     employeeName = employeeName,
-                    statuses = statuses.sortedByDescending { it.startTime },
+                    statuses = statuses
+                        .sortedByDescending { it.startTime }
+                        .map { it.copy(statusLabel = labelByType[it.status] ?: it.status) },
                     isExpanded = expandedByEmployeeId[employeeId] ?: false
                 )
             }

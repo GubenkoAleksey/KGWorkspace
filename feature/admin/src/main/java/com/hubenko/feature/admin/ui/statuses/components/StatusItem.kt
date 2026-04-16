@@ -1,7 +1,9 @@
 package com.hubenko.feature.admin.ui.statuses.components
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import com.hubenko.core.presentation.theme.secondaryText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
@@ -24,6 +26,10 @@ fun StatusItem(
 
     Card(
         modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -36,7 +42,7 @@ fun StatusItem(
                 Spacer(modifier = Modifier.height(4.dp))
             }
             Text(
-                text = "Статус: ${status.status}",
+                text = "Статус: ${status.statusLabel}",
                 style = MaterialTheme.typography.bodyLarge
             )
             if (!status.note.isNullOrBlank()) {
@@ -45,7 +51,7 @@ fun StatusItem(
                     text = "Примітка: ${status.note}",
                     style = MaterialTheme.typography.bodyMedium,
                     fontStyle = FontStyle.Italic,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.secondaryText()
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -55,12 +61,14 @@ fun StatusItem(
             ) {
                 Text(
                     text = "Початок: $startString",
-                    style = MaterialTheme.typography.labelSmall
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.secondaryText()
                 )
                 if (endString != null) {
                     Text(
                         text = "Кінець: $endString",
-                        style = MaterialTheme.typography.labelSmall
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.secondaryText()
                     )
                 }
             }

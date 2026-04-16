@@ -7,6 +7,7 @@ data class EmployeeStatusUi(
     val employeeId: String,
     val employeeFullName: String?,
     val status: String,
+    val statusLabel: String = status,
     val note: String? = null,
     val startTime: Long,
     val endTime: Long? = null,
