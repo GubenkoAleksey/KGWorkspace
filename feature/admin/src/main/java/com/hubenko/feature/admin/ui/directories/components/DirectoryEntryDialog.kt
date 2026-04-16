@@ -5,6 +5,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
@@ -23,14 +24,16 @@ fun DirectoryEntryDialog(
     isKeyEditable: Boolean = true,
     valueLabel: String? = null,
     initialValue: String = "",
-    onSave: (key: String, label: String, value: String) -> Unit,
+    initialIsSystem: Boolean = false,
+    onSave: (key: String, label: String, value: String, isSystem: Boolean) -> Unit,
     onDismiss: () -> Unit
 ) {
     var key by remember { mutableStateOf(initialKey) }
     var label by remember { mutableStateOf(initialLabel) }
     var value by remember { mutableStateOf(initialValue) }
+    var isSystem by remember { mutableStateOf(initialIsSystem) }
 
-    val isValueValid = valueLabel == null || value.toDoubleOrNull() != null
+    val isValueValid = valueLabel == null || value.replace(',', '.').toDoubleOrNull() != null
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -79,16 +82,31 @@ fun DirectoryEntryDialog(
                         label = { Text(valueLabel) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        isError = value.isNotEmpty() && value.toDoubleOrNull() == null,
+                        isError = value.isNotEmpty() && value.replace(',', '.').toDoubleOrNull() == null,
                         colors = fieldColors,
                         modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Системний запис",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Switch(
+                        checked = isSystem,
+                        onCheckedChange = { isSystem = it },
+                        enabled = isKeyEditable
                     )
                 }
             }
         },
         confirmButton = {
             TextButton(
-                onClick = { onSave(key.trim(), label.trim(), value.trim()) },
+                onClick = { onSave(key.trim(), label.trim(), value.trim(), isSystem) },
                 enabled = key.isNotBlank() && label.isNotBlank() && isValueValid
                         && (valueLabel == null || value.isNotBlank())
             ) {
@@ -111,7 +129,7 @@ private fun DirectoryEntryDialogAddPreview() {
             title = "Додати тип статусу",
             keyLabel = "Ключ (тип)",
             labelLabel = "Назва",
-            onSave = { _, _, _ -> },
+            onSave = { _, _, _, _ -> },
             onDismiss = {}
         )
     }
@@ -128,7 +146,7 @@ private fun DirectoryEntryDialogEditPreview() {
             initialKey = "USER",
             initialLabel = "Працівник",
             isKeyEditable = false,
-            onSave = { _, _, _ -> },
+            onSave = { _, _, _, _ -> },
             onDismiss = {}
         )
     }
@@ -147,7 +165,7 @@ private fun DirectoryEntryDialogWithValuePreview() {
             initialLabel = "200 грн/год",
             initialValue = "200.0",
             isKeyEditable = false,
-            onSave = { _, _, _ -> },
+            onSave = { _, _, _, _ -> },
             onDismiss = {}
         )
     }

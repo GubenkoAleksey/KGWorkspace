@@ -8,6 +8,7 @@ package com.hubenko.domain.model
  */
 data class Role(
     val id: String,
-    val label: String
+    val label: String,
+    val isSystem: Boolean = false
 )
 

@@ -12,6 +12,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hubenko.core.presentation.theme.CoreTheme
+import com.hubenko.core.presentation.theme.secondaryText
 import com.hubenko.feature.admin.R
 
 @Composable
@@ -21,7 +22,8 @@ fun DirectoryItemRow(
     onEdit: () -> Unit,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
-    value: String? = null
+    value: String? = null,
+    isSystem: Boolean = false
 ) {
     Row(
         modifier = modifier
@@ -37,7 +39,7 @@ fun DirectoryItemRow(
             Text(
                 text = if (value != null) "$keyValue · $value" else keyValue,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.secondaryText()
             )
         }
         IconButton(onClick = onEdit) {
@@ -47,12 +49,14 @@ fun DirectoryItemRow(
                 tint = MaterialTheme.colorScheme.primary
             )
         }
-        IconButton(onClick = onDelete) {
-            Icon(
-                imageVector = Icons.Default.Delete,
-                contentDescription = stringResource(R.string.cd_delete),
-                tint = MaterialTheme.colorScheme.error
-            )
+        if (!isSystem) {
+            IconButton(onClick = onDelete) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = stringResource(R.string.cd_delete),
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
         }
     }
 }

@@ -45,4 +45,10 @@ interface EmployeeStatusDao {
 
     @Query("SELECT * FROM employee_status WHERE employeeId = :employeeId AND startTime >= :startOfDay AND status = 'Sick' LIMIT 1")
     suspend fun getSickStatusForToday(employeeId: String, startOfDay: Long): EmployeeStatusEntity?
+
+    @Query("SELECT COUNT(*) FROM employee_status WHERE status = :statusType AND isSynced = 0")
+    suspend fun countUnsyncedByStatusType(statusType: String): Int
+
+    @Query("UPDATE employee_status SET status = :newType WHERE status = :oldType")
+    suspend fun replaceStatusType(oldType: String, newType: String)
 }

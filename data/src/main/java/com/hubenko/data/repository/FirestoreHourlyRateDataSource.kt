@@ -1,6 +1,8 @@
 package com.hubenko.data.repository
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.hubenko.data.local.dao.HourlyRateDao
+import com.hubenko.data.local.entity.HourlyRateEntity
 import com.hubenko.data.mapper.toHourlyRate
 import com.hubenko.data.remote.document.HourlyRateDocument
 import com.hubenko.data.util.firestoreSafeCall
@@ -16,16 +18,11 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class FirestoreHourlyRateDataSource @Inject constructor(
+    private val dao: HourlyRateDao,
     firestore: FirebaseFirestore
 ) : HourlyRateDataSource {
 
     private val collection = firestore.collection("hourly_rates")
-
-    private val migrationDefaults = mapOf(
-        "RATE_50" to 50.0,
-        "RATE_100" to 100.0,
-        "RATE_150" to 150.0
-    )
 
     override fun getHourlyRates(): Flow<List<HourlyRate>> = callbackFlow {
         val scope = this
@@ -36,27 +33,19 @@ class FirestoreHourlyRateDataSource @Inject constructor(
                 if (snapshot.isEmpty) {
                     scope.launch { seedDefaults() }
                 } else {
-                    val docsNeedingMigration = snapshot.documents.filter { !it.contains("value") }
-                    if (docsNeedingMigration.isNotEmpty()) {
-                        scope.launch {
-                            docsNeedingMigration.forEach { doc ->
-                                val default = migrationDefaults[doc.id] ?: 0.0
-                                collection.document(doc.id).update("value", default).await()
-                            }
-                        }
-                    }
                     val rates = snapshot.documents.mapNotNull { doc ->
                         doc.toObject(HourlyRateDocument::class.java)?.toHourlyRate()
                     }
+                    scope.launch { dao.insertAll(rates.map { HourlyRateEntity(id = it.id, label = it.label, value = it.value) }) }
                     trySend(rates)
                 }
             }
         awaitClose { listener.remove() }
     }
 
-    override suspend fun saveHourlyRate(id: String, label: String, value: Double): EmptyResult<DataError.Firestore> =
+    override suspend fun saveHourlyRate(id: String, label: String, value: Double, isSystem: Boolean): EmptyResult<DataError.Firestore> =
         firestoreSafeCall {
-            collection.document(id).set(HourlyRateDocument(id = id, label = label, value = value)).await()
+            collection.document(id).set(HourlyRateDocument(id = id, label = label, value = value, isSystem = isSystem)).await()
         }
 
     override suspend fun deleteHourlyRate(id: String): EmptyResult<DataError.Firestore> =
@@ -65,13 +54,10 @@ class FirestoreHourlyRateDataSource @Inject constructor(
         }
 
     private suspend fun seedDefaults() {
-        val defaults = listOf(
-            Triple("RATE_50", "50 грн/год", 50.0),
-            Triple("RATE_100", "100 грн/год", 100.0),
-            Triple("RATE_150", "150 грн/год", 150.0)
-        )
-        defaults.forEach { (id, label, value) ->
-            collection.document(id).set(HourlyRateDocument(id = id, label = label, value = value)).await()
-        }
+        listOf(
+            HourlyRateDocument(id = "RATE_50", label = "50 грн/год", value = 50.0),
+            HourlyRateDocument(id = "RATE_100", label = "100 грн/год", value = 100.0),
+            HourlyRateDocument(id = "RATE_150", label = "150 грн/год", value = 150.0)
+        ).forEach { collection.document(it.id).set(it).await() }
     }
 }

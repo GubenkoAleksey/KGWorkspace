@@ -8,6 +8,6 @@ import javax.inject.Inject
 class SaveBaseRateUseCase @Inject constructor(
     private val repository: BaseRateDataSource
 ) {
-    suspend operator fun invoke(id: String, label: String, value: Double): EmptyResult<DataError.Firestore> =
-        repository.saveBaseRate(id, label, value)
+    suspend operator fun invoke(id: String, label: String, value: Double, isSystem: Boolean): EmptyResult<DataError.Firestore> =
+        repository.saveBaseRate(id, label, value, isSystem)
 }

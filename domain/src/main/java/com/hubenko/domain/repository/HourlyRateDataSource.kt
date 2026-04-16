@@ -7,6 +7,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface HourlyRateDataSource {
     fun getHourlyRates(): Flow<List<HourlyRate>>
-    suspend fun saveHourlyRate(id: String, label: String, value: Double): EmptyResult<DataError.Firestore>
+    suspend fun saveHourlyRate(id: String, label: String, value: Double, isSystem: Boolean): EmptyResult<DataError.Firestore>
     suspend fun deleteHourlyRate(id: String): EmptyResult<DataError.Firestore>
 }

@@ -1,6 +1,9 @@
 package com.hubenko.data.mapper
 
+import com.hubenko.data.local.entity.BaseRateEntity
 import com.hubenko.data.remote.document.BaseRateDocument
 import com.hubenko.domain.model.BaseRate
 
-fun BaseRateDocument.toBaseRate() = BaseRate(id = id, label = label, value = value)
+fun BaseRateDocument.toBaseRate() = BaseRate(id = id, label = label, value = value, isSystem = isSystem)
+
+fun BaseRateDocument.toBaseRateEntity() = BaseRateEntity(id = id, label = label, value = value)

@@ -8,6 +8,6 @@ import javax.inject.Inject
 class SaveStatusTypeUseCase @Inject constructor(
     private val repository: StatusTypeDataSource
 ) {
-    suspend operator fun invoke(type: String, label: String): EmptyResult<DataError.Firestore> =
-        repository.saveStatusType(type, label)
+    suspend operator fun invoke(type: String, label: String, isSystem: Boolean): EmptyResult<DataError.Firestore> =
+        repository.saveStatusType(type, label, isSystem)
 }

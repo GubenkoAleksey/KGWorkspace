@@ -8,6 +8,6 @@ import javax.inject.Inject
 class SaveRoleUseCase @Inject constructor(
     private val repository: RoleDataSource
 ) {
-    suspend operator fun invoke(id: String, label: String): EmptyResult<DataError.Firestore> =
-        repository.saveRole(id, label)
+    suspend operator fun invoke(id: String, label: String, isSystem: Boolean): EmptyResult<DataError.Firestore> =
+        repository.saveRole(id, label, isSystem)
 }

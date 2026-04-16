@@ -5,8 +5,10 @@ import androidx.room.Room
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hubenko.data.local.AppDatabase
+import com.hubenko.data.local.dao.BaseRateDao
 import com.hubenko.data.local.dao.EmployeeDao
 import com.hubenko.data.local.dao.EmployeeStatusDao
+import com.hubenko.data.local.dao.HourlyRateDao
 import com.hubenko.data.local.dao.ReminderSettingsDao
 import com.hubenko.data.local.dao.StatusTypeDao
 import dagger.Module
@@ -51,4 +53,10 @@ object CoreDataModule {
 
     @Provides
     fun provideStatusTypeDao(db: AppDatabase): StatusTypeDao = db.statusTypeDao()
+
+    @Provides
+    fun provideBaseRateDao(db: AppDatabase): BaseRateDao = db.baseRateDao()
+
+    @Provides
+    fun provideHourlyRateDao(db: AppDatabase): HourlyRateDao = db.hourlyRateDao()
 }

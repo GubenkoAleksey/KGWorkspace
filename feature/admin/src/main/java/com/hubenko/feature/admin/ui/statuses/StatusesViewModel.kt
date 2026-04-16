@@ -10,6 +10,7 @@ import com.hubenko.feature.admin.R
 import com.hubenko.feature.admin.ui.model.EmployeeStatusUi
 import com.hubenko.feature.admin.ui.model.toEmployeeStatusUi
 import com.hubenko.feature.admin.ui.model.StatusTypeUi
+import com.hubenko.feature.admin.ui.model.toStatusTypeUi
 import com.hubenko.domain.repository.StatusRepository
 import com.hubenko.domain.usecase.GetAllStatusesUseCase
 import com.hubenko.domain.usecase.GetStatusTypesUseCase
@@ -42,7 +43,7 @@ class StatusesViewModel @Inject constructor(
     private fun loadStatusTypes() {
         viewModelScope.launch {
             getStatusTypesUseCase().collectLatest { types ->
-                updateState { copy(availableStatusTypes = types.map { StatusTypeUi(it.type, it.label) }) }
+                updateState { copy(availableStatusTypes = types.map { it.toStatusTypeUi() }) }
             }
         }
     }

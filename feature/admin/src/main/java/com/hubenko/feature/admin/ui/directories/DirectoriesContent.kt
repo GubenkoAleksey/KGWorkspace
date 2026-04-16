@@ -8,6 +8,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,11 +46,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hubenko.core.presentation.components.AppTopBar
+import java.util.Locale
 import com.hubenko.core.presentation.theme.CoreTheme
 import com.hubenko.core.presentation.theme.secondaryText
 import com.hubenko.feature.admin.R
 import com.hubenko.feature.admin.ui.directories.components.DirectoryEntryDialog
 import com.hubenko.feature.admin.ui.directories.components.DirectoryItemRow
+import com.hubenko.feature.admin.ui.directories.components.ReplaceAndDeleteRoleDialog
+import com.hubenko.feature.admin.ui.directories.components.ReplaceAndDeleteStatusTypeDialog
 import com.hubenko.feature.admin.ui.model.BaseRateUi
 import com.hubenko.feature.admin.ui.model.HourlyRateUi
 import com.hubenko.feature.admin.ui.model.RoleUi
@@ -68,20 +72,13 @@ fun DirectoriesContent(
         },
         snackbarHost = { snackbarHost() }
     ) { paddingValues ->
-        if (state.isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
+                modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
                 item(key = "header_status_types") {
@@ -114,20 +111,9 @@ fun DirectoriesContent(
                                     DirectoryItemRow(
                                         label = item.label,
                                         keyValue = item.type,
-                                        onEdit = {
-                                            onIntent(
-                                                DirectoriesIntent.OnEditStatusTypeClick(
-                                                    item
-                                                )
-                                            )
-                                        },
-                                        onDelete = {
-                                            onIntent(
-                                                DirectoriesIntent.OnDeleteStatusTypeClick(
-                                                    item
-                                                )
-                                            )
-                                        }
+                                        isSystem = item.isSystem,
+                                        onEdit = { onIntent(DirectoriesIntent.OnEditStatusTypeClick(item)) },
+                                        onDelete = { onIntent(DirectoriesIntent.OnDeleteStatusTypeClick(item)) }
                                     )
                                     HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                                 }
@@ -169,14 +155,9 @@ fun DirectoriesContent(
                                     DirectoryItemRow(
                                         label = item.label,
                                         keyValue = item.id,
+                                        isSystem = item.isSystem,
                                         onEdit = { onIntent(DirectoriesIntent.OnEditRoleClick(item)) },
-                                        onDelete = {
-                                            onIntent(
-                                                DirectoriesIntent.OnDeleteRoleClick(
-                                                    item
-                                                )
-                                            )
-                                        }
+                                        onDelete = { onIntent(DirectoriesIntent.OnDeleteRoleClick(item)) }
                                     )
                                     HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                                 }
@@ -218,7 +199,8 @@ fun DirectoriesContent(
                                     DirectoryItemRow(
                                         label = item.label,
                                         keyValue = item.id,
-                                        value = "%.2f грн".format(item.value),
+                                        value = String.format(Locale("uk"), "%.2f грн", item.value),
+                                        isSystem = item.isSystem,
                                         onEdit = { onIntent(DirectoriesIntent.OnEditBaseRateClick(item)) },
                                         onDelete = { onIntent(DirectoriesIntent.OnDeleteBaseRateClick(item)) }
                                     )
@@ -262,7 +244,8 @@ fun DirectoriesContent(
                                     DirectoryItemRow(
                                         label = item.label,
                                         keyValue = item.id,
-                                        value = "%.2f грн/год".format(item.value),
+                                        value = String.format(Locale("uk"), "%.2f грн/год", item.value),
+                                        isSystem = item.isSystem,
                                         onEdit = { onIntent(DirectoriesIntent.OnEditHourlyRateClick(item)) },
                                         onDelete = { onIntent(DirectoriesIntent.OnDeleteHourlyRateClick(item)) }
                                     )
@@ -271,6 +254,16 @@ fun DirectoriesContent(
                             }
                         }
                     }
+                }
+            }
+            if (state.isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
             }
         }
@@ -283,8 +276,9 @@ fun DirectoriesContent(
             labelLabel = "Назва",
             initialKey = dialog.item?.type ?: "",
             initialLabel = dialog.item?.label ?: "",
+            initialIsSystem = dialog.item?.isSystem ?: false,
             isKeyEditable = dialog.item == null,
-            onSave = { key, label, _ -> onIntent(DirectoriesIntent.OnSaveStatusType(key, label)) },
+            onSave = { key, label, _, isSystem -> onIntent(DirectoriesIntent.OnSaveStatusType(key, label, isSystem)) },
             onDismiss = { onIntent(DirectoriesIntent.OnDismissDialog) }
         )
 
@@ -294,8 +288,9 @@ fun DirectoriesContent(
             labelLabel = "Назва",
             initialKey = dialog.item?.id ?: "",
             initialLabel = dialog.item?.label ?: "",
+            initialIsSystem = dialog.item?.isSystem ?: false,
             isKeyEditable = dialog.item == null,
-            onSave = { key, label, _ -> onIntent(DirectoriesIntent.OnSaveRole(key, label)) },
+            onSave = { key, label, _, isSystem -> onIntent(DirectoriesIntent.OnSaveRole(key, label, isSystem)) },
             onDismiss = { onIntent(DirectoriesIntent.OnDismissDialog) }
         )
 
@@ -315,6 +310,16 @@ fun DirectoriesContent(
             }
         )
 
+        is DirectoryDialog.ReplaceAndDeleteStatusType -> ReplaceAndDeleteStatusTypeDialog(
+            label = dialog.label,
+            count = dialog.count,
+            availableTypes = dialog.availableTypes,
+            onConfirm = { newType ->
+                onIntent(DirectoriesIntent.OnReplaceAndDeleteStatusType(dialog.oldType, newType))
+            },
+            onDismiss = { onIntent(DirectoriesIntent.OnDismissDialog) }
+        )
+
         is DirectoryDialog.ConfirmDeleteRole -> AlertDialog(
             onDismissRequest = { onIntent(DirectoriesIntent.OnDismissDialog) },
             title = { Text("Видалити роль?") },
@@ -331,6 +336,16 @@ fun DirectoriesContent(
             }
         )
 
+        is DirectoryDialog.ReplaceAndDeleteRole -> ReplaceAndDeleteRoleDialog(
+            label = dialog.label,
+            count = dialog.count,
+            availableRoles = dialog.availableRoles,
+            onConfirm = { newId ->
+                onIntent(DirectoriesIntent.OnReplaceAndDeleteRole(dialog.oldId, newId))
+            },
+            onDismiss = { onIntent(DirectoriesIntent.OnDismissDialog) }
+        )
+
         is DirectoryDialog.EditBaseRate -> DirectoryEntryDialog(
             title = if (dialog.item == null) "Додати ставку" else "Редагувати ставку",
             keyLabel = "ID ставки",
@@ -338,10 +353,11 @@ fun DirectoriesContent(
             valueLabel = "Сума (грн)",
             initialKey = dialog.item?.id ?: "",
             initialLabel = dialog.item?.label ?: "",
-            initialValue = dialog.item?.value?.let { "%.2f".format(it) } ?: "",
+            initialValue = dialog.item?.value?.let { String.format(Locale("uk"), "%.2f", it) } ?: "",
+            initialIsSystem = dialog.item?.isSystem ?: false,
             isKeyEditable = dialog.item == null,
-            onSave = { key, label, value ->
-                onIntent(DirectoriesIntent.OnSaveBaseRate(key, label, value.toDoubleOrNull() ?: 0.0))
+            onSave = { key, label, value, isSystem ->
+                onIntent(DirectoriesIntent.OnSaveBaseRate(key, label, value.replace(',', '.').toDoubleOrNull() ?: 0.0, isSystem))
             },
             onDismiss = { onIntent(DirectoriesIntent.OnDismissDialog) }
         )
@@ -369,10 +385,11 @@ fun DirectoriesContent(
             valueLabel = "Значення (грн/год)",
             initialKey = dialog.item?.id ?: "",
             initialLabel = dialog.item?.label ?: "",
-            initialValue = dialog.item?.value?.let { "%.2f".format(it) } ?: "",
+            initialValue = dialog.item?.value?.let { String.format(Locale("uk"), "%.2f", it) } ?: "",
+            initialIsSystem = dialog.item?.isSystem ?: false,
             isKeyEditable = dialog.item == null,
-            onSave = { key, label, value ->
-                onIntent(DirectoriesIntent.OnSaveHourlyRate(key, label, value.toDoubleOrNull() ?: 0.0))
+            onSave = { key, label, value, isSystem ->
+                onIntent(DirectoriesIntent.OnSaveHourlyRate(key, label, value.replace(',', '.').toDoubleOrNull() ?: 0.0, isSystem))
             },
             onDismiss = { onIntent(DirectoriesIntent.OnDismissDialog) }
         )
@@ -462,7 +479,7 @@ private fun DirectoriesContentPreview() {
                 ),
                 roles = listOf(
                     RoleUi("USER", "Працівник"),
-                    RoleUi("ADMIN", "Адміністратор")
+                    RoleUi("ADMIN", "Адміністратор", isSystem = true)
                 ),
                 baseRates = listOf(
                     BaseRateUi("FULL_TIME", "Повна ставка", 1.0),
