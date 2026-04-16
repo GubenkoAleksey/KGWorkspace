@@ -11,7 +11,11 @@ fun EmployeeDocument.toEmployee() = Employee(
     middleName = middleName,
     phoneNumber = phoneNumber,
     role = role,
-    email = email
+    email = email,
+    baseRateId = baseRateId,
+    baseRateValue = baseRateValue,
+    hourlyRateId = hourlyRateId,
+    hourlyRateValue = hourlyRateValue
 )
 
 fun EmployeeDocument.toEmployeeEntity(uid: String = id) = EmployeeEntity(
@@ -21,7 +25,11 @@ fun EmployeeDocument.toEmployeeEntity(uid: String = id) = EmployeeEntity(
     middleName = middleName,
     phoneNumber = phoneNumber,
     role = role,
-    email = email
+    email = email,
+    baseRateId = baseRateId,
+    baseRateValue = baseRateValue,
+    hourlyRateId = hourlyRateId,
+    hourlyRateValue = hourlyRateValue
 )
 
 fun Employee.toDocument() = EmployeeDocument(
@@ -31,5 +39,9 @@ fun Employee.toDocument() = EmployeeDocument(
     middleName = middleName,
     phoneNumber = phoneNumber,
     role = role,
-    email = email
+    email = email,
+    baseRateId = baseRateId,
+    baseRateValue = baseRateValue,
+    hourlyRateId = hourlyRateId,
+    hourlyRateValue = hourlyRateValue
 )

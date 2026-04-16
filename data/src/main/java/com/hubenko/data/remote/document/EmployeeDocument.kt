@@ -7,5 +7,9 @@ data class EmployeeDocument(
     val middleName: String = "",
     val phoneNumber: String = "",
     val role: String = "USER",
-    val email: String = ""
+    val email: String = "",
+    val baseRateId: String = "",
+    val baseRateValue: Double = 0.0,
+    val hourlyRateId: String = "",
+    val hourlyRateValue: Double = 0.0
 )

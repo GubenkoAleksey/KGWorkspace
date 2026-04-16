@@ -63,13 +63,33 @@ fun RegisterEmployeeContent(
                     phone = state.phone,
                     role = state.role,
                     roles = state.roles,
+                    baseRates = state.baseRates,
+                    hourlyRates = state.hourlyRates,
+                    baseRateId = state.baseRateId,
+                    baseRateCustomText = if (state.baseRateId.isEmpty() && state.baseRateValue != 0.0)
+                        state.baseRateValue.toString() else "",
+                    hourlyRateId = state.hourlyRateId,
+                    hourlyRateCustomText = if (state.hourlyRateId.isEmpty() && state.hourlyRateValue != 0.0)
+                        state.hourlyRateValue.toString() else "",
                     onEmailChange = { onIntent(RegisterEmployeeIntent.EmailChanged(it)) },
                     onPasswordChange = { onIntent(RegisterEmployeeIntent.PasswordChanged(it)) },
                     onLastNameChange = { onIntent(RegisterEmployeeIntent.LastNameChanged(it)) },
                     onFirstNameChange = { onIntent(RegisterEmployeeIntent.FirstNameChanged(it)) },
                     onMiddleNameChange = { onIntent(RegisterEmployeeIntent.MiddleNameChanged(it)) },
                     onPhoneChange = { onIntent(RegisterEmployeeIntent.PhoneChanged(it)) },
-                    onRoleChange = { onIntent(RegisterEmployeeIntent.RoleChanged(it)) }
+                    onRoleChange = { onIntent(RegisterEmployeeIntent.RoleChanged(it)) },
+                    onBaseRateCatalogSelected = { id, value ->
+                        onIntent(RegisterEmployeeIntent.BaseRateChanged(id, value))
+                    },
+                    onBaseRateCustomValueChange = {
+                        onIntent(RegisterEmployeeIntent.BaseRateCustomValueChanged(it))
+                    },
+                    onHourlyRateCatalogSelected = { id, value ->
+                        onIntent(RegisterEmployeeIntent.HourlyRateChanged(id, value))
+                    },
+                    onHourlyRateCustomValueChange = {
+                        onIntent(RegisterEmployeeIntent.HourlyRateCustomValueChanged(it))
+                    }
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 PrimaryActionButton(

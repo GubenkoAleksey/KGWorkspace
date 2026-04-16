@@ -5,8 +5,12 @@ import com.hubenko.core.presentation.BaseViewModel
 import com.hubenko.core.presentation.UiText
 import com.hubenko.core.presentation.toUiText
 import com.hubenko.feature.admin.R
+import com.hubenko.feature.admin.ui.model.toBaseRateUi
+import com.hubenko.feature.admin.ui.model.toHourlyRateUi
 import com.hubenko.feature.admin.ui.model.toRoleUi
 import com.hubenko.domain.model.Employee
+import com.hubenko.domain.usecase.GetBaseRatesUseCase
+import com.hubenko.domain.usecase.GetHourlyRatesUseCase
 import com.hubenko.domain.usecase.GetRolesUseCase
 import com.hubenko.domain.usecase.SignUpUseCase
 import com.hubenko.domain.util.onFailure
@@ -19,13 +23,15 @@ import javax.inject.Inject
 @HiltViewModel
 class RegisterEmployeeViewModel @Inject constructor(
     private val signUpUseCase: SignUpUseCase,
-    private val getRolesUseCase: GetRolesUseCase
+    private val getRolesUseCase: GetRolesUseCase,
+    private val getBaseRatesUseCase: GetBaseRatesUseCase,
+    private val getHourlyRatesUseCase: GetHourlyRatesUseCase
 ) : BaseViewModel<RegisterEmployeeState, RegisterEmployeeIntent, RegisterEmployeeEffect>(
     RegisterEmployeeState()
 ) {
 
     init {
-        loadRoles()
+        loadData()
     }
 
     override fun onIntent(intent: RegisterEmployeeIntent) {
@@ -37,19 +43,43 @@ class RegisterEmployeeViewModel @Inject constructor(
             is RegisterEmployeeIntent.MiddleNameChanged -> updateState { copy(middleName = intent.value) }
             is RegisterEmployeeIntent.PhoneChanged -> updateState { copy(phone = intent.value) }
             is RegisterEmployeeIntent.RoleChanged -> updateState { copy(role = intent.value) }
+            is RegisterEmployeeIntent.BaseRateChanged -> updateState {
+                copy(baseRateId = intent.id, baseRateValue = intent.value)
+            }
+            is RegisterEmployeeIntent.HourlyRateChanged -> updateState {
+                copy(hourlyRateId = intent.id, hourlyRateValue = intent.value)
+            }
+            is RegisterEmployeeIntent.BaseRateCustomValueChanged -> updateState {
+                copy(baseRateId = "", baseRateValue = intent.value.toDoubleOrNull() ?: 0.0)
+            }
+            is RegisterEmployeeIntent.HourlyRateCustomValueChanged -> updateState {
+                copy(hourlyRateId = "", hourlyRateValue = intent.value.toDoubleOrNull() ?: 0.0)
+            }
             is RegisterEmployeeIntent.Submit -> registerEmployee()
             is RegisterEmployeeIntent.NavigateBack -> sendEffect(RegisterEmployeeEffect.NavigateBack)
         }
     }
 
-    private fun loadRoles() {
+    private fun loadData() {
         viewModelScope.launch {
-            getRolesUseCase().collectLatest { roles ->
-                updateState {
-                    copy(
-                        roles = roles.map { it.toRoleUi() },
-                        role = if (role.isBlank() && roles.isNotEmpty()) roles.first().id else role
-                    )
+            launch {
+                getRolesUseCase().collectLatest { roles ->
+                    updateState {
+                        copy(
+                            roles = roles.map { it.toRoleUi() },
+                            role = if (role.isBlank() && roles.isNotEmpty()) roles.first().id else role
+                        )
+                    }
+                }
+            }
+            launch {
+                getBaseRatesUseCase().collectLatest { rates ->
+                    updateState { copy(baseRates = rates.map { it.toBaseRateUi() }) }
+                }
+            }
+            launch {
+                getHourlyRatesUseCase().collectLatest { rates ->
+                    updateState { copy(hourlyRates = rates.map { it.toHourlyRateUi() }) }
                 }
             }
         }
@@ -66,7 +96,11 @@ class RegisterEmployeeViewModel @Inject constructor(
                 firstName = state.firstName,
                 middleName = state.middleName,
                 phoneNumber = state.phone,
-                role = state.role
+                role = state.role,
+                baseRateId = state.baseRateId,
+                baseRateValue = state.baseRateValue,
+                hourlyRateId = state.hourlyRateId,
+                hourlyRateValue = state.hourlyRateValue
             )
             signUpUseCase(employee, state.password)
                 .onSuccess {

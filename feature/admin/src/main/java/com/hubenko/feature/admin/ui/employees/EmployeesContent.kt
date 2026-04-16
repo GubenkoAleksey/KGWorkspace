@@ -91,11 +91,16 @@ fun EmployeesContent(
             ) {
                 items(state.employees, key = { it.id }) { employee ->
                     val roleLabel = state.roles.firstOrNull { it.id == employee.role }?.label
+                    val baseRateLabel = resolveRateLabel(employee.baseRateValue, "грн")
+                    val hourlyRateLabel = resolveRateLabel(employee.hourlyRateValue, "грн/год")
                     EmployeeItem(
                         employee = employee,
                         roleLabel = roleLabel,
+                        baseRateLabel = baseRateLabel,
+                        hourlyRateLabel = hourlyRateLabel,
                         onEdit = { onIntent(EmployeesIntent.OnEditEmployeeClick(employee)) },
-                        onDelete = { onIntent(EmployeesIntent.OnDeleteEmployeeClick(employee)) }
+                        onDelete = { onIntent(EmployeesIntent.OnDeleteEmployeeClick(employee)) },
+                        onReminderClick = { onIntent(EmployeesIntent.OnReminderClick(employee.id)) }
                     )
                 }
             }
@@ -106,6 +111,8 @@ fun EmployeesContent(
         EmployeeDialog(
             employee = state.editingEmployee,
             roles = state.roles,
+            baseRates = state.baseRates,
+            hourlyRates = state.hourlyRates,
             onDismiss = { onIntent(EmployeesIntent.OnDismissDialog) },
             onSave = { employee -> onIntent(EmployeesIntent.OnSaveEmployee(employee)) }
         )
@@ -147,6 +154,11 @@ private fun EmployeesContentLoadingPreview() {
             snackbarHost = { SnackbarHost(hostState = androidx.compose.material3.SnackbarHostState()) }
         )
     }
+}
+
+private fun resolveRateLabel(value: Double, unit: String): String? {
+    if (value == 0.0) return null
+    return "%.2f %s".format(value, unit)
 }
 
 @Preview(showBackground = true, name = "Empty State")

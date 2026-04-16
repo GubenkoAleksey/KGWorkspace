@@ -10,7 +10,11 @@ fun EmployeeEntity.toDomain() = Employee(
     middleName = middleName,
     phoneNumber = phoneNumber,
     role = role,
-    email = email
+    email = email,
+    baseRateId = baseRateId,
+    baseRateValue = baseRateValue,
+    hourlyRateId = hourlyRateId,
+    hourlyRateValue = hourlyRateValue
 )
 
 fun Employee.toEntity() = EmployeeEntity(
@@ -20,5 +24,9 @@ fun Employee.toEntity() = EmployeeEntity(
     middleName = middleName,
     phoneNumber = phoneNumber,
     role = role,
-    email = email
+    email = email,
+    baseRateId = baseRateId,
+    baseRateValue = baseRateValue,
+    hourlyRateId = hourlyRateId,
+    hourlyRateValue = hourlyRateValue
 )

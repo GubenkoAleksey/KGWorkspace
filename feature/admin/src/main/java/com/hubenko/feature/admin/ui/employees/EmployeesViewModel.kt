@@ -6,16 +6,23 @@ import com.hubenko.core.presentation.UiText
 import com.hubenko.feature.admin.R
 import com.hubenko.feature.admin.ui.model.EmployeeUi
 import com.hubenko.feature.admin.ui.model.toDomain
+import com.hubenko.feature.admin.ui.model.toBaseRateUi
 import com.hubenko.feature.admin.ui.model.toEmployeeUi
+import com.hubenko.feature.admin.ui.model.toHourlyRateUi
+import com.hubenko.feature.admin.ui.model.toReminderSettingsUi
 import com.hubenko.feature.admin.ui.model.toRoleUi
 import com.hubenko.domain.usecase.DeleteEmployeeUseCase
 import com.hubenko.domain.usecase.GetAllEmployeesUseCase
+import com.hubenko.domain.usecase.GetAllReminderSettingsUseCase
+import com.hubenko.domain.usecase.GetBaseRatesUseCase
+import com.hubenko.domain.usecase.GetHourlyRatesUseCase
 import com.hubenko.domain.usecase.GetRolesUseCase
 import com.hubenko.domain.usecase.SaveEmployeeUseCase
 import com.hubenko.domain.util.onFailure
 import com.hubenko.domain.util.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,7 +31,10 @@ class EmployeesViewModel @Inject constructor(
     private val getAllEmployeesUseCase: GetAllEmployeesUseCase,
     private val saveEmployeeUseCase: SaveEmployeeUseCase,
     private val deleteEmployeeUseCase: DeleteEmployeeUseCase,
-    private val getRolesUseCase: GetRolesUseCase
+    private val getRolesUseCase: GetRolesUseCase,
+    private val getBaseRatesUseCase: GetBaseRatesUseCase,
+    private val getHourlyRatesUseCase: GetHourlyRatesUseCase,
+    private val getAllReminderSettingsUseCase: GetAllReminderSettingsUseCase
 ) : BaseViewModel<EmployeesState, EmployeesIntent, EmployeesEffect>(EmployeesState()) {
 
     init {
@@ -49,6 +59,9 @@ class EmployeesViewModel @Inject constructor(
             is EmployeesIntent.OnDismissDialog -> updateState {
                 copy(isEmployeeDialogOpen = false, editingEmployee = null)
             }
+            is EmployeesIntent.OnReminderClick -> sendEffect(
+                EmployeesEffect.NavigateToReminderSettings(intent.employeeId)
+            )
         }
     }
 
@@ -56,13 +69,33 @@ class EmployeesViewModel @Inject constructor(
         updateState { copy(isLoading = true) }
         viewModelScope.launch {
             launch {
-                getAllEmployeesUseCase().collectLatest { list ->
-                    updateState { copy(employees = list.map { it.toEmployeeUi() }, isLoading = false) }
+                combine(
+                    getAllEmployeesUseCase(),
+                    getAllReminderSettingsUseCase()
+                ) { employees, reminderList ->
+                    val reminderMap = reminderList.associateBy { it.employeeId }
+                    employees.map { employee ->
+                        employee.toEmployeeUi().copy(
+                            reminderSettings = reminderMap[employee.id]?.toReminderSettingsUi()
+                        )
+                    }
+                }.collectLatest { list ->
+                    updateState { copy(employees = list, isLoading = false) }
                 }
             }
             launch {
                 getRolesUseCase().collectLatest { roles ->
                     updateState { copy(roles = roles.map { it.toRoleUi() }) }
+                }
+            }
+            launch {
+                getBaseRatesUseCase().collectLatest { rates ->
+                    updateState { copy(baseRates = rates.map { it.toBaseRateUi() }) }
+                }
+            }
+            launch {
+                getHourlyRatesUseCase().collectLatest { rates ->
+                    updateState { copy(hourlyRates = rates.map { it.toHourlyRateUi() }) }
                 }
             }
         }

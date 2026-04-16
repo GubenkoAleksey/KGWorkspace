@@ -1,6 +1,7 @@
 package com.hubenko.feature.admin.ui.model
 
 import com.hubenko.domain.model.Employee
+import com.hubenko.feature.admin.ui.model.ReminderSettingsUi
 
 data class EmployeeUi(
     val id: String,
@@ -10,7 +11,12 @@ data class EmployeeUi(
     val fullName: String,
     val phoneNumber: String,
     val role: String,
-    val email: String
+    val email: String = "",
+    val baseRateId: String = "",
+    val baseRateValue: Double = 0.0,
+    val hourlyRateId: String = "",
+    val hourlyRateValue: Double = 0.0,
+    val reminderSettings: ReminderSettingsUi? = null
 )
 
 fun Employee.toEmployeeUi() = EmployeeUi(
@@ -21,7 +27,11 @@ fun Employee.toEmployeeUi() = EmployeeUi(
     fullName = listOf(lastName, firstName, middleName).filter { it.isNotBlank() }.joinToString(" "),
     phoneNumber = phoneNumber,
     role = role,
-    email = email
+    email = email,
+    baseRateId = baseRateId,
+    baseRateValue = baseRateValue,
+    hourlyRateId = hourlyRateId,
+    hourlyRateValue = hourlyRateValue
 )
 
 fun EmployeeUi.toDomain() = Employee(
@@ -31,5 +41,9 @@ fun EmployeeUi.toDomain() = Employee(
     middleName = middleName,
     phoneNumber = phoneNumber,
     role = role,
-    email = email
+    email = email,
+    baseRateId = baseRateId,
+    baseRateValue = baseRateValue,
+    hourlyRateId = hourlyRateId,
+    hourlyRateValue = hourlyRateValue
 )

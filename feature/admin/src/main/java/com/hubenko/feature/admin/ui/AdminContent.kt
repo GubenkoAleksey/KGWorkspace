@@ -25,7 +25,8 @@ fun AdminContent(
             onTabSelected = onTabSelected
         )
         AdminTab.EMPLOYEES -> EmployeesScreen(
-            onNavigateToRegister = onNavigateToRegisterEmployee
+            onNavigateToRegister = onNavigateToRegisterEmployee,
+            onNavigateToReminderSettings = onNavigateToReminderSettings
         )
         AdminTab.STATUSES -> StatusesScreen()
         AdminTab.SCHEDULE -> ScheduleScreen(

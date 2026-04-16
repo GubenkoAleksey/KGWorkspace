@@ -24,7 +24,7 @@ import com.hubenko.data.local.entity.StatusTypeEntity
         BaseRateEntity::class,
         HourlyRateEntity::class
     ],
-    version = 14,
+    version = 15,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
