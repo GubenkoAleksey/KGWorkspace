@@ -98,9 +98,7 @@ class RegisterEmployeeViewModel @Inject constructor(
                 phoneNumber = state.phone,
                 role = state.role,
                 baseRateId = state.baseRateId,
-                baseRateValue = state.baseRateValue,
-                hourlyRateId = state.hourlyRateId,
-                hourlyRateValue = state.hourlyRateValue
+                baseRateValue = state.baseRateValue
             )
             signUpUseCase(employee, state.password)
                 .onSuccess {

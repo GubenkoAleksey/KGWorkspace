@@ -7,6 +7,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.hubenko.data.local.AppDatabase
 import com.hubenko.data.local.dao.BaseRateDao
 import com.hubenko.data.local.dao.EmployeeDao
+import com.hubenko.data.local.dao.EmployeeHourlyRateDao
 import com.hubenko.data.local.dao.EmployeeStatusDao
 import com.hubenko.data.local.dao.HourlyRateDao
 import com.hubenko.data.local.dao.ReminderSettingsDao
@@ -44,6 +45,9 @@ object CoreDataModule {
 
     @Provides
     fun provideEmployeeDao(db: AppDatabase): EmployeeDao = db.employeeDao()
+
+    @Provides
+    fun provideEmployeeHourlyRateDao(db: AppDatabase): EmployeeHourlyRateDao = db.employeeHourlyRateDao()
 
     @Provides
     fun provideStatusDao(db: AppDatabase): EmployeeStatusDao = db.employeeStatusDao()

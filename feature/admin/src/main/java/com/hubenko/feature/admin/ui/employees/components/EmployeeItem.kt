@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.hubenko.core.presentation.theme.CoreTheme
 import com.hubenko.core.presentation.theme.secondaryText
 import com.hubenko.feature.admin.R
+import com.hubenko.feature.admin.ui.model.EmployeeHourlyRateUi
 import com.hubenko.feature.admin.ui.model.EmployeeUi
 import com.hubenko.feature.admin.ui.model.ReminderSettingsUi
 
@@ -39,7 +40,7 @@ fun EmployeeItem(
     modifier: Modifier = Modifier,
     roleLabel: String? = null,
     baseRateLabel: String? = null,
-    hourlyRateLabel: String? = null,
+    hourlyRateLabels: List<String> = emptyList(),
     onEdit: () -> Unit,
     onDelete: () -> Unit,
     onReminderClick: () -> Unit = {},
@@ -90,9 +91,9 @@ fun EmployeeItem(
                         color = MaterialTheme.colorScheme.secondaryText()
                     )
                 }
-                if (hourlyRateLabel != null) {
+                hourlyRateLabels.forEach { label ->
                     Text(
-                        text = "Погодинна ставка: $hourlyRateLabel",
+                        text = "Погодинна ставка ($label)",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.secondaryText()
                     )
@@ -197,8 +198,10 @@ private fun EmployeeItemPreview() {
                 email = "ivan@company.com",
                 baseRateId = "1",
                 baseRateValue = 7100.0,
-                hourlyRateId = "",
-                hourlyRateValue = 95.0,
+                hourlyRates = listOf(
+                    EmployeeHourlyRateUi(hourlyRateId = "1", hourlyRateValue = 95.0, statusType = "Office"),
+                    EmployeeHourlyRateUi(hourlyRateId = "", hourlyRateValue = 120.0, statusType = "Remote")
+                ),
                 reminderSettings = ReminderSettingsUi(
                     employeeId = "1",
                     morningEnabled = true,
@@ -212,7 +215,7 @@ private fun EmployeeItemPreview() {
             ),
             roleLabel = "Працівник",
             baseRateLabel = "7100.00 грн",
-            hourlyRateLabel = "95.00 грн/год",
+            hourlyRateLabels = listOf("Офіс: 95.00 грн/год", "Віддалено: 120.00 грн/год"),
             onEdit = {},
             onDelete = {}
         )

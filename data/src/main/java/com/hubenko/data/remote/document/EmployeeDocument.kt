@@ -10,6 +10,5 @@ data class EmployeeDocument(
     val email: String = "",
     val baseRateId: String = "",
     val baseRateValue: Double = 0.0,
-    val hourlyRateId: String = "",
-    val hourlyRateValue: Double = 0.0
+    val hourlyRates: List<EmployeeHourlyRateDocument> = emptyList()
 )

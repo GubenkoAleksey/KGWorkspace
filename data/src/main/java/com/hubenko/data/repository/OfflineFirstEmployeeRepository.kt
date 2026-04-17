@@ -2,9 +2,11 @@ package com.hubenko.data.repository
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hubenko.data.local.dao.EmployeeDao
+import com.hubenko.data.local.dao.EmployeeHourlyRateDao
 import com.hubenko.data.mapper.toDomain
 import com.hubenko.data.mapper.toDocument
 import com.hubenko.data.mapper.toEmployeeEntity
+import com.hubenko.data.mapper.toEntity
 import com.hubenko.data.remote.document.EmployeeDocument
 import com.hubenko.data.util.firestoreSafeCall
 import com.hubenko.domain.error.DataError
@@ -21,6 +23,7 @@ import javax.inject.Inject
 
 class OfflineFirstEmployeeRepository @Inject constructor(
     private val dao: EmployeeDao,
+    private val hourlyRateDao: EmployeeHourlyRateDao,
     private val firestore: FirebaseFirestore
 ) : EmployeeRepository {
 
@@ -42,7 +45,14 @@ class OfflineFirstEmployeeRepository @Inject constructor(
             val snapshot = employeesCollection.get().await()
             snapshot.documents.forEach { doc ->
                 val document = doc.toObject(EmployeeDocument::class.java) ?: return@forEach
-                dao.insertEmployee(document.toEmployeeEntity(doc.id))
+                val employee = document.toEmployeeEntity(doc.id)
+                dao.insertEmployee(employee)
+                hourlyRateDao.deleteByEmployeeId(doc.id)
+                hourlyRateDao.insertAll(
+                    document.hourlyRates.map { rate ->
+                        rate.toDomain().toEntity(doc.id)
+                    }
+                )
             }
         } catch (_: Exception) {
         }
@@ -50,7 +60,9 @@ class OfflineFirstEmployeeRepository @Inject constructor(
 
     override suspend fun saveEmployee(employee: Employee): EmptyResult<DataError.Firestore> =
         firestoreSafeCall {
-            dao.insertEmployee(employee.toDocument().toEmployeeEntity(employee.id))
+            dao.insertEmployee(employee.toEntity())
+            hourlyRateDao.deleteByEmployeeId(employee.id)
+            hourlyRateDao.insertAll(employee.hourlyRates.map { it.toEntity(employee.id) })
             employeesCollection.document(employee.id).set(employee.toDocument()).await()
         }
 

@@ -5,8 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "employees")
 data class EmployeeEntity(
-    @PrimaryKey
-    val id: String,
+    @PrimaryKey val id: String,
     val lastName: String,
     val firstName: String,
     val middleName: String,
@@ -14,7 +13,5 @@ data class EmployeeEntity(
     val role: String,
     val email: String = "",
     val baseRateId: String = "",
-    val baseRateValue: Double = 0.0,
-    val hourlyRateId: String = "",
-    val hourlyRateValue: Double = 0.0
+    val baseRateValue: Double = 0.0
 )

@@ -11,12 +11,14 @@ import com.hubenko.feature.admin.ui.model.toEmployeeUi
 import com.hubenko.feature.admin.ui.model.toHourlyRateUi
 import com.hubenko.feature.admin.ui.model.toReminderSettingsUi
 import com.hubenko.feature.admin.ui.model.toRoleUi
+import com.hubenko.feature.admin.ui.model.toStatusTypeUi
 import com.hubenko.domain.usecase.DeleteEmployeeUseCase
 import com.hubenko.domain.usecase.GetAllEmployeesUseCase
 import com.hubenko.domain.usecase.GetAllReminderSettingsUseCase
 import com.hubenko.domain.usecase.GetBaseRatesUseCase
 import com.hubenko.domain.usecase.GetHourlyRatesUseCase
 import com.hubenko.domain.usecase.GetRolesUseCase
+import com.hubenko.domain.usecase.GetStatusTypesUseCase
 import com.hubenko.domain.usecase.SaveEmployeeUseCase
 import com.hubenko.domain.util.onFailure
 import com.hubenko.domain.util.onSuccess
@@ -34,7 +36,8 @@ class EmployeesViewModel @Inject constructor(
     private val getRolesUseCase: GetRolesUseCase,
     private val getBaseRatesUseCase: GetBaseRatesUseCase,
     private val getHourlyRatesUseCase: GetHourlyRatesUseCase,
-    private val getAllReminderSettingsUseCase: GetAllReminderSettingsUseCase
+    private val getAllReminderSettingsUseCase: GetAllReminderSettingsUseCase,
+    private val getStatusTypesUseCase: GetStatusTypesUseCase
 ) : BaseViewModel<EmployeesState, EmployeesIntent, EmployeesEffect>(EmployeesState()) {
 
     init {
@@ -65,6 +68,10 @@ class EmployeesViewModel @Inject constructor(
             is EmployeesIntent.OnViewStatusesClick -> sendEffect(
                 EmployeesEffect.NavigateToEmployeeStatuses(intent.employeeId)
             )
+            is EmployeesIntent.OnFilterClick -> updateState { copy(isFilterSheetOpen = true) }
+            is EmployeesIntent.OnApplyFilter -> applyFilter(intent.roles, intent.employeeIds)
+            is EmployeesIntent.OnClearFilter -> clearFilter()
+            is EmployeesIntent.OnDismissFilterSheet -> updateState { copy(isFilterSheetOpen = false) }
         }
     }
 
@@ -83,7 +90,9 @@ class EmployeesViewModel @Inject constructor(
                         )
                     }
                 }.collectLatest { list ->
-                    updateState { copy(employees = list, isLoading = false) }
+                    val s = viewState.value
+                    val displayed = applyFilters(list, s.filterRoles, s.filterEmployeeIds)
+                    updateState { copy(employees = list, displayedEmployees = displayed, isLoading = false) }
                 }
             }
             launch {
@@ -101,8 +110,31 @@ class EmployeesViewModel @Inject constructor(
                     updateState { copy(hourlyRates = rates.map { it.toHourlyRateUi() }) }
                 }
             }
+            launch {
+                getStatusTypesUseCase().collectLatest { types ->
+                    updateState { copy(statusTypes = types.map { it.toStatusTypeUi() }) }
+                }
+            }
         }
     }
+
+    private fun applyFilter(roles: Set<String>, employeeIds: Set<String>) {
+        val displayed = applyFilters(viewState.value.employees, roles, employeeIds)
+        updateState {
+            copy(filterRoles = roles, filterEmployeeIds = employeeIds, displayedEmployees = displayed, isFilterSheetOpen = false)
+        }
+    }
+
+    private fun clearFilter() {
+        updateState {
+            copy(filterRoles = emptySet(), filterEmployeeIds = emptySet(), displayedEmployees = employees, isFilterSheetOpen = false)
+        }
+    }
+
+    private fun applyFilters(list: List<EmployeeUi>, roles: Set<String>, employeeIds: Set<String>): List<EmployeeUi> =
+        list
+            .let { if (roles.isEmpty()) it else it.filter { e -> e.role in roles } }
+            .let { if (employeeIds.isEmpty()) it else it.filter { e -> e.id in employeeIds } }
 
     private fun saveEmployee(employeeUi: EmployeeUi) {
         viewModelScope.launch {

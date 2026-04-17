@@ -9,13 +9,19 @@ import com.hubenko.feature.admin.ui.model.BaseRateUi
 import com.hubenko.feature.admin.ui.model.EmployeeUi
 import com.hubenko.feature.admin.ui.model.HourlyRateUi
 import com.hubenko.feature.admin.ui.model.RoleUi
+import com.hubenko.feature.admin.ui.model.StatusTypeUi
 
 @Stable
 data class EmployeesState(
     val employees: List<EmployeeUi> = emptyList(),
+    val displayedEmployees: List<EmployeeUi> = emptyList(),
     val roles: List<RoleUi> = emptyList(),
     val baseRates: List<BaseRateUi> = emptyList(),
     val hourlyRates: List<HourlyRateUi> = emptyList(),
+    val statusTypes: List<StatusTypeUi> = emptyList(),
+    val filterRoles: Set<String> = emptySet(),
+    val filterEmployeeIds: Set<String> = emptySet(),
+    val isFilterSheetOpen: Boolean = false,
     val isLoading: Boolean = false,
     val isEmployeeDialogOpen: Boolean = false,
     val editingEmployee: EmployeeUi? = null,
@@ -33,6 +39,10 @@ sealed interface EmployeesIntent : ViewIntent {
     data object OnDismissDialog : EmployeesIntent
     data class OnReminderClick(val employeeId: String) : EmployeesIntent
     data class OnViewStatusesClick(val employeeId: String) : EmployeesIntent
+    data object OnFilterClick : EmployeesIntent
+    data class OnApplyFilter(val roles: Set<String>, val employeeIds: Set<String>) : EmployeesIntent
+    data object OnClearFilter : EmployeesIntent
+    data object OnDismissFilterSheet : EmployeesIntent
 }
 
 sealed interface EmployeesEffect : ViewSideEffect {
