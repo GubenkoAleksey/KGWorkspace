@@ -100,7 +100,8 @@ fun EmployeesContent(
                         hourlyRateLabel = hourlyRateLabel,
                         onEdit = { onIntent(EmployeesIntent.OnEditEmployeeClick(employee)) },
                         onDelete = { onIntent(EmployeesIntent.OnDeleteEmployeeClick(employee)) },
-                        onReminderClick = { onIntent(EmployeesIntent.OnReminderClick(employee.id)) }
+                        onReminderClick = { onIntent(EmployeesIntent.OnReminderClick(employee.id)) },
+                        onViewStatuses = { onIntent(EmployeesIntent.OnViewStatusesClick(employee.id)) }
                     )
                 }
             }

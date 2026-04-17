@@ -62,6 +62,9 @@ class EmployeesViewModel @Inject constructor(
             is EmployeesIntent.OnReminderClick -> sendEffect(
                 EmployeesEffect.NavigateToReminderSettings(intent.employeeId)
             )
+            is EmployeesIntent.OnViewStatusesClick -> sendEffect(
+                EmployeesEffect.NavigateToEmployeeStatuses(intent.employeeId)
+            )
         }
     }
 

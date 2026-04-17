@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="cd_view_statuses">Переглянути статуси</string>
     <string name="cd_edit">Редагувати</string>
     <string name="cd_delete">Видалити</string>
     <string name="cd_add">Додати</string>

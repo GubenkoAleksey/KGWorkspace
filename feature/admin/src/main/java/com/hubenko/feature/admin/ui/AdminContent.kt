@@ -18,7 +18,8 @@ fun AdminContent(
     state: AdminState,
     onTabSelected: (AdminTab) -> Unit,
     onNavigateToReminderSettings: (String) -> Unit,
-    onNavigateToRegisterEmployee: () -> Unit
+    onNavigateToRegisterEmployee: () -> Unit,
+    onNavigateToEmployeeStatuses: (String) -> Unit = {}
 ) {
     when (state.selectedTab) {
         AdminTab.DASHBOARD -> DashboardContent(
@@ -26,7 +27,8 @@ fun AdminContent(
         )
         AdminTab.EMPLOYEES -> EmployeesScreen(
             onNavigateToRegister = onNavigateToRegisterEmployee,
-            onNavigateToReminderSettings = onNavigateToReminderSettings
+            onNavigateToReminderSettings = onNavigateToReminderSettings,
+            onNavigateToEmployeeStatuses = onNavigateToEmployeeStatuses
         )
         AdminTab.STATUSES -> StatusesScreen()
         AdminTab.SCHEDULE -> ScheduleScreen(

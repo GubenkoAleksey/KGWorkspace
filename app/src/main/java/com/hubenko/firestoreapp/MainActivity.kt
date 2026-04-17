@@ -73,6 +73,7 @@ class MainActivity : ComponentActivity() {
                         )
 
                         adminGraph(
+                            navController = navController,
                             onNavigateBack = { navController.popBackStack() },
                             onNavigateToRegisterEmployee = { navController.navigate(com.hubenko.feature.admin.navigation.RegisterEmployeeRoute) },
                             onNavigateToReminderSettings = { employeeId ->

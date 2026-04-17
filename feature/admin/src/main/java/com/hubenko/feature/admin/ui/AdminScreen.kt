@@ -12,7 +12,8 @@ fun AdminScreen(
     viewModel: AdminViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit,
     onNavigateToReminderSettings: (String) -> Unit,
-    onNavigateToRegisterEmployee: () -> Unit
+    onNavigateToRegisterEmployee: () -> Unit,
+    onNavigateToEmployeeStatuses: (String) -> Unit
 ) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
 
@@ -30,7 +31,8 @@ fun AdminScreen(
         state = state,
         onTabSelected = { viewModel.onIntent(AdminIntent.OnTabSelected(it)) },
         onNavigateToReminderSettings = onNavigateToReminderSettings,
-        onNavigateToRegisterEmployee = onNavigateToRegisterEmployee
+        onNavigateToRegisterEmployee = onNavigateToRegisterEmployee,
+        onNavigateToEmployeeStatuses = onNavigateToEmployeeStatuses
     )
 
 }

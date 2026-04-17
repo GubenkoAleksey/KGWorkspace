@@ -15,7 +15,8 @@ import com.hubenko.core.presentation.asString
 fun EmployeesScreen(
     viewModel: EmployeesViewModel = hiltViewModel(),
     onNavigateToRegister: () -> Unit,
-    onNavigateToReminderSettings: (String) -> Unit
+    onNavigateToReminderSettings: (String) -> Unit,
+    onNavigateToEmployeeStatuses: (String) -> Unit
 ) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -25,6 +26,7 @@ fun EmployeesScreen(
         when (effect) {
             is EmployeesEffect.NavigateToRegisterEmployee -> onNavigateToRegister()
             is EmployeesEffect.NavigateToReminderSettings -> onNavigateToReminderSettings(effect.employeeId)
+            is EmployeesEffect.NavigateToEmployeeStatuses -> onNavigateToEmployeeStatuses(effect.employeeId)
             is EmployeesEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.message.asString(context))
         }
     }

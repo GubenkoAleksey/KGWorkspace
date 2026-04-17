@@ -10,3 +10,6 @@ data object RegisterEmployeeRoute
 
 @Serializable
 data class ReminderSettingsRoute(val employeeId: String)
+
+@Serializable
+data class EmployeeStatusesRoute(val employeeId: String)

@@ -2,6 +2,7 @@ package com.hubenko.feature.admin.ui.statuses
 
 import android.app.Application
 import androidx.core.content.FileProvider
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.hubenko.core.presentation.BaseViewModel
 import com.hubenko.core.presentation.UiText
@@ -32,8 +33,15 @@ class StatusesViewModel @Inject constructor(
     private val application: Application,
     private val getAllStatusesUseCase: GetAllStatusesUseCase,
     private val statusRepository: StatusRepository,
-    private val getStatusTypesUseCase: GetStatusTypesUseCase
-) : BaseViewModel<StatusesState, StatusesIntent, StatusesEffect>(StatusesState()) {
+    private val getStatusTypesUseCase: GetStatusTypesUseCase,
+    savedStateHandle: SavedStateHandle
+) : BaseViewModel<StatusesState, StatusesIntent, StatusesEffect>(
+    initialState = run {
+        val employeeId = savedStateHandle.get<String>("employeeId")
+        if (employeeId != null) StatusesState(filterEmployeeIds = setOf(employeeId))
+        else StatusesState()
+    }
+) {
 
     init {
         onIntent(StatusesIntent.LoadData)

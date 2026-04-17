@@ -32,10 +32,12 @@ sealed interface EmployeesIntent : ViewIntent {
     data class OnSaveEmployee(val employee: EmployeeUi) : EmployeesIntent
     data object OnDismissDialog : EmployeesIntent
     data class OnReminderClick(val employeeId: String) : EmployeesIntent
+    data class OnViewStatusesClick(val employeeId: String) : EmployeesIntent
 }
 
 sealed interface EmployeesEffect : ViewSideEffect {
     data object NavigateToRegisterEmployee : EmployeesEffect
     data class NavigateToReminderSettings(val employeeId: String) : EmployeesEffect
+    data class NavigateToEmployeeStatuses(val employeeId: String) : EmployeesEffect
     data class ShowSnackbar(val message: UiText) : EmployeesEffect
 }
