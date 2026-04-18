@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hubenko.core.presentation.theme.CoreTheme
 import com.hubenko.feature.admin.ui.model.EmployeeStatusUi
+import com.hubenko.feature.admin.ui.statuses.calculateBilledAmount
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -30,9 +31,7 @@ fun StatusItem(
     val sdf = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
     val startString = sdf.format(Date(status.startTime))
     val endString = status.endTime?.let { sdf.format(Date(it)) }
-    val endMs = status.endTime ?: System.currentTimeMillis()
-    val durationHours = (endMs - status.startTime) / 3_600_000.0
-    val totalAmount = hourlyRateValue?.let { it * durationHours }
+    val totalAmount = hourlyRateValue?.let { calculateBilledAmount(status.startTime, status.endTime, it) }
     val isApproximate = status.endTime == null
 
     Card(

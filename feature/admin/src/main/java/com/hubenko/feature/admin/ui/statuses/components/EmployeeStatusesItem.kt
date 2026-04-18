@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,6 +31,9 @@ import com.hubenko.core.presentation.theme.secondaryText
 import com.hubenko.feature.admin.R
 import com.hubenko.feature.admin.ui.model.EmployeeStatusUi
 import com.hubenko.feature.admin.ui.statuses.EmployeeStatusesGroup
+import com.hubenko.feature.admin.ui.statuses.calculateBilledAmount
+import com.hubenko.feature.admin.ui.statuses.calculateMonths
+import com.hubenko.feature.admin.ui.statuses.calculatePayment
 
 @Composable
 fun EmployeeStatusesItem(
@@ -40,11 +44,8 @@ fun EmployeeStatusesItem(
     onEditStatus: ((EmployeeStatusUi) -> Unit)? = null,
     onDeleteStatus: ((String) -> Unit)? = null
 ) {
-    val now = System.currentTimeMillis()
-    val totalAmount = if (showPayment) group.statuses.sumOf { status ->
-        val rate = group.hourlyRates[status.status] ?: 0.0
-        val durationHours = ((status.endTime ?: now) - status.startTime) / 3_600_000.0
-        rate * durationHours
+    val totalAmount = if (showPayment) group.statuses.fold(0.0) { acc, status ->
+        acc + calculateBilledAmount(status.startTime, status.endTime, group.hourlyRates[status.status] ?: 0.0)
     } else 0.0
     val isApproximate = showPayment && group.statuses.any { it.endTime == null }
 
@@ -134,6 +135,28 @@ fun EmployeeStatusesItem(
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.secondaryText()
                     )
+                }
+                if (group.baseRateValue > 0.0) {
+                    val months = calculateMonths(group.statuses)
+                    val payment = calculatePayment(totalAmount, months, group.baseRateValue)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Виплата за період:",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.secondaryText()
+                        )
+                        Text(
+                            text = "${"%.2f".format(payment)} грн",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = if (payment >= 0) MaterialTheme.colorScheme.primary else Color.Red
+                        )
+                    }
                 }
             }
         }

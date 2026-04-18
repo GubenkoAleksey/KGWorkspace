@@ -31,6 +31,7 @@ data class EmployeeStatusesGroup(
     val employeeName: String,
     val statuses: List<EmployeeStatusUi>,
     val hourlyRates: Map<String, Double> = emptyMap(),
+    val baseRateValue: Double = 0.0,
     val isExpanded: Boolean = false
 )
 

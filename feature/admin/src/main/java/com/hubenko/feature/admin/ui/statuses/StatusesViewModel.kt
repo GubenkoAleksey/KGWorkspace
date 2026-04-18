@@ -48,6 +48,8 @@ class StatusesViewModel @Inject constructor(
 
     // employeeId → Map<statusType, hourlyRateValue>
     private var employeeHourlyRatesMap: Map<String, Map<String, Double>> = emptyMap()
+    // employeeId → baseRateValue
+    private var employeeBaseRateMap: Map<String, Double> = emptyMap()
 
     init {
         onIntent(StatusesIntent.LoadData)
@@ -61,6 +63,7 @@ class StatusesViewModel @Inject constructor(
                 employeeHourlyRatesMap = employees.associate { employee ->
                     employee.id to employee.hourlyRates.associate { it.statusType to it.hourlyRateValue }
                 }
+                employeeBaseRateMap = employees.associate { it.id to it.baseRateValue }
                 updateState {
                     copy(employeeGroups = buildGroups(statuses, filterDateFrom, filterDateTo, filterEmployeeIds, filterStatusTypes))
                 }
@@ -148,6 +151,7 @@ class StatusesViewModel @Inject constructor(
                         .sortedByDescending { it.startTime }
                         .map { it.copy(statusLabel = labelByType[it.status] ?: it.status) },
                     hourlyRates = employeeHourlyRatesMap[employeeId] ?: emptyMap(),
+                baseRateValue = employeeBaseRateMap[employeeId] ?: 0.0,
                     isExpanded = expandedByEmployeeId[employeeId] ?: false
                 )
             }
@@ -214,7 +218,6 @@ class StatusesViewModel @Inject constructor(
 
     private fun generateCsvContent(groups: List<EmployeeStatusesGroup>): String {
         val sdf = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
-        val now = System.currentTimeMillis()
         val sb = StringBuilder()
 
         groups.forEach { group ->
@@ -226,23 +229,24 @@ class StatusesViewModel @Inject constructor(
                 val start = sdf.format(Date(status.startTime))
                 val end = status.endTime?.let { sdf.format(Date(it)) } ?: "-"
                 val rate = group.hourlyRates[status.status] ?: 0.0
-                val durationHours = ((status.endTime ?: now) - status.startTime) / 3_600_000.0
-                val amount = rate * durationHours
+                val amount = calculateBilledAmount(status.startTime, status.endTime, rate)
                 val isApproximate = status.endTime == null
                 val rateStr = if (rate > 0.0) "%.2f".format(rate) else ""
                 val amountStr = if (rate > 0.0) "${"%.2f".format(amount)}${if (isApproximate) " (орієнтовно)" else ""}" else ""
                 sb.append("${status.statusLabel};$start;$end;$rateStr;$amountStr\n")
             }
 
-            val totalAmount = group.statuses.sumOf { status ->
-                val rate = group.hourlyRates[status.status] ?: 0.0
-                val durationHours = ((status.endTime ?: now) - status.startTime) / 3_600_000.0
-                rate * durationHours
+            val totalAmount: Double = group.statuses.fold(0.0) { acc, status ->
+                acc + calculateBilledAmount(status.startTime, status.endTime, group.hourlyRates[status.status] ?: 0.0)
             }
             if (totalAmount > 0.0) {
                 val isApproximate = group.statuses.any { it.endTime == null }
-                sb.append("Всього за період:;;;;" +
-                        "${"%.2f".format(totalAmount)} грн${if (isApproximate) "*" else ""}\n")
+                sb.append("Всього за період:;;;;${"%.2f".format(totalAmount)} грн${if (isApproximate) "*" else ""}\n")
+                if (group.baseRateValue > 0.0) {
+                    val months = calculateMonths(group.statuses)
+                    val payment = calculatePayment(totalAmount, months, group.baseRateValue)
+                    sb.append("Виплата за період:;;;;${"%.2f".format(payment)} грн\n")
+                }
             }
 
             sb.append("\n")
