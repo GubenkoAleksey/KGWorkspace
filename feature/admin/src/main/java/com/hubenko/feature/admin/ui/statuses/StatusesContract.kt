@@ -21,7 +21,9 @@ data class StatusesState(
     val filterStatusTypes: Set<String> = emptySet(),
     val availableStatusTypes: List<StatusTypeUi> = emptyList(),
     val isFilterSheetOpen: Boolean = false,
-    val showPayment: Boolean = true
+    val showPayment: Boolean = true,
+    val editingStatus: EmployeeStatusUi? = null,
+    val deletingStatusId: String? = null
 ) : ViewState
 
 data class EmployeeStatusesGroup(
@@ -48,6 +50,17 @@ sealed interface StatusesIntent : ViewIntent {
     ) : StatusesIntent
     data object OnClearFilter : StatusesIntent
     data object OnDismissFilterSheet : StatusesIntent
+    data class OnStatusEditClick(val status: EmployeeStatusUi) : StatusesIntent
+    data object OnEditStatusDismiss : StatusesIntent
+    data class OnEditStatusSave(
+        val id: String,
+        val statusType: String,
+        val startTime: Long,
+        val endTime: Long?
+    ) : StatusesIntent
+    data class OnStatusDeleteClick(val statusId: String) : StatusesIntent
+    data object OnConfirmDeleteStatus : StatusesIntent
+    data object OnDismissDeleteStatus : StatusesIntent
 }
 
 sealed interface StatusesEffect : ViewSideEffect {

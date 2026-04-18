@@ -51,4 +51,10 @@ interface EmployeeStatusDao {
 
     @Query("UPDATE employee_status SET status = :newType WHERE status = :oldType")
     suspend fun replaceStatusType(oldType: String, newType: String)
+
+    @Query("DELETE FROM employee_status WHERE id = :id")
+    suspend fun deleteById(id: String)
+
+    @Query("UPDATE employee_status SET status = :status, startTime = :startTime, endTime = :endTime, isSynced = 0 WHERE id = :id")
+    suspend fun updateStatus(id: String, status: String, startTime: Long, endTime: Long?)
 }

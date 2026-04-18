@@ -51,15 +51,17 @@ class OfflineFirstStatusRepository @Inject constructor(
     override suspend fun saveStatusLocally(
         employeeId: String,
         status: String,
-        note: String?
+        note: String?,
+        startTime: Long?,
+        endTime: Long?
     ): EmptyResult<DataError.Local> = localSafeCall {
         val entity = EmployeeStatusEntity(
             id = UUID.randomUUID().toString(),
             employeeId = employeeId,
             status = status,
             note = note,
-            startTime = System.currentTimeMillis(),
-            endTime = null,
+            startTime = startTime ?: System.currentTimeMillis(),
+            endTime = endTime,
             isSynced = false
         )
         dao.insertStatus(entity)
@@ -121,6 +123,22 @@ class OfflineFirstStatusRepository @Inject constructor(
             dao.updateEndTime(id, endTime)
             triggerSync()
         }
+
+    override suspend fun deleteStatus(id: String): EmptyResult<DataError.Firestore> =
+        firestoreSafeCall {
+            firestore.collection("employee_statuses").document(id).delete().await()
+            dao.deleteById(id)
+        }
+
+    override suspend fun updateStatus(
+        id: String,
+        status: String,
+        startTime: Long,
+        endTime: Long?
+    ): EmptyResult<DataError.Local> = localSafeCall {
+        dao.updateStatus(id, status, startTime, endTime)
+        triggerSync()
+    }
 
     override suspend fun getStatusCountForToday(employeeId: String, startOfDay: Long): Int {
         return dao.getStatusCountForToday(employeeId, startOfDay)

@@ -11,9 +11,14 @@ class SubmitStatusUseCase @Inject constructor(
     private val statusRepository: StatusRepository,
     private val authRepository: AuthDataSource
 ) {
-    suspend operator fun invoke(status: String, note: String? = null): EmptyResult<DataError.Local> {
+    suspend operator fun invoke(
+        status: String,
+        note: String? = null,
+        startTime: Long? = null,
+        endTime: Long? = null
+    ): EmptyResult<DataError.Local> {
         val employeeId = authRepository.getCurrentUserId()
             ?: return Result.Error(DataError.Local.UNKNOWN)
-        return statusRepository.saveStatusLocally(employeeId, status, note)
+        return statusRepository.saveStatusLocally(employeeId, status, note, startTime, endTime)
     }
 }

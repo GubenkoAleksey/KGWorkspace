@@ -36,7 +36,9 @@ fun EmployeeStatusesItem(
     group: EmployeeStatusesGroup,
     onToggleExpand: () -> Unit,
     modifier: Modifier = Modifier,
-    showPayment: Boolean = true
+    showPayment: Boolean = true,
+    onEditStatus: ((EmployeeStatusUi) -> Unit)? = null,
+    onDeleteStatus: ((String) -> Unit)? = null
 ) {
     val now = System.currentTimeMillis()
     val totalAmount = if (showPayment) group.statuses.sumOf { status ->
@@ -97,7 +99,9 @@ fun EmployeeStatusesItem(
                         StatusItem(
                             status = status,
                             showEmployeeName = false,
-                            hourlyRateValue = if (showPayment) group.hourlyRates[status.status] else null
+                            hourlyRateValue = if (showPayment) group.hourlyRates[status.status] else null,
+                            onEditClick = onEditStatus?.let { { it(status) } },
+                            onDeleteClick = onDeleteStatus?.let { { it(status.id) } }
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                     }

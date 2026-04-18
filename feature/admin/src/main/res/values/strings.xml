@@ -23,6 +23,8 @@
     <string name="success_employee_registered">Співробітника зареєстровано успішно</string>
     <string name="success_statuses_deleted">Усі статуси успішно видалено</string>
     <string name="error_export_failed">Помилка експорту</string>
+    <string name="success_status_updated">Статус оновлено</string>
+    <string name="success_status_deleted">Статус видалено</string>
     <string name="error_save_failed">Помилка збереження</string>
     <string name="error_delete_failed">Помилка видалення</string>
     <string name="error_register_failed">Помилка реєстрації</string>

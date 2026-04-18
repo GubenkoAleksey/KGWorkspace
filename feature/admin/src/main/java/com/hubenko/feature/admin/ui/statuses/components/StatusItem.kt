@@ -2,10 +2,14 @@ package com.hubenko.feature.admin.ui.statuses.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import com.hubenko.core.presentation.theme.secondaryText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -19,7 +23,9 @@ fun StatusItem(
     status: EmployeeStatusUi,
     modifier: Modifier = Modifier,
     showEmployeeName: Boolean = true,
-    hourlyRateValue: Double? = null
+    hourlyRateValue: Double? = null,
+    onEditClick: (() -> Unit)? = null,
+    onDeleteClick: (() -> Unit)? = null
 ) {
     val sdf = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
     val startString = sdf.format(Date(status.startTime))
@@ -38,6 +44,31 @@ fun StatusItem(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+            if (onEditClick != null || onDeleteClick != null) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    if (onEditClick != null) {
+                        IconButton(onClick = onEditClick, modifier = Modifier.size(32.dp)) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Редагувати",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                    if (onDeleteClick != null) {
+                        IconButton(onClick = onDeleteClick, modifier = Modifier.size(32.dp)) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Видалити",
+                                tint = Color.Red
+                            )
+                        }
+                    }
+                }
+            }
             if (showEmployeeName) {
                 Text(
                     text = status.employeeFullName ?: "ID Працівника: ${status.employeeId}",

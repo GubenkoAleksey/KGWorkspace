@@ -94,6 +94,12 @@ class StatusesViewModel @Inject constructor(
             is StatusesIntent.OnDismissFilterSheet -> updateState { copy(isFilterSheetOpen = false) }
             is StatusesIntent.OnApplyFilter -> applyFilter(intent.from, intent.to, intent.employeeIds, intent.statusTypes)
             is StatusesIntent.OnClearFilter -> clearFilter()
+            is StatusesIntent.OnStatusEditClick -> updateState { copy(editingStatus = intent.status) }
+            is StatusesIntent.OnEditStatusDismiss -> updateState { copy(editingStatus = null) }
+            is StatusesIntent.OnEditStatusSave -> saveEditedStatus(intent.id, intent.statusType, intent.startTime, intent.endTime)
+            is StatusesIntent.OnStatusDeleteClick -> updateState { copy(deletingStatusId = intent.statusId) }
+            is StatusesIntent.OnDismissDeleteStatus -> updateState { copy(deletingStatusId = null) }
+            is StatusesIntent.OnConfirmDeleteStatus -> deleteStatus()
         }
     }
 
@@ -188,12 +194,12 @@ class StatusesViewModel @Inject constructor(
     }
 
     private fun exportStatusesToCsv() {
-        val statuses = viewState.value.employeeGroups.flatMap { it.statuses }
-        if (statuses.isEmpty()) return
+        val groups = viewState.value.employeeGroups
+        if (groups.all { it.statuses.isEmpty() }) return
         viewModelScope.launch {
             try {
                 val uri = withContext(Dispatchers.IO) {
-                    val csvString = generateCsvContent(statuses)
+                    val csvString = generateCsvContent(groups)
                     val file = saveCsvToFile(csvString)
                     FileProvider.getUriForFile(application, "com.hubenko.firestoreapp.fileprovider", file)
                 }
@@ -206,16 +212,42 @@ class StatusesViewModel @Inject constructor(
         }
     }
 
-    private fun generateCsvContent(statuses: List<EmployeeStatusUi>): String {
+    private fun generateCsvContent(groups: List<EmployeeStatusesGroup>): String {
         val sdf = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
+        val now = System.currentTimeMillis()
         val sb = StringBuilder()
-        sb.append("ID;ПІБ;Статус;Початок;Кінець\n")
-        statuses.forEach { status ->
-            val start = sdf.format(Date(status.startTime))
-            val end = status.endTime?.let { sdf.format(Date(it)) } ?: "-"
-            val fullName = status.employeeFullName ?: "Невідомо"
-            sb.append("${status.employeeId};${fullName};${status.status};${start};${end}\n")
+
+        groups.forEach { group ->
+            val fullName = group.statuses.firstOrNull()?.employeeFullName ?: group.employeeName
+            sb.append("$fullName\n")
+            sb.append("Статус;Початок;Кінець;Ставка (грн/год);Сума (грн)\n")
+
+            group.statuses.forEach { status ->
+                val start = sdf.format(Date(status.startTime))
+                val end = status.endTime?.let { sdf.format(Date(it)) } ?: "-"
+                val rate = group.hourlyRates[status.status] ?: 0.0
+                val durationHours = ((status.endTime ?: now) - status.startTime) / 3_600_000.0
+                val amount = rate * durationHours
+                val isApproximate = status.endTime == null
+                val rateStr = if (rate > 0.0) "%.2f".format(rate) else ""
+                val amountStr = if (rate > 0.0) "${"%.2f".format(amount)}${if (isApproximate) " (орієнтовно)" else ""}" else ""
+                sb.append("${status.statusLabel};$start;$end;$rateStr;$amountStr\n")
+            }
+
+            val totalAmount = group.statuses.sumOf { status ->
+                val rate = group.hourlyRates[status.status] ?: 0.0
+                val durationHours = ((status.endTime ?: now) - status.startTime) / 3_600_000.0
+                rate * durationHours
+            }
+            if (totalAmount > 0.0) {
+                val isApproximate = group.statuses.any { it.endTime == null }
+                sb.append("Всього за період:;;;;" +
+                        "${"%.2f".format(totalAmount)} грн${if (isApproximate) "*" else ""}\n")
+            }
+
+            sb.append("\n")
         }
+
         return sb.toString()
     }
 
@@ -224,6 +256,37 @@ class StatusesViewModel @Inject constructor(
         val file = File(application.cacheDir, "status_$dateString.csv")
         file.writeText(content)
         return file
+    }
+
+    private fun saveEditedStatus(id: String, statusType: String, startTime: Long, endTime: Long?) {
+        viewModelScope.launch {
+            updateState { copy(editingStatus = null, isLoading = true) }
+            statusRepository.updateStatus(id, statusType, startTime, endTime)
+                .onSuccess {
+                    updateState { copy(isLoading = false) }
+                    sendEffect(StatusesEffect.ShowSnackbar(UiText.StringResource(R.string.success_status_updated)))
+                }
+                .onFailure { error ->
+                    updateState { copy(isLoading = false) }
+                    sendEffect(StatusesEffect.ShowSnackbar(error.toUiText()))
+                }
+        }
+    }
+
+    private fun deleteStatus() {
+        val id = viewState.value.deletingStatusId ?: return
+        viewModelScope.launch {
+            updateState { copy(deletingStatusId = null, isLoading = true) }
+            statusRepository.deleteStatus(id)
+                .onSuccess {
+                    updateState { copy(isLoading = false) }
+                    sendEffect(StatusesEffect.ShowSnackbar(UiText.StringResource(R.string.success_status_deleted)))
+                }
+                .onFailure { error ->
+                    updateState { copy(isLoading = false) }
+                    sendEffect(StatusesEffect.ShowSnackbar(error.toUiText()))
+                }
+        }
     }
 
     private fun deleteAllStatuses() {

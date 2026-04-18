@@ -16,6 +16,7 @@ import com.hubenko.feature.status.ui.model.toStatusTypeUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
@@ -78,11 +79,22 @@ class StatusViewModel @Inject constructor(
         }
     }
 
+    private fun todayAt(hour: Int, minute: Int): Long {
+        return Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+    }
+
     private fun submitStatus(status: String, note: String) {
         viewModelScope.launch {
             updateState { copy(isLoading = true, error = null) }
             val noteToSubmit = note.trim().takeIf { it.isNotEmpty() }
-            submitStatusUseCase(status, noteToSubmit)
+            val startTime = if (status == "Sick") todayAt(8, 0) else null
+            val endTime = if (status == "Sick") todayAt(18, 0) else null
+            submitStatusUseCase(status, noteToSubmit, startTime, endTime)
                 .onSuccess {
                     if (status == "Sick") {
                         updateState { copy(isLoading = false, note = "", activeStatus = null) }

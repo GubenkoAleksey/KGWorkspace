@@ -39,7 +39,9 @@ import com.hubenko.feature.admin.R
 import com.hubenko.core.presentation.components.AppTopBar
 import com.hubenko.core.presentation.theme.CoreTheme
 import com.hubenko.feature.admin.ui.model.EmployeeStatusUi
+import com.hubenko.feature.admin.ui.statuses.components.DeleteStatusDialog
 import com.hubenko.feature.admin.ui.statuses.components.DeleteStatusesDialog
+import com.hubenko.feature.admin.ui.statuses.components.EditStatusDialog
 import com.hubenko.feature.admin.ui.statuses.components.EmployeeStatusesItem
 import com.hubenko.feature.admin.ui.statuses.components.StatusesFilterSheet
 import java.text.SimpleDateFormat
@@ -58,7 +60,6 @@ fun StatusesContent(
         topBar = {
             AppTopBar(
                 title = "Статуси працівників",
-                onBackClick = onNavigateBack,
                 actions = {
                     if (state.showPayment && state.employeeGroups.isNotEmpty()) {
                         IconButton(onClick = { onIntent(StatusesIntent.OnDeleteAllClick) }) {
@@ -153,7 +154,9 @@ fun StatusesContent(
                             showPayment = state.showPayment,
                             onToggleExpand = {
                                 onIntent(StatusesIntent.OnEmployeeExpandToggle(group.employeeId))
-                            }
+                            },
+                            onEditStatus = { status -> onIntent(StatusesIntent.OnStatusEditClick(status)) },
+                            onDeleteStatus = { id -> onIntent(StatusesIntent.OnStatusDeleteClick(id)) }
                         )
                     }
                 }
@@ -165,6 +168,24 @@ fun StatusesContent(
         DeleteStatusesDialog(
             onConfirm = { onIntent(StatusesIntent.OnConfirmDelete) },
             onDismiss = { onIntent(StatusesIntent.OnDismissDialog) }
+        )
+    }
+
+    if (state.deletingStatusId != null) {
+        DeleteStatusDialog(
+            onConfirm = { onIntent(StatusesIntent.OnConfirmDeleteStatus) },
+            onDismiss = { onIntent(StatusesIntent.OnDismissDeleteStatus) }
+        )
+    }
+
+    state.editingStatus?.let { editing ->
+        EditStatusDialog(
+            status = editing,
+            availableStatusTypes = state.availableStatusTypes,
+            onSave = { statusType, startTime, endTime ->
+                onIntent(StatusesIntent.OnEditStatusSave(editing.id, statusType, startTime, endTime))
+            },
+            onDismiss = { onIntent(StatusesIntent.OnEditStatusDismiss) }
         )
     }
 
