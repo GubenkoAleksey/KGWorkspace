@@ -18,11 +18,16 @@ import java.util.*
 fun StatusItem(
     status: EmployeeStatusUi,
     modifier: Modifier = Modifier,
-    showEmployeeName: Boolean = true
+    showEmployeeName: Boolean = true,
+    hourlyRateValue: Double? = null
 ) {
     val sdf = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
     val startString = sdf.format(Date(status.startTime))
     val endString = status.endTime?.let { sdf.format(Date(it)) }
+    val endMs = status.endTime ?: System.currentTimeMillis()
+    val durationHours = (endMs - status.startTime) / 3_600_000.0
+    val totalAmount = hourlyRateValue?.let { it * durationHours }
+    val isApproximate = status.endTime == null
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -53,6 +58,21 @@ fun StatusItem(
                     fontStyle = FontStyle.Italic,
                     color = MaterialTheme.colorScheme.secondaryText()
                 )
+            }
+            if (hourlyRateValue != null && hourlyRateValue > 0.0) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Ставка: ${"%.2f".format(hourlyRateValue)} грн/год",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.secondaryText()
+                )
+                if (totalAmount != null) {
+                    Text(
+                        text = "Сума: ${"%.2f".format(totalAmount)} грн${if (isApproximate) " (орієнтовно)" else ""}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.secondaryText()
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(8.dp))
             Row(

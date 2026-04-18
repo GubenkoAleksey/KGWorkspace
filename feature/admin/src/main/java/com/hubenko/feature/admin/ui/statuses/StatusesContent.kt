@@ -51,14 +51,16 @@ import java.util.Locale
 fun StatusesContent(
     state: StatusesState,
     onIntent: (StatusesIntent) -> Unit,
+    onNavigateBack: () -> Unit = {},
     snackbarHost: @Composable () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
             AppTopBar(
                 title = "Статуси працівників",
+                onBackClick = onNavigateBack,
                 actions = {
-                    if (state.employeeGroups.isNotEmpty()) {
+                    if (state.showPayment && state.employeeGroups.isNotEmpty()) {
                         IconButton(onClick = { onIntent(StatusesIntent.OnDeleteAllClick) }) {
                             Icon(
                                 imageVector = Icons.Default.DeleteSweep,
@@ -148,6 +150,7 @@ fun StatusesContent(
                     ) { group ->
                         EmployeeStatusesItem(
                             group = group,
+                            showPayment = state.showPayment,
                             onToggleExpand = {
                                 onIntent(StatusesIntent.OnEmployeeExpandToggle(group.employeeId))
                             }

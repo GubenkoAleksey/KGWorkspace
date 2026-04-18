@@ -8,6 +8,7 @@ fun NavGraphBuilder.homeGraph(
     onNavigateToStatus: () -> Unit,
     onNavigateToAdmin: () -> Unit,
     onNavigateToAuth: () -> Unit,
+    onNavigateToMyStatuses: (String) -> Unit,
     onThemeToggle: () -> Unit
 ) {
     composable<HomeRoute> {
@@ -15,6 +16,7 @@ fun NavGraphBuilder.homeGraph(
             onNavigateToStatus = onNavigateToStatus,
             onNavigateToAdmin = onNavigateToAdmin,
             onNavigateToAuth = onNavigateToAuth,
+            onNavigateToMyStatuses = onNavigateToMyStatuses,
             onThemeToggle = onThemeToggle
         )
     }

@@ -20,13 +20,15 @@ data class StatusesState(
     val filterEmployeeIds: Set<String> = emptySet(),
     val filterStatusTypes: Set<String> = emptySet(),
     val availableStatusTypes: List<StatusTypeUi> = emptyList(),
-    val isFilterSheetOpen: Boolean = false
+    val isFilterSheetOpen: Boolean = false,
+    val showPayment: Boolean = true
 ) : ViewState
 
 data class EmployeeStatusesGroup(
     val employeeId: String,
     val employeeName: String,
     val statuses: List<EmployeeStatusUi>,
+    val hourlyRates: Map<String, Double> = emptyMap(),
     val isExpanded: Boolean = false
 )
 

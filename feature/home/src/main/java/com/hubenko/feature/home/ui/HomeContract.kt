@@ -14,6 +14,7 @@ sealed interface HomeIntent : ViewIntent {
     data object LoadAdminStatus : HomeIntent
     data object OnAdminPanelClick : HomeIntent
     data object OnSendStatusClick : HomeIntent
+    data object OnMyStatusesClick : HomeIntent
     data object OnLogoutClick : HomeIntent
 }
 
@@ -22,4 +23,5 @@ sealed interface HomeEffect : ViewSideEffect {
     data object NavigateToStatus : HomeEffect
     data object NavigateToAdmin : HomeEffect
     data object NavigateToAuth : HomeEffect
+    data class NavigateToMyStatuses(val employeeId: String) : HomeEffect
 }

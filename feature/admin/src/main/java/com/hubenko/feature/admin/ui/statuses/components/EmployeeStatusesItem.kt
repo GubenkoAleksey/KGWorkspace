@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hubenko.core.presentation.theme.CoreTheme
@@ -34,8 +35,17 @@ import com.hubenko.feature.admin.ui.statuses.EmployeeStatusesGroup
 fun EmployeeStatusesItem(
     group: EmployeeStatusesGroup,
     onToggleExpand: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showPayment: Boolean = true
 ) {
+    val now = System.currentTimeMillis()
+    val totalAmount = if (showPayment) group.statuses.sumOf { status ->
+        val rate = group.hourlyRates[status.status] ?: 0.0
+        val durationHours = ((status.endTime ?: now) - status.startTime) / 3_600_000.0
+        rate * durationHours
+    } else 0.0
+    val isApproximate = showPayment && group.statuses.any { it.endTime == null }
+
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
@@ -84,9 +94,42 @@ fun EmployeeStatusesItem(
                 Column {
                     Spacer(modifier = Modifier.height(12.dp))
                     group.statuses.forEach { status ->
-                        StatusItem(status = status, showEmployeeName = false)
+                        StatusItem(
+                            status = status,
+                            showEmployeeName = false,
+                            hourlyRateValue = if (showPayment) group.hourlyRates[status.status] else null
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
                     }
+                }
+            }
+
+            if (totalAmount > 0.0) {
+                Spacer(modifier = Modifier.height(8.dp))
+                androidx.compose.material3.HorizontalDivider()
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Всього за період:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.secondaryText()
+                    )
+                    Text(
+                        text = "${"%.2f".format(totalAmount)} грн${if (isApproximate) "*" else ""}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+                if (isApproximate) {
+                    Text(
+                        text = "* містить незавершені статуси",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.secondaryText()
+                    )
                 }
             }
         }

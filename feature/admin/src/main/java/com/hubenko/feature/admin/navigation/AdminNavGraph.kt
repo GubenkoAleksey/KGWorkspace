@@ -31,6 +31,6 @@ fun NavGraphBuilder.adminGraph(
         ReminderSettingsScreen(onBack = onNavigateBack)
     }
     composable<EmployeeStatusesRoute> {
-        StatusesScreen()
+        StatusesScreen(onNavigateBack = onNavigateBack)
     }
 }

@@ -13,6 +13,7 @@ import com.hubenko.feature.admin.ui.model.toEmployeeStatusUi
 import com.hubenko.feature.admin.ui.model.StatusTypeUi
 import com.hubenko.feature.admin.ui.model.toStatusTypeUi
 import com.hubenko.domain.repository.StatusRepository
+import com.hubenko.domain.usecase.GetAllEmployeesUseCase
 import com.hubenko.domain.usecase.GetAllStatusesUseCase
 import com.hubenko.domain.usecase.GetStatusTypesUseCase
 import com.hubenko.domain.util.onFailure
@@ -32,20 +33,39 @@ import kotlinx.coroutines.CancellationException
 class StatusesViewModel @Inject constructor(
     private val application: Application,
     private val getAllStatusesUseCase: GetAllStatusesUseCase,
+    private val getAllEmployeesUseCase: GetAllEmployeesUseCase,
     private val statusRepository: StatusRepository,
     private val getStatusTypesUseCase: GetStatusTypesUseCase,
     savedStateHandle: SavedStateHandle
 ) : BaseViewModel<StatusesState, StatusesIntent, StatusesEffect>(
     initialState = run {
         val employeeId = savedStateHandle.get<String>("employeeId")
-        if (employeeId != null) StatusesState(filterEmployeeIds = setOf(employeeId))
-        else StatusesState()
+        val showPayment = savedStateHandle.get<Boolean>("showPayment") ?: true
+        if (employeeId != null) StatusesState(filterEmployeeIds = setOf(employeeId), showPayment = showPayment)
+        else StatusesState(showPayment = showPayment)
     }
 ) {
+
+    // employeeId → Map<statusType, hourlyRateValue>
+    private var employeeHourlyRatesMap: Map<String, Map<String, Double>> = emptyMap()
 
     init {
         onIntent(StatusesIntent.LoadData)
         loadStatusTypes()
+        loadEmployeeHourlyRates()
+    }
+
+    private fun loadEmployeeHourlyRates() {
+        viewModelScope.launch {
+            getAllEmployeesUseCase().collectLatest { employees ->
+                employeeHourlyRatesMap = employees.associate { employee ->
+                    employee.id to employee.hourlyRates.associate { it.statusType to it.hourlyRateValue }
+                }
+                updateState {
+                    copy(employeeGroups = buildGroups(statuses, filterDateFrom, filterDateTo, filterEmployeeIds, filterStatusTypes))
+                }
+            }
+        }
     }
 
     private fun loadStatusTypes() {
@@ -82,10 +102,12 @@ class StatusesViewModel @Inject constructor(
         viewModelScope.launch {
             getAllStatusesUseCase().collectLatest { list ->
                 val sortedStatuses = list.map { it.toEmployeeStatusUi() }.sortedByDescending { it.startTime }
+                val currentState = viewState.value
+                val groups = buildGroups(sortedStatuses, currentState.filterDateFrom, currentState.filterDateTo)
                 updateState {
                     copy(
                         statuses = sortedStatuses,
-                        employeeGroups = buildGroups(sortedStatuses, filterDateFrom, filterDateTo),
+                        employeeGroups = groups,
                         isLoading = false
                     )
                 }
@@ -119,6 +141,7 @@ class StatusesViewModel @Inject constructor(
                     statuses = statuses
                         .sortedByDescending { it.startTime }
                         .map { it.copy(statusLabel = labelByType[it.status] ?: it.status) },
+                    hourlyRates = employeeHourlyRatesMap[employeeId] ?: emptyMap(),
                     isExpanded = expandedByEmployeeId[employeeId] ?: false
                 )
             }
@@ -177,7 +200,7 @@ class StatusesViewModel @Inject constructor(
                 sendEffect(StatusesEffect.ShareFile(uri))
             } catch (e: CancellationException) {
                 throw e
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 sendEffect(StatusesEffect.ShowSnackbar(UiText.StringResource(R.string.error_export_failed)))
             }
         }

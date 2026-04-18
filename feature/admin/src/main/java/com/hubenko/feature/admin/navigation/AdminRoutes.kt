@@ -12,4 +12,4 @@ data object RegisterEmployeeRoute
 data class ReminderSettingsRoute(val employeeId: String)
 
 @Serializable
-data class EmployeeStatusesRoute(val employeeId: String)
+data class EmployeeStatusesRoute(val employeeId: String, val showPayment: Boolean = true)

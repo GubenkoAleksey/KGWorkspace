@@ -26,7 +26,8 @@ fun HomeScreen(
     onThemeToggle: () -> Unit,
     onNavigateToStatus: () -> Unit,
     onNavigateToAdmin: () -> Unit,
-    onNavigateToAuth: () -> Unit
+    onNavigateToAuth: () -> Unit,
+    onNavigateToMyStatuses: (String) -> Unit
 ) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -56,6 +57,7 @@ fun HomeScreen(
             is HomeEffect.NavigateToStatus -> onNavigateToStatus()
             is HomeEffect.NavigateToAdmin -> onNavigateToAdmin()
             is HomeEffect.NavigateToAuth -> onNavigateToAuth()
+            is HomeEffect.NavigateToMyStatuses -> onNavigateToMyStatuses(effect.employeeId)
             is HomeEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.message.asString(context))
         }
     }
@@ -66,4 +68,5 @@ fun HomeScreen(
         onThemeToggle = onThemeToggle,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     )
+
 }

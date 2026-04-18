@@ -65,6 +65,9 @@ class MainActivity : ComponentActivity() {
                                     popUpTo(HomeRoute) { inclusive = true }
                                 }
                             },
+                            onNavigateToMyStatuses = { employeeId ->
+                                navController.navigate(com.hubenko.feature.admin.navigation.EmployeeStatusesRoute(employeeId, showPayment = false))
+                            },
                             onThemeToggle = viewModel::toggleTheme
                         )
 

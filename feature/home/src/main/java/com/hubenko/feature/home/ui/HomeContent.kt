@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AdminPanelSettings
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -79,6 +80,13 @@ fun HomeContent(
                     subtitle = "Оновіть свій поточний стан роботи",
                     leadingIcon = Icons.AutoMirrored.Filled.Send,
                     onClick = { onIntent(HomeIntent.OnSendStatusClick) }
+                )
+
+                ProjectItem(
+                    title = "Мої статуси",
+                    subtitle = "Перегляд власної історії статусів",
+                    leadingIcon = Icons.Default.History,
+                    onClick = { onIntent(HomeIntent.OnMyStatusesClick) }
                 )
 
                 if (state.isAdmin) {

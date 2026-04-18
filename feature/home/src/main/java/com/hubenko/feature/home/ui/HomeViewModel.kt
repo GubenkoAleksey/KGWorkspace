@@ -5,6 +5,7 @@ import com.hubenko.core.presentation.BaseViewModel
 import com.hubenko.core.presentation.UiText
 import com.hubenko.feature.home.R
 import com.hubenko.domain.usecase.CheckAdminStatusUseCase
+import com.hubenko.domain.usecase.GetCurrentUserIdUseCase
 import com.hubenko.domain.usecase.LogoutUseCase
 import com.hubenko.domain.usecase.SyncMyRemindersUseCase
 import com.hubenko.domain.util.onFailure
@@ -18,7 +19,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val checkAdminStatusUseCase: CheckAdminStatusUseCase,
     private val logoutUseCase: LogoutUseCase,
-    private val syncMyRemindersUseCase: SyncMyRemindersUseCase
+    private val syncMyRemindersUseCase: SyncMyRemindersUseCase,
+    private val getCurrentUserIdUseCase: GetCurrentUserIdUseCase
 ) : BaseViewModel<HomeState, HomeIntent, HomeEffect>(HomeState()) {
 
     init {
@@ -31,6 +33,7 @@ class HomeViewModel @Inject constructor(
             is HomeIntent.LoadAdminStatus -> loadAdminStatus()
             is HomeIntent.OnAdminPanelClick -> sendEffect(HomeEffect.NavigateToAdmin)
             is HomeIntent.OnSendStatusClick -> sendEffect(HomeEffect.NavigateToStatus)
+            is HomeIntent.OnMyStatusesClick -> navigateToMyStatuses()
             is HomeIntent.OnLogoutClick -> {
                 logoutUseCase()
                 sendEffect(HomeEffect.NavigateToAuth)
@@ -50,6 +53,11 @@ class HomeViewModel @Inject constructor(
                     sendEffect(HomeEffect.ShowSnackbar(UiText.StringResource(R.string.error_check_status_failed)))
                 }
         }
+    }
+
+    private fun navigateToMyStatuses() {
+        val userId = getCurrentUserIdUseCase() ?: return
+        sendEffect(HomeEffect.NavigateToMyStatuses(userId))
     }
 
     private fun syncReminders() {

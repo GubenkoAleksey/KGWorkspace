@@ -14,7 +14,8 @@ import com.hubenko.core.presentation.asString
 
 @Composable
 fun StatusesScreen(
-    viewModel: StatusesViewModel = hiltViewModel()
+    viewModel: StatusesViewModel = hiltViewModel(),
+    onNavigateBack: () -> Unit = {}
 ) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -37,6 +38,7 @@ fun StatusesScreen(
     StatusesContent(
         state = state,
         onIntent = viewModel::onIntent,
+        onNavigateBack = onNavigateBack,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     )
 }
