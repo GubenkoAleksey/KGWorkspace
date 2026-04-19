@@ -25,12 +25,17 @@ fun StatusesScreen(
         when (effect) {
             is StatusesEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.message.asString(context))
             is StatusesEffect.ShareFile -> {
+                val mimeType = when (effect.format) {
+                    ExportFormat.CSV -> "text/csv"
+                    ExportFormat.XLSX -> "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    ExportFormat.PDF -> "application/pdf"
+                }
                 val intent = Intent(Intent.ACTION_SEND).apply {
-                    type = "text/csv"
+                    type = mimeType
                     putExtra(Intent.EXTRA_STREAM, effect.uri)
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
-                context.startActivity(Intent.createChooser(intent, "Поширити CSV"))
+                context.startActivity(Intent.createChooser(intent, "Поширити файл"))
             }
         }
     }

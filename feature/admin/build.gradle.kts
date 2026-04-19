@@ -11,7 +11,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        minSdk = 24
+        minSdk = 26
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -47,6 +47,13 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
+
+    implementation(libs.apache.poi.ooxml) {
+        exclude(group = "org.apache.xmlbeans")
+        exclude(group = "com.github.virtuald")
+        exclude(group = "org.slf4j")
+    }
+    implementation("org.apache.xmlbeans:xmlbeans:5.1.1")
 
     testImplementation(libs.junit5.api)
     testRuntimeOnly(libs.junit5.engine)

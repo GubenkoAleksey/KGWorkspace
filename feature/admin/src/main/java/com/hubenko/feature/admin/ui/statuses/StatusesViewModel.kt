@@ -1,6 +1,9 @@
 package com.hubenko.feature.admin.ui.statuses
 
 import android.app.Application
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.pdf.PdfDocument
 import androidx.core.content.FileProvider
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -23,7 +26,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -88,7 +93,7 @@ class StatusesViewModel @Inject constructor(
     override fun onIntent(intent: StatusesIntent) {
         when (intent) {
             is StatusesIntent.LoadData -> loadData()
-            is StatusesIntent.OnExportClick -> exportStatusesToCsv()
+            is StatusesIntent.OnExportClick -> updateState { copy(isExportFormatDialogOpen = true) }
             is StatusesIntent.OnDeleteAllClick -> updateState { copy(isDeleteDialogOpen = true) }
             is StatusesIntent.OnConfirmDelete -> deleteAllStatuses()
             is StatusesIntent.OnDismissDialog -> updateState { copy(isDeleteDialogOpen = false) }
@@ -103,6 +108,11 @@ class StatusesViewModel @Inject constructor(
             is StatusesIntent.OnStatusDeleteClick -> updateState { copy(deletingStatusId = intent.statusId) }
             is StatusesIntent.OnDismissDeleteStatus -> updateState { copy(deletingStatusId = null) }
             is StatusesIntent.OnConfirmDeleteStatus -> deleteStatus()
+            is StatusesIntent.OnExportFormatSelected -> {
+                updateState { copy(isExportFormatDialogOpen = false) }
+                exportStatuses(intent.format)
+            }
+            is StatusesIntent.OnDismissExportDialog -> updateState { copy(isExportFormatDialogOpen = false) }
         }
     }
 
@@ -197,17 +207,20 @@ class StatusesViewModel @Inject constructor(
         }
     }
 
-    private fun exportStatusesToCsv() {
+    private fun exportStatuses(format: ExportFormat) {
         val groups = viewState.value.employeeGroups
         if (groups.all { it.statuses.isEmpty() }) return
         viewModelScope.launch {
             try {
                 val uri = withContext(Dispatchers.IO) {
-                    val csvString = generateCsvContent(groups)
-                    val file = saveCsvToFile(csvString)
+                    val file = when (format) {
+                        ExportFormat.CSV -> saveCsvToFile(generateCsvContent(groups))
+                        ExportFormat.XLSX -> generateXlsxFile(groups)
+                        ExportFormat.PDF -> generatePdfFile(groups)
+                    }
                     FileProvider.getUriForFile(application, "com.hubenko.firestoreapp.fileprovider", file)
                 }
-                sendEffect(StatusesEffect.ShareFile(uri))
+                sendEffect(StatusesEffect.ShareFile(uri, format))
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
@@ -259,6 +272,142 @@ class StatusesViewModel @Inject constructor(
         val dateString = SimpleDateFormat("dd_MM_yyyy", Locale.getDefault()).format(Date())
         val file = File(application.cacheDir, "status_$dateString.csv")
         file.writeText(content)
+        return file
+    }
+
+    private fun generateXlsxFile(groups: List<EmployeeStatusesGroup>): File {
+        val sdf = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
+        val workbook = XSSFWorkbook()
+        val sheet = workbook.createSheet("Статуси")
+
+        val headerStyle = workbook.createCellStyle().apply {
+            setFont(workbook.createFont().apply { bold = true })
+        }
+
+        var rowIndex = 0
+        groups.forEach { group ->
+            sheet.createRow(rowIndex++).createCell(0).apply {
+                setCellValue(group.statuses.firstOrNull()?.employeeFullName ?: group.employeeName)
+                cellStyle = headerStyle
+            }
+            val headerRow = sheet.createRow(rowIndex++)
+            listOf("Статус", "Початок", "Кінець", "Ставка (грн/год)", "Сума (грн)").forEachIndexed { i, title ->
+                headerRow.createCell(i).apply { setCellValue(title); cellStyle = headerStyle }
+            }
+
+            group.statuses.forEach { status ->
+                val row = sheet.createRow(rowIndex++)
+                val rate = group.hourlyRates[status.status] ?: 0.0
+                val amount = calculateBilledAmount(status.startTime, status.endTime, rate)
+                val isApproximate = status.endTime == null
+                row.createCell(0).setCellValue(status.statusLabel)
+                row.createCell(1).setCellValue(sdf.format(Date(status.startTime)))
+                row.createCell(2).setCellValue(status.endTime?.let { sdf.format(Date(it)) } ?: "-")
+                if (rate > 0.0) {
+                    row.createCell(3).setCellValue(rate)
+                    row.createCell(4).setCellValue(
+                        "${"%.2f".format(amount)}${if (isApproximate) " (орієнтовно)" else ""}"
+                    )
+                }
+            }
+
+            val totalAmount = group.statuses.fold(0.0) { acc, s ->
+                acc + calculateBilledAmount(s.startTime, s.endTime, group.hourlyRates[s.status] ?: 0.0)
+            }
+            if (totalAmount > 0.0) {
+                val isApprox = group.statuses.any { it.endTime == null }
+                sheet.createRow(rowIndex++).also { row ->
+                    row.createCell(0).setCellValue("Всього за період:")
+                    row.createCell(4).setCellValue("${"%.2f".format(totalAmount)} грн${if (isApprox) "*" else ""}")
+                }
+                if (group.baseRateValue > 0.0) {
+                    val months = calculateMonths(group.statuses)
+                    val payment = calculatePayment(totalAmount, months, group.baseRateValue)
+                    sheet.createRow(rowIndex++).also { row ->
+                        row.createCell(0).setCellValue("Виплата за період:")
+                        row.createCell(4).setCellValue("${"%.2f".format(payment)} грн")
+                    }
+                }
+            }
+            rowIndex++
+        }
+
+        val dateString = SimpleDateFormat("dd_MM_yyyy", Locale.getDefault()).format(Date())
+        val file = File(application.cacheDir, "status_$dateString.xlsx")
+        FileOutputStream(file).use { workbook.write(it) }
+        workbook.close()
+        return file
+    }
+
+    private fun generatePdfFile(groups: List<EmployeeStatusesGroup>): File {
+        val sdf = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
+        val pageWidth = 595
+        val pageHeight = 842
+        val margin = 40f
+        val lineHeight = 16f
+        val document = PdfDocument()
+
+        val bodyPaint = Paint().apply { textSize = 10f }
+        val boldPaint = Paint().apply { textSize = 10f; isFakeBoldText = true }
+
+        var pageNumber = 1
+        var pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+        var page = document.startPage(pageInfo)
+        var canvas: Canvas = page.canvas
+        var y = margin + lineHeight
+
+        fun newPageIfNeeded() {
+            if (y + lineHeight > pageHeight - margin) {
+                document.finishPage(page)
+                pageNumber++
+                pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+                page = document.startPage(pageInfo)
+                canvas = page.canvas
+                y = margin + lineHeight
+            }
+        }
+
+        fun drawLine(text: String, paint: Paint = bodyPaint, x: Float = margin) {
+            newPageIfNeeded()
+            canvas.drawText(text, x, y, paint)
+            y += lineHeight
+        }
+
+        groups.forEach { group ->
+            drawLine(group.statuses.firstOrNull()?.employeeFullName ?: group.employeeName, boldPaint)
+            drawLine("Статус | Початок | Кінець | Ставка | Сума", boldPaint)
+
+            group.statuses.forEach { status ->
+                val rate = group.hourlyRates[status.status] ?: 0.0
+                val amount = calculateBilledAmount(status.startTime, status.endTime, rate)
+                val isApprox = status.endTime == null
+                val end = status.endTime?.let { sdf.format(Date(it)) } ?: "-"
+                val rateStr = if (rate > 0.0) "%.2f".format(rate) else "-"
+                val amountStr = if (rate > 0.0) "${"%.2f".format(amount)}${if (isApprox) "*" else ""}" else "-"
+                drawLine("${status.statusLabel} | ${sdf.format(Date(status.startTime))} | $end | $rateStr | $amountStr")
+            }
+
+            val totalAmount = group.statuses.fold(0.0) { acc, s ->
+                acc + calculateBilledAmount(s.startTime, s.endTime, group.hourlyRates[s.status] ?: 0.0)
+            }
+            if (totalAmount > 0.0) {
+                val isApprox = group.statuses.any { it.endTime == null }
+                drawLine("Всього за період: ${"%.2f".format(totalAmount)} грн${if (isApprox) "*" else ""}", boldPaint)
+                if (group.baseRateValue > 0.0) {
+                    val months = calculateMonths(group.statuses)
+                    val payment = calculatePayment(totalAmount, months, group.baseRateValue)
+                    drawLine("Виплата за період: ${"%.2f".format(payment)} грн", boldPaint)
+                }
+            }
+            y += lineHeight
+        }
+
+        document.finishPage(page)
+
+        val dateString = SimpleDateFormat("dd_MM_yyyy", Locale.getDefault()).format(Date())
+        val file = File(application.cacheDir, "status_$dateString.pdf")
+        FileOutputStream(file).use { document.writeTo(it) }
+        document.close()
         return file
     }
 

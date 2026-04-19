@@ -9,6 +9,8 @@ import com.hubenko.core.presentation.ViewState
 import com.hubenko.feature.admin.ui.model.EmployeeStatusUi
 import com.hubenko.feature.admin.ui.model.StatusTypeUi
 
+enum class ExportFormat { CSV, XLSX, PDF }
+
 @Stable
 data class StatusesState(
     val statuses: List<EmployeeStatusUi> = emptyList(),
@@ -23,7 +25,8 @@ data class StatusesState(
     val isFilterSheetOpen: Boolean = false,
     val showPayment: Boolean = true,
     val editingStatus: EmployeeStatusUi? = null,
-    val deletingStatusId: String? = null
+    val deletingStatusId: String? = null,
+    val isExportFormatDialogOpen: Boolean = false
 ) : ViewState
 
 data class EmployeeStatusesGroup(
@@ -62,9 +65,11 @@ sealed interface StatusesIntent : ViewIntent {
     data class OnStatusDeleteClick(val statusId: String) : StatusesIntent
     data object OnConfirmDeleteStatus : StatusesIntent
     data object OnDismissDeleteStatus : StatusesIntent
+    data class OnExportFormatSelected(val format: ExportFormat) : StatusesIntent
+    data object OnDismissExportDialog : StatusesIntent
 }
 
 sealed interface StatusesEffect : ViewSideEffect {
     data class ShowSnackbar(val message: UiText) : StatusesEffect
-    data class ShareFile(val uri: Uri) : StatusesEffect
+    data class ShareFile(val uri: Uri, val format: ExportFormat) : StatusesEffect
 }

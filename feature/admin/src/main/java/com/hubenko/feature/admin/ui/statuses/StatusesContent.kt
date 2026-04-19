@@ -43,6 +43,7 @@ import com.hubenko.feature.admin.ui.statuses.components.DeleteStatusDialog
 import com.hubenko.feature.admin.ui.statuses.components.DeleteStatusesDialog
 import com.hubenko.feature.admin.ui.statuses.components.EditStatusDialog
 import com.hubenko.feature.admin.ui.statuses.components.EmployeeStatusesItem
+import com.hubenko.feature.admin.ui.statuses.components.ExportFormatDialog
 import com.hubenko.feature.admin.ui.statuses.components.StatusesFilterSheet
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -162,6 +163,13 @@ fun StatusesContent(
                 }
             }
         }
+    }
+
+    if (state.isExportFormatDialogOpen) {
+        ExportFormatDialog(
+            onFormatSelected = { format -> onIntent(StatusesIntent.OnExportFormatSelected(format)) },
+            onDismiss = { onIntent(StatusesIntent.OnDismissExportDialog) }
+        )
     }
 
     if (state.isDeleteDialogOpen) {
